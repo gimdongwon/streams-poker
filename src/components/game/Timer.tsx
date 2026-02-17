@@ -1,0 +1,50 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+type TimerProps = {
+  seconds: number;
+  maxSeconds: number;
+};
+
+export const Timer = ({ seconds, maxSeconds }: TimerProps) => {
+  const percentage = (seconds / maxSeconds) * 100;
+  const isUrgent = seconds <= 3;
+  const isCritical = seconds <= 1;
+
+  const barColor = isCritical
+    ? "bg-red-600"
+    : isUrgent
+      ? "bg-orange-500"
+      : "bg-green-500";
+
+  const textColor = isCritical
+    ? "text-red-500"
+    : isUrgent
+      ? "text-orange-400"
+      : "text-white";
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-gray-400 font-medium">남은 시간</span>
+        <motion.span
+          key={seconds}
+          initial={isUrgent ? { scale: 1.3 } : { scale: 1 }}
+          animate={{ scale: 1 }}
+          className={`text-lg font-bold tabular-nums ${textColor}`}
+        >
+          {seconds}초
+        </motion.span>
+      </div>
+      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+        <motion.div
+          className={`h-full rounded-full ${barColor}`}
+          initial={{ width: "100%" }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        />
+      </div>
+    </div>
+  );
+};

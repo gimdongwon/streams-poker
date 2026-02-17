@@ -1,5 +1,5 @@
 {
-  "name": "streams-poker-temp",
+  "name": "streams-poker",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "framer-motion": "^12",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zustand": "^5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
