@@ -21,6 +21,7 @@ type GameStore = {
   combinations: ScoredCombination[];
 
   startGame: () => void;
+  startGameWithDeck: (deck: Card[]) => void;
   placeCard: (slotIndex: SlotIndex) => void;
   autoPlaceCard: () => void;
   nextRound: () => void;
@@ -66,6 +67,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     get().startTimer();
   },
 
+  startGameWithDeck: (deck: Card[]) => {
+    set({
+      phase: "playing",
+      currentRound: 1,
+      currentCard: deck[0],
+      slots: createEmptySlots(),
+      deck,
+      timer: TIMER_SECONDS,
+      score: 0,
+      combinations: [],
+    });
+    get().startTimer();
+  },
+
   placeCard: (slotIndex: SlotIndex) => {
     const { currentCard, slots, phase } = get();
     if (phase !== "playing" || !currentCard) return;
@@ -77,10 +92,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     get().stopTimer();
     set({ slots: newSlots, currentCard: null, phase: "round_end" });
-
-    setTimeout(() => {
-      get().nextRound();
-    }, 500);
   },
 
   autoPlaceCard: () => {
@@ -96,7 +107,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   nextRound: () => {
-    const { currentRound, deck } = get();
+    const { currentRound, deck, phase } = get();
+
+    if (phase !== "round_end") return;
 
     if (currentRound >= TOTAL_ROUNDS) {
       get().endGame();

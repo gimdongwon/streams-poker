@@ -11,10 +11,6 @@ type SlotCard = {
 const getRankValue = (rank: string): number =>
   RANK_VALUES[rank as keyof typeof RANK_VALUES];
 
-/**
- * 스트레이트 판정 (일반): 연속 5개 값이 가능한 window가 있는지
- * - 중복 값이 있으면 하나의 슬롯을 차지하므로 조커로도 부족할 수 있음
- */
 const canFormStraightWithJokers = (
   values: number[],
   jokerCount: number
@@ -23,8 +19,6 @@ const canFormStraightWithJokers = (
 
   const valueSet = new Set(values);
 
-  // 가능한 모든 5연속 윈도우 탐색 (2~6, 3~7, ..., 9~13)
-  // A=1은 백스트레이트(1-5)와 마운틴(10-A)에서 별도 처리
   for (let start = 2; start <= 9; start++) {
     let missing = 0;
     for (let v = start; v < start + 5; v++) {
@@ -36,9 +30,6 @@ const canFormStraightWithJokers = (
   return false;
 };
 
-/**
- * 마운틴 판정: A(1), 10, J(11), Q(12), K(13)
- */
 const canFormMountainWithJokers = (
   values: number[],
   jokerCount: number
@@ -49,9 +40,6 @@ const canFormMountainWithJokers = (
   return missing <= jokerCount;
 };
 
-/**
- * 백스트레이트 판정: A(1), 2, 3, 4, 5
- */
 const canFormBackStraightWithJokers = (
   values: number[],
   jokerCount: number
@@ -62,9 +50,6 @@ const canFormBackStraightWithJokers = (
   return missing <= jokerCount;
 };
 
-/**
- * 연속 슬롯 그룹 추출: length개의 연속된 슬롯에 모두 카드가 있는 그룹
- */
 const findConsecutiveGroups = (
   slots: Slot[],
   length: number
@@ -146,7 +131,6 @@ const findStraights = (
       availableCards.length <= 1 ||
       availableCards.every((c) => c.suit === availableCards[0].suit);
 
-    // ── 같은 문양 계열 (스트레이트 플러시) ──
     if (effectivelySameSuit) {
       if (canFormMountainWithJokers(values, jokerCount)) {
         results.push({
@@ -180,7 +164,6 @@ const findStraights = (
       }
     }
 
-    // ── 문양 무관 계열 ──
     if (canFormMountainWithJokers(values, jokerCount)) {
       results.push({
         ...COMBINATION_TABLE.find((c) => c.type === "mountain")!,
@@ -211,133 +194,118 @@ const findStraights = (
   return results;
 };
 
-// ─── 플러시: 위치 무관, 같은 문양 5장 ───
+// ─── 플러시: 인접 5칸, 같은 문양 (조커 포함) ───
 
 const findFlushes = (
   slots: Slot[],
   usedCardIds: Set<string>
 ): ScoredCombination[] => {
   const results: ScoredCombination[] = [];
-  const normalSlotCards = getNormalSlotCards(slots).filter(
-    (sc) => !usedCardIds.has(sc.card.id)
-  );
-  const jokerSlotIndices = getJokerSlotIndices(slots).filter(
-    (idx) => !usedCardIds.has(slots[idx].card!.id)
-  );
+  const groups = findConsecutiveGroups(slots, 5);
 
-  const suitGroups: Record<string, SlotCard[]> = {};
-  for (const sc of normalSlotCards) {
-    if (!suitGroups[sc.card.suit]) suitGroups[sc.card.suit] = [];
-    suitGroups[sc.card.suit].push(sc);
-  }
+  for (const group of groups) {
+    const availableCards = group.cards.filter((c) => !usedCardIds.has(c.id));
+    const availableJokers = group.jokerIndices.filter(
+      (idx) => !usedCardIds.has(slots[idx].card!.id)
+    );
 
-  for (const [, cards] of Object.entries(suitGroups)) {
-    const needed = 5 - cards.length;
-    if (needed >= 0 && needed <= jokerSlotIndices.length) {
-      const flushCards: Card[] = cards.slice(0, 5).map((sc) => sc.card);
-      const flushSlotIndices = cards.slice(0, 5).map((sc) => sc.slotIndex);
+    if (availableCards.length + availableJokers.length < 5) continue;
 
-      const jokersToUse = jokerSlotIndices.slice(0, needed);
-      for (const ji of jokersToUse) {
-        flushCards.push(slots[ji].card!);
-        flushSlotIndices.push(ji);
-      }
+    const suits = new Set(availableCards.map((c) => c.suit));
+    if (suits.size > 1) continue;
 
-      if (flushCards.length >= 5) {
-        results.push({
-          ...COMBINATION_TABLE.find((c) => c.type === "flush")!,
-          cards: flushCards.slice(0, 5),
-          slotIndices: flushSlotIndices.slice(0, 5),
-        });
-      }
-    }
+    const allCards = group.slotIndices
+      .map((idx) => slots[idx].card!)
+      .filter((c) => !usedCardIds.has(c.id));
+
+    results.push({
+      ...COMBINATION_TABLE.find((c) => c.type === "flush")!,
+      cards: allCards,
+      slotIndices: group.slotIndices,
+    });
   }
 
   return results;
 };
 
-// ─── 숫자 기반 조합: 위치 무관 ───
+// ─── 숫자 기반 조합: 인접 슬롯만 허용 (조커 포함 가능) ───
 
 const findNumberCombinations = (
   slots: Slot[],
   usedCardIds: Set<string>
 ): ScoredCombination[] => {
   const results: ScoredCombination[] = [];
-  const normalSlotCards = getNormalSlotCards(slots).filter(
-    (sc) => !usedCardIds.has(sc.card.id)
-  );
-  const jokerSlotIndices = getJokerSlotIndices(slots).filter(
-    (idx) => !usedCardIds.has(slots[idx].card!.id)
-  );
-
-  const rankGroups: Record<string, SlotCard[]> = {};
-  for (const sc of normalSlotCards) {
-    if (!rankGroups[sc.card.rank]) rankGroups[sc.card.rank] = [];
-    rankGroups[sc.card.rank].push(sc);
-  }
-
-  const rankEntries = Object.entries(rankGroups).sort(
-    (a, b) => b[1].length - a[1].length
-  );
-
-  let availableJokers = jokerSlotIndices.length;
   const localUsed = new Set<string>();
 
-  // 포카드 (같은 숫자 4장)
-  for (const [, cards] of rankEntries) {
-    const available = cards.filter((sc) => !localUsed.has(sc.card.id));
-    const needed = 4 - available.length;
-    if (needed >= 0 && needed <= availableJokers && available.length >= 2) {
-      const comboCards: Card[] = available.slice(0, 4).map((sc) => sc.card);
-      const comboSlots = available.slice(0, 4).map((sc) => sc.slotIndex);
+  const isAvailable = (slot: Slot): boolean => {
+    if (!slot.card) return false;
+    return !usedCardIds.has(slot.card.id) && !localUsed.has(slot.card.id);
+  };
 
-      const jokersNeeded = Math.max(0, 4 - comboCards.length);
-      for (let j = 0; j < jokersNeeded && availableJokers > 0; j++) {
-        const ji =
-          jokerSlotIndices[jokerSlotIndices.length - availableJokers];
-        comboCards.push(slots[ji].card!);
-        comboSlots.push(ji);
-        availableJokers--;
-      }
+  const checkAdjacentNOfAKind = (
+    startIdx: number,
+    size: number
+  ): { cards: Card[]; slotIndices: number[] } | null => {
+    const normalCards: NormalCard[] = [];
+    const allCards: Card[] = [];
+    const slotIndices: number[] = [];
 
-      if (comboCards.length === 4) {
-        results.push({
-          ...COMBINATION_TABLE.find((c) => c.type === "four_of_a_kind")!,
-          cards: comboCards,
-          slotIndices: comboSlots,
-        });
-        comboCards.forEach((c) => localUsed.add(c.id));
+    for (let i = startIdx; i < startIdx + size; i++) {
+      const slot = slots[i];
+      if (!isAvailable(slot)) return null;
+
+      allCards.push(slot.card!);
+      slotIndices.push(i);
+
+      if (isNormal(slot.card!)) {
+        normalCards.push(slot.card as NormalCard);
       }
     }
+
+    const ranks = new Set(normalCards.map((c) => c.rank));
+    if (ranks.size > 1) return null;
+
+    return { cards: allCards, slotIndices };
+  };
+
+  // 포카드: 인접 4장이 같은 숫자 (조커 포함)
+  for (let i = 0; i <= slots.length - 4; i++) {
+    const match = checkAdjacentNOfAKind(i, 4);
+    if (!match) continue;
+
+    results.push({
+      ...COMBINATION_TABLE.find((c) => c.type === "four_of_a_kind")!,
+      cards: match.cards,
+      slotIndices: match.slotIndices,
+    });
+    match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 트리플 (같은 숫자 3장)
-  for (const [, cards] of rankEntries) {
-    const available = cards.filter((sc) => !localUsed.has(sc.card.id));
-    if (available.length >= 3) {
-      const tripleCards = available.slice(0, 3);
-      results.push({
-        ...COMBINATION_TABLE.find((c) => c.type === "triple")!,
-        cards: tripleCards.map((sc) => sc.card),
-        slotIndices: tripleCards.map((sc) => sc.slotIndex),
-      });
-      tripleCards.forEach((sc) => localUsed.add(sc.card.id));
-    }
+  // 트리플: 인접 3장이 같은 숫자 (조커 포함)
+  for (let i = 0; i <= slots.length - 3; i++) {
+    const match = checkAdjacentNOfAKind(i, 3);
+    if (!match) continue;
+
+    results.push({
+      ...COMBINATION_TABLE.find((c) => c.type === "triple")!,
+      cards: match.cards,
+      slotIndices: match.slotIndices,
+    });
+    match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 페어 (같은 숫자 2장)
+  // 페어: 인접 2장이 같은 숫자 (조커 포함)
   const pairs: ScoredCombination[] = [];
-  for (const [, cards] of rankEntries) {
-    const available = cards.filter((sc) => !localUsed.has(sc.card.id));
-    if (available.length >= 2) {
-      const pairCards = available.slice(0, 2);
-      pairs.push({
-        ...COMBINATION_TABLE.find((c) => c.type === "one_pair")!,
-        cards: pairCards.map((sc) => sc.card),
-        slotIndices: pairCards.map((sc) => sc.slotIndex),
-      });
-      pairCards.forEach((sc) => localUsed.add(sc.card.id));
-    }
+  for (let i = 0; i <= slots.length - 2; i++) {
+    const match = checkAdjacentNOfAKind(i, 2);
+    if (!match) continue;
+
+    pairs.push({
+      ...COMBINATION_TABLE.find((c) => c.type === "one_pair")!,
+      cards: match.cards,
+      slotIndices: match.slotIndices,
+    });
+    match.cards.forEach((c) => localUsed.add(c.id));
   }
 
   // 투페어 업그레이드
@@ -356,7 +324,7 @@ const findNumberCombinations = (
     results.push(...pairs);
   }
 
-  // 풀하우스 업그레이드: 트리플 + 페어
+  // 풀하우스 업그레이드: 인접 트리플 + 인접 페어
   const triples = results.filter((r) => r.type === "triple");
   const singlePairs = results.filter((r) => r.type === "one_pair");
   const twoPairs = results.filter((r) => r.type === "two_pair");
@@ -378,7 +346,6 @@ const findNumberCombinations = (
     );
     filteredResults.unshift(fullHouse);
 
-    // 투페어에서 1페어를 풀하우스에 쓰고 남은 1페어 복원
     if (twoPairs.length > 0 && singlePairs.length === 0) {
       const remaining = twoPairs[0].cards.slice(2);
       const remainingSlots = twoPairs[0].slotIndices.slice(2);
@@ -397,24 +364,22 @@ const findNumberCombinations = (
   return results;
 };
 
-// ─── 헬퍼: 조합 리스트 총점 ───
+// ─── 총점 계산 헬퍼 ───
 
 const sumScore = (combos: ScoredCombination[]): number =>
   combos.reduce((t, c) => t + c.score, 0);
 
-// ─── 메인 평가 함수 ───
-// 스트레이트는 슬롯 순서 기반이므로 항상 먼저 평가.
-// 이후 플러시 vs 숫자 조합은 두 가지 순서를 모두 시도하여
-// 총점이 더 높은 쪽을 채택한다. (조커 배분 최적화)
+// ─── 주어진 스트레이트 후보로 전체 평가 수행 ───
 
-export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
+const evaluateWithStraightCandidates = (
+  slots: Slot[],
+  candidateStraights: ScoredCombination[]
+): ScoredCombination[] => {
   const baseUsed = new Set<string>();
   const baseCombos: ScoredCombination[] = [];
 
-  // ── 1단계: 스트레이트 계열 (연속 슬롯, 항상 먼저) ──
-  const straightCombos = findStraights(slots, baseUsed);
-
-  const straightFlushes = straightCombos.filter(
+  // 스트레이트 플러시 우선
+  const straightFlushes = candidateStraights.filter(
     (c) =>
       c.type === "royal_straight_flush" ||
       c.type === "back_straight_flush" ||
@@ -429,7 +394,7 @@ export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
     best.cards.forEach((c) => baseUsed.add(c.id));
     hasStraightFlush = true;
   } else {
-    const plainStraights = straightCombos.filter(
+    const plainStraights = candidateStraights.filter(
       (c) =>
         c.type === "mountain" ||
         c.type === "back_straight" ||
@@ -442,13 +407,12 @@ export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
     }
   }
 
-  // 스트레이트 플러시가 있으면 플러시/숫자 조합만 추가
   if (hasStraightFlush) {
     const numberCombos = findNumberCombinations(slots, baseUsed);
     return [...baseCombos, ...numberCombos];
   }
 
-  // ── 2단계: 플러시 vs 숫자 조합 최적화 ──
+  // 플러시 vs 숫자 조합 최적화 (두 순서 모두 시도)
   // 옵션 A: 플러시 먼저 → 숫자 조합
   const usedA = new Set(baseUsed);
   const flushA = findFlushes(slots, usedA);
@@ -458,8 +422,7 @@ export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
     combosA.push(flushA[0]);
     flushA[0].cards.forEach((c) => usedA.add(c.id));
   }
-  const numberA = findNumberCombinations(slots, usedA);
-  combosA.push(...numberA);
+  combosA.push(...findNumberCombinations(slots, usedA));
   const scoreA = sumScore(combosA);
 
   // 옵션 B: 숫자 조합 먼저 → 플러시
@@ -474,14 +437,64 @@ export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
   }
   const scoreB = sumScore(combosB);
 
-  // 더 높은 총점 옵션 채택
   const bestOption = scoreA >= scoreB ? combosA : combosB;
 
   return [...baseCombos, ...bestOption];
+};
+
+// ─── 메인 평가 함수 ───
+// 조커 배분을 최적화하기 위해 3가지 전략을 시도하고
+// 총점이 가장 높은 전략을 채택한다.
+//   전략1: 최고 스트레이트 사용 (조커 포함 가능)
+//   전략2: 조커 미사용 스트레이트만 허용 (조커를 플러시/숫자 조합에 투입)
+//   전략3: 스트레이트 없이 플러시/숫자 조합만 (전체 카드 활용)
+
+export const evaluateSlots = (slots: Slot[]): ScoredCombination[] => {
+  const allStraights = findStraights(slots, new Set());
+
+  // 전략 1: 최고 스트레이트 사용 (조커 포함 가능) → 나머지 플러시/숫자
+  const result1 = evaluateWithStraightCandidates(slots, allStraights);
+
+  // 전략 2: 조커 미포함 스트레이트만 → 조커를 플러시/숫자에 활용
+  const nonJokerStraights = allStraights.filter(
+    (combo) => !combo.cards.some((c) => isJoker(c))
+  );
+  const result2 = evaluateWithStraightCandidates(slots, nonJokerStraights);
+
+  // 전략 3: 스트레이트 없이 → 모든 카드 플러시/숫자 조합에 활용
+  const result3 = evaluateWithStraightCandidates(slots, []);
+
+  // 최고 총점 전략 채택
+  const strategies = [
+    { result: result1, score: sumScore(result1) },
+    { result: result2, score: sumScore(result2) },
+    { result: result3, score: sumScore(result3) },
+  ];
+
+  return strategies.sort((a, b) => b.score - a.score)[0].result;
 };
 
 export const calculateTotalScore = (
   combinations: ScoredCombination[]
 ): number => {
   return combinations.reduce((total, combo) => total + combo.score, 0);
+};
+
+const TIEBREAKER_RANK: Record<string, number> = {
+  A: 14, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
+  "8": 8, "9": 9, "10": 10, J: 11, Q: 12, K: 13,
+};
+
+export const calculateTiebreaker = (
+  combinations: ScoredCombination[]
+): number => {
+  let value = 0;
+  for (const combo of combinations) {
+    for (const card of combo.cards) {
+      if (isNormal(card)) {
+        value += TIEBREAKER_RANK[card.rank] ?? 0;
+      }
+    }
+  }
+  return value;
 };

@@ -309,13 +309,13 @@ streams-poker/
 | `/` | → `/lobby` 리다이렉트 |
 | `/lobby` | 로비 페이지 (싱글 모드 / 멀티플레이 모드 선택) |
 | `/room/[roomId]` | 멀티플레이 대기방 (플레이어 목록, Ready/Start) |
-| `/game/[roomId]` | 게임 플레이 화면 (싱글: roomId=solo, 멀티: 실제 roomId) |
+| `/game/[roomId]` | 게임 플레이 화면 (싱글: roomId=single, 멀티: 실제 roomId) |
 
 ### 9.2 플로우
 
 ```
 [로비 /lobby]
-  ├── 싱글 모드 → /game/solo (즉시 게임 시작)
+  ├── 싱글 모드 → /game/single (즉시 게임 시작)
   └── 멀티플레이
        ├── 방 만들기 → /room/[생성된roomId] (방장으로 입장)
        └── 방 참여하기 → 코드 입력 → /room/[roomId] (참가자로 입장)

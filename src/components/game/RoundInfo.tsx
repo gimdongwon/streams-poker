@@ -8,13 +8,13 @@ type RoundInfoProps = {
 
 export const RoundInfo = ({ currentRound }: RoundInfoProps) => {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-gray-400 text-sm font-medium">라운드</span>
-      <div className="flex gap-1">
+    <div className="flex items-center gap-1.5">
+      <span className="text-gray-400 text-[10px] font-medium">라운드</span>
+      <div className="flex gap-0.5">
         {Array.from({ length: TOTAL_ROUNDS }, (_, i) => (
           <div
             key={i}
-            className={`w-2.5 h-2.5 rounded-full transition-colors ${
+            className={`w-2 h-2 rounded-full transition-colors ${
               i < currentRound
                 ? "bg-green-500"
                 : i === currentRound
@@ -25,8 +25,8 @@ export const RoundInfo = ({ currentRound }: RoundInfoProps) => {
           />
         ))}
       </div>
-      <span className="text-white font-bold text-sm">
-        {currentRound} / {TOTAL_ROUNDS}
+      <span className="text-white font-bold text-xs">
+        {currentRound}/{TOTAL_ROUNDS}
       </span>
     </div>
   );

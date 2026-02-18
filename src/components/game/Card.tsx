@@ -4,15 +4,18 @@ import { motion } from "framer-motion";
 import type { Card as CardType } from "@/types/card";
 import { isJoker, SUIT_SYMBOLS, SUIT_COLORS } from "@/types/card";
 
+type CardSize = "xs" | "sm" | "md" | "lg";
+
 type CardProps = {
   card: CardType;
-  size?: "sm" | "md" | "lg";
+  size?: CardSize;
   isFlipped?: boolean;
   onClick?: () => void;
   className?: string;
 };
 
-const SIZE_MAP = {
+const SIZE_MAP: Record<CardSize, string> = {
+  xs: "w-[3.2rem] h-[4.5rem] text-[10px]",
   sm: "w-14 h-20 text-xs",
   md: "w-20 h-28 text-sm",
   lg: "w-24 h-36 text-base",
@@ -51,10 +54,10 @@ export const GameCard = ({
           if (e.key === "Enter" || e.key === " ") onClick?.();
         }}
       >
-        <span className="text-white font-black text-lg drop-shadow-md">
+        <span className={`text-white font-black drop-shadow-md ${size === "xs" ? "text-sm" : "text-lg"}`}>
           ★
         </span>
-        <span className="text-white font-bold text-[10px] mt-0.5 tracking-wider">
+        <span className={`text-white font-bold tracking-wider ${size === "xs" ? "text-[8px]" : "text-[10px] mt-0.5"}`}>
           JOKER
         </span>
       </motion.div>
@@ -68,7 +71,7 @@ export const GameCard = ({
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`${SIZE_MAP[size]} rounded-lg bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-lg flex flex-col items-center justify-between p-1.5 cursor-pointer select-none hover:shadow-xl transition-shadow ${className}`}
+      className={`${SIZE_MAP[size]} rounded-lg bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-lg flex flex-col items-center justify-between ${size === "xs" ? "p-1" : "p-1.5"} cursor-pointer select-none hover:shadow-xl transition-shadow ${className}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -79,12 +82,12 @@ export const GameCard = ({
     >
       <div className={`self-start font-bold ${colorClass}`}>
         <div className="leading-none">{card.rank}</div>
-        <div className="leading-none text-[10px]">{suitSymbol}</div>
+        <div className={`leading-none ${size === "xs" ? "text-[8px]" : "text-[10px]"}`}>{suitSymbol}</div>
       </div>
-      <div className={`text-2xl ${colorClass}`}>{suitSymbol}</div>
+      <div className={`${size === "xs" ? "text-base" : "text-2xl"} ${colorClass}`}>{suitSymbol}</div>
       <div className={`self-end font-bold rotate-180 ${colorClass}`}>
         <div className="leading-none">{card.rank}</div>
-        <div className="leading-none text-[10px]">{suitSymbol}</div>
+        <div className={`leading-none ${size === "xs" ? "text-[8px]" : "text-[10px]"}`}>{suitSymbol}</div>
       </div>
     </motion.div>
   );

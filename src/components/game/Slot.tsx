@@ -12,14 +12,31 @@ type HighlightInfo = {
   label: string;
 };
 
+type CardSize = "xs" | "sm" | "md" | "lg";
+
 type SlotProps = {
   slot: SlotType;
   isActive: boolean;
   onPlace: (index: SlotIndex) => void;
   highlight?: HighlightInfo | null;
+  size?: CardSize;
 };
 
-export const Slot = ({ slot, isActive, onPlace, highlight }: SlotProps) => {
+const EMPTY_SIZE_MAP: Record<CardSize, string> = {
+  xs: "w-[3.2rem] h-[4.5rem]",
+  sm: "w-14 h-20",
+  md: "w-20 h-28",
+  lg: "w-24 h-36",
+};
+
+const BADGE_SIZE_MAP: Record<CardSize, string> = {
+  xs: "w-4 h-4 text-[8px] -top-1.5 -left-0.5",
+  sm: "w-5 h-5 text-[10px] -top-2 -left-1",
+  md: "w-6 h-6 text-xs -top-2.5 -left-1",
+  lg: "w-6 h-6 text-xs -top-2 -left-1",
+};
+
+export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotProps) => {
   const hasCard = slot.card !== null;
 
   const handleClick = () => {
@@ -43,7 +60,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight }: SlotProps) => {
       >
         {highlight && (
           <div
-            className={`absolute -inset-1 rounded-xl opacity-50 blur-sm z-0 shadow-lg ${highlight.glow}`}
+            className={`absolute -inset-0.5 rounded-xl opacity-50 blur-sm z-0 shadow-lg ${highlight.glow}`}
             style={{
               background: `radial-gradient(circle, var(--tw-shadow-color) 0%, transparent 70%)`,
             }}
@@ -56,14 +73,14 @@ export const Slot = ({ slot, isActive, onPlace, highlight }: SlotProps) => {
               : ""
           }`}
         >
-          <GameCard card={slot.card} size="md" />
+          <GameCard card={slot.card} size={size} />
         </div>
-        <div className="absolute -top-2 -left-1 bg-gray-700 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center z-20">
+        <div className={`absolute bg-gray-700 text-white font-bold rounded-full flex items-center justify-center z-20 ${BADGE_SIZE_MAP[size]}`}>
           {slot.index + 1}
         </div>
         {highlight && (
           <div
-            className={`absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-bold whitespace-nowrap z-20 ${highlight.text}`}
+            className={`absolute -bottom-4 left-1/2 -translate-x-1/2 font-bold whitespace-nowrap z-20 ${size === "xs" ? "text-[7px]" : "text-[9px]"} ${highlight.text}`}
           >
             {highlight.label}
           </div>
@@ -76,7 +93,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight }: SlotProps) => {
     <motion.div
       whileHover={isActive ? { scale: 1.05 } : {}}
       whileTap={isActive ? { scale: 0.95 } : {}}
-      className={`w-20 h-28 rounded-lg border-2 border-dashed flex items-center justify-center relative transition-colors ${
+      className={`${EMPTY_SIZE_MAP[size]} rounded-lg border-2 border-dashed flex items-center justify-center relative transition-colors ${
         isActive
           ? "border-green-400 bg-green-400/10 cursor-pointer hover:bg-green-400/20"
           : "border-gray-600 bg-gray-800/30 cursor-not-allowed"
@@ -88,7 +105,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight }: SlotProps) => {
       aria-label={`슬롯 ${slot.index + 1} ${isActive ? "배치 가능" : "비활성"}`}
     >
       <span
-        className={`text-sm font-medium ${isActive ? "text-green-400" : "text-gray-600"}`}
+        className={`font-medium ${size === "xs" ? "text-xs" : "text-sm"} ${isActive ? "text-green-400" : "text-gray-600"}`}
       >
         {slot.index + 1}
       </span>

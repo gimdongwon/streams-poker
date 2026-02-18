@@ -101,7 +101,6 @@ type BoardProps = {
   isActive: boolean;
   onPlace: (index: SlotIndex) => void;
   combinations?: ScoredCombination[];
-  layout?: "row" | "grid";
 };
 
 export const Board = ({
@@ -109,7 +108,6 @@ export const Board = ({
   isActive,
   onPlace,
   combinations = [],
-  layout = "row",
 }: BoardProps) => {
   const getHighlight = (slotIndex: number) => {
     for (const combo of combinations) {
@@ -126,23 +124,15 @@ export const Board = ({
     return null;
   };
 
-  const isGrid = layout === "grid";
-
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-gray-400 text-sm font-medium">배치 슬롯</span>
-        <span className="text-gray-500 text-xs">
-          {slots.filter((s) => s.card !== null).length} / {slots.length} 배치됨
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-gray-400 text-[10px] font-medium">배치 슬롯</span>
+        <span className="text-gray-500 text-[10px]">
+          {slots.filter((s) => s.card !== null).length}/{slots.length}
         </span>
       </div>
-      <div
-        className={
-          isGrid
-            ? "grid grid-cols-5 gap-2 justify-items-center pb-6"
-            : "flex gap-2 flex-wrap justify-center pb-6"
-        }
-      >
+      <div className="grid grid-cols-5 gap-1.5 justify-items-center pb-5">
         {slots.map((slot) => (
           <Slot
             key={slot.index}
@@ -150,6 +140,7 @@ export const Board = ({
             isActive={isActive}
             onPlace={onPlace}
             highlight={getHighlight(slot.index)}
+            size="md"
           />
         ))}
       </div>

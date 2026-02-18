@@ -1,204 +1,285 @@
 import { create } from "zustand";
 import type { Player, PlayerResult, RoomStatus } from "@/types/room";
-import { MAX_PLAYERS, ROOM_CODE_LENGTH } from "@/types/room";
+import type { Card } from "@/types/card";
+import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
+import { useAuthStore } from "@/stores/authStore";
+import { useGameStore } from "@/stores/gameStore";
+
+type RoundPlacedPlayer = {
+  id: string;
+  nickname: string;
+};
 
 type RoomStore = {
-  roomId: string | null;
   roomCode: string | null;
   players: Player[];
   status: RoomStatus;
-  currentPlayerId: string | null;
   nickname: string;
   playerResults: PlayerResult[];
+  multiDeck: Card[] | null;
+  error: string | null;
+  isConnected: boolean;
+  roundPlacedPlayers: RoundPlacedPlayer[];
 
   setNickname: (nickname: string) => void;
-  createRoom: () => string;
-  joinRoom: (roomCode: string) => boolean;
+
+  // Socket-based actions
+  createRoom: (nickname: string) => void;
+  joinRoom: (code: string, nickname: string) => void;
   toggleReady: () => void;
-  startGame: () => boolean;
+  startGame: () => void;
+  submitResult: (score: number, combinationNames: string[], tiebreaker: number) => void;
+  emitPlaced: (round: number) => void;
   leaveRoom: () => void;
+  playAgain: () => void;
   resetRoom: () => void;
+  clearError: () => void;
+
+  // Local-only (single)
+  createLocalRoom: () => string;
+  joinLocalRoom: (code: string) => boolean;
   generateResults: (myScore: number, myCombinationNames: string[]) => void;
+
+  // Socket listeners
+  initSocketListeners: () => void;
+  cleanupSocketListeners: () => void;
 };
 
 const generateRoomCode = (): string => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
-  for (let i = 0; i < ROOM_CODE_LENGTH; i++) {
+  for (let i = 0; i < 6; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
 };
 
-const generatePlayerId = (): string => {
-  return `player_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-};
-
 export const useRoomStore = create<RoomStore>((set, get) => ({
-  roomId: null,
   roomCode: null,
   players: [],
   status: "waiting",
-  currentPlayerId: null,
   nickname: "",
   playerResults: [],
+  multiDeck: null,
+  error: null,
+  isConnected: false,
+  roundPlacedPlayers: [],
 
   setNickname: (nickname: string) => set({ nickname }),
 
-  createRoom: () => {
-    const playerId = generatePlayerId();
-    const roomCode = generateRoomCode();
-    const roomId = `room_${roomCode}`;
-    const { nickname } = get();
+  clearError: () => set({ error: null }),
 
-    const host: Player = {
-      id: playerId,
-      nickname: nickname || "Player 1",
-      status: "waiting",
-      isHost: true,
-    };
+  // --- Socket-based multiplayer ---
 
-    set({
-      roomId,
-      roomCode,
-      players: [host],
-      status: "waiting",
-      currentPlayerId: playerId,
-    });
-
-    return roomCode;
+  createRoom: (nickname: string) => {
+    const socket = connectSocket();
+    socket.emit("room:create", { nickname });
   },
 
-  joinRoom: (roomCode: string) => {
-    const { players } = get();
-    if (players.length >= MAX_PLAYERS) return false;
-
-    const playerId = generatePlayerId();
-    const { nickname } = get();
-
-    const newPlayer: Player = {
-      id: playerId,
-      nickname: nickname || `Player ${players.length + 1}`,
-      status: "waiting",
-      isHost: false,
-    };
-
-    set({
-      roomId: `room_${roomCode}`,
-      roomCode,
-      players: [...players, newPlayer],
-      currentPlayerId: playerId,
-    });
-
-    return true;
+  joinRoom: (code: string, nickname: string) => {
+    const socket = connectSocket();
+    socket.emit("room:join", { code, nickname });
   },
 
   toggleReady: () => {
-    const { players, currentPlayerId } = get();
-
-    const updatedPlayers = players.map((p) => {
-      if (p.id === currentPlayerId) {
-        return {
-          ...p,
-          status: (p.status === "waiting" ? "ready" : "waiting") as
-            | "waiting"
-            | "ready",
-        };
-      }
-      return p;
-    });
-
-    set({ players: updatedPlayers });
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("room:ready", { code: roomCode });
   },
 
   startGame: () => {
-    const { players, currentPlayerId } = get();
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("game:start", { code: roomCode });
+  },
 
-    const currentPlayer = players.find((p) => p.id === currentPlayerId);
-    if (!currentPlayer?.isHost) return false;
+  submitResult: (score: number, combinationNames: string[], tiebreaker: number) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("game:result", { code: roomCode, score, combinationNames, tiebreaker });
+  },
 
-    const allReady = players
-      .filter((p) => !p.isHost)
-      .every((p) => p.status === "ready");
-    if (!allReady || players.length < 2) return false;
-
-    set({ status: "playing" });
-    return true;
+  emitPlaced: (round: number) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("game:placed", { code: roomCode, round });
   },
 
   leaveRoom: () => {
-    const { players, currentPlayerId } = get();
-    const remainingPlayers = players.filter((p) => p.id !== currentPlayerId);
-
-    if (remainingPlayers.length === 0) {
-      get().resetRoom();
-      return;
+    const { roomCode } = get();
+    if (roomCode) {
+      const socket = getSocket();
+      socket.emit("room:leave", { code: roomCode });
     }
-
-    const currentWasHost = players.find(
-      (p) => p.id === currentPlayerId
-    )?.isHost;
-    if (currentWasHost && remainingPlayers.length > 0) {
-      remainingPlayers[0].isHost = true;
-    }
-
+    disconnectSocket();
     set({
-      players: remainingPlayers,
-      currentPlayerId: null,
-      roomId: null,
-      roomCode: null,
-    });
-  },
-
-  resetRoom: () => {
-    set({
-      roomId: null,
       roomCode: null,
       players: [],
       status: "waiting",
-      currentPlayerId: null,
       playerResults: [],
+      multiDeck: null,
+      isConnected: false,
+      roundPlacedPlayers: [],
     });
   },
 
-  generateResults: (myScore: number, myCombinationNames: string[]) => {
-    const { players, currentPlayerId, nickname } = get();
+  playAgain: () => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("room:playAgain", { code: roomCode });
+  },
 
-    const COMBO_POOL = [
-      "원페어",
-      "투페어",
-      "트리플",
-      "스트레이트",
-      "플러시",
-      "풀하우스",
-      "포카드",
-    ];
+  resetRoom: () => {
+    disconnectSocket();
+    set({
+      roomCode: null,
+      players: [],
+      status: "waiting",
+      playerResults: [],
+      multiDeck: null,
+      error: null,
+      isConnected: false,
+      roundPlacedPlayers: [],
+    });
+  },
 
-    const results: PlayerResult[] = players.map((p) => {
-      if (p.id === currentPlayerId) {
-        return {
-          nickname: nickname || p.nickname,
-          score: myScore,
-          rank: 0,
-          isMe: true,
-          combinationNames: myCombinationNames,
-        };
+  initSocketListeners: () => {
+    const socket = getSocket();
+
+    socket.on("connect", () => {
+      set({ isConnected: true });
+
+      const authUser = useAuthStore.getState().user;
+      if (authUser?.id) {
+        socket.emit("auth:register", { userId: authUser.id });
+      }
+    });
+
+    socket.on("disconnect", () => {
+      set({ isConnected: false });
+    });
+
+    socket.on("auth:forceLogout", () => {
+      disconnectSocket();
+      set({
+        roomCode: null,
+        players: [],
+        status: "waiting",
+        playerResults: [],
+        multiDeck: null,
+        isConnected: false,
+        roundPlacedPlayers: [],
+      });
+
+      if (typeof window !== "undefined") {
+        window.alert("다른 곳에서 로그인되어 현재 세션이 종료됩니다.");
       }
 
-      const otherScore = Math.floor(Math.random() * 50) + 2;
-      const comboCount = Math.floor(Math.random() * 3) + 1;
-      const otherCombos = Array.from({ length: comboCount }, () =>
-        COMBO_POOL[Math.floor(Math.random() * COMBO_POOL.length)]
+      const authStore = useAuthStore.getState();
+      authStore.logout();
+      useAuthStore.setState({ forcedOut: true });
+    });
+
+    socket.on("room:created", ({ code, players, status }) => {
+      set({ roomCode: code, players, status, error: null });
+    });
+
+    socket.on("room:updated", ({ code, players, status }) => {
+      set({ roomCode: code, players, status, error: null });
+    });
+
+    socket.on("room:error", ({ message }) => {
+      set({ error: message });
+    });
+
+    socket.on("game:started", ({ deck }) => {
+      set({ multiDeck: deck, status: "playing", playerResults: [], roundPlacedPlayers: [] });
+    });
+
+    socket.on("game:playerPlaced", ({ placedPlayers }: { round: number; placedPlayers: RoundPlacedPlayer[]; totalPlayers: number }) => {
+      set({ roundPlacedPlayers: placedPlayers });
+    });
+
+    socket.on("game:nextRound", () => {
+      set({ roundPlacedPlayers: [] });
+      setTimeout(() => {
+        useGameStore.getState().nextRound();
+      }, 300);
+    });
+
+    socket.on("game:results", ({ results }) => {
+      const socket = getSocket();
+      const myId = socket.id;
+
+      const playerResults: PlayerResult[] = results.map(
+        (r: { playerId: string; nickname: string; score: number; rank: number; combinationNames: string[] }) => ({
+          nickname: r.nickname,
+          score: r.score,
+          rank: r.rank,
+          isMe: r.playerId === myId,
+          combinationNames: r.combinationNames,
+        })
       );
 
-      return {
-        nickname: p.nickname,
-        score: otherScore,
-        rank: 0,
-        isMe: false,
-        combinationNames: otherCombos,
-      };
+      set({ playerResults, status: "finished" });
     });
+  },
+
+  cleanupSocketListeners: () => {
+    const socket = getSocket();
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("auth:forceLogout");
+    socket.off("room:created");
+    socket.off("room:updated");
+    socket.off("room:error");
+    socket.off("game:started");
+    socket.off("game:playerPlaced");
+    socket.off("game:nextRound");
+    socket.off("game:results");
+  },
+
+  // --- Local-only (single mode & backward compat) ---
+
+  createLocalRoom: () => {
+    const code = generateRoomCode();
+    set({
+      roomCode: code,
+      players: [{ id: "local_host", nickname: get().nickname || "Player 1", status: "waiting", isHost: true }],
+      status: "waiting",
+    });
+    return code;
+  },
+
+  joinLocalRoom: (code: string) => {
+    const { players } = get();
+    if (players.length >= 10) return false;
+    set({
+      roomCode: code,
+      players: [...players, { id: "local_guest", nickname: get().nickname || "Player 2", status: "waiting", isHost: false }],
+    });
+    return true;
+  },
+
+  generateResults: (myScore: number, myCombinationNames: string[]) => {
+    const { nickname } = get();
+
+    const COMBO_POOL = ["원페어", "투페어", "트리플", "스트레이트", "플러시", "풀하우스", "포카드"];
+
+    const results: PlayerResult[] = [
+      {
+        nickname: nickname || "나",
+        score: myScore,
+        rank: 0,
+        isMe: true,
+        combinationNames: myCombinationNames,
+      },
+    ];
 
     results.sort((a, b) => b.score - a.score);
     results.forEach((r, i) => {

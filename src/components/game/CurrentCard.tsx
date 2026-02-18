@@ -11,25 +11,25 @@ type CurrentCardProps = {
 
 export const CurrentCard = ({ card }: CurrentCardProps) => {
   return (
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-gray-400 text-sm font-medium">현재 카드</span>
-      <div className="relative w-24 h-36 flex items-center justify-center">
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-gray-400 text-[10px] font-medium">현재 카드</span>
+      <div className="relative w-20 h-28 flex items-center justify-center">
         <AnimatePresence mode="wait">
           {card ? (
             <motion.div
               key={card.id}
               initial={{ rotateY: 180, scale: 0.5 }}
               animate={{ rotateY: 0, scale: 1 }}
-              exit={{ y: -50, opacity: 0, scale: 0.8 }}
+              exit={{ y: -30, opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="absolute"
             >
-              <GameCard card={card} size="lg" />
+              <GameCard card={card} size="md" />
               {isJoker(card) && <JokerEffect />}
             </motion.div>
           ) : (
-            <div className="w-24 h-36 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center">
-              <span className="text-gray-600 text-xs">대기중</span>
+            <div className="w-20 h-28 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center">
+              <span className="text-gray-600 text-[10px]">대기중</span>
             </div>
           )}
         </AnimatePresence>
