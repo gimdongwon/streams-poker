@@ -24,6 +24,7 @@ const RoomPage = () => {
     startGame,
     leaveRoom,
     clearError,
+    resetRoom,
     initSocketListeners,
     cleanupSocketListeners,
   } = useRoomStore();
@@ -79,6 +80,16 @@ const RoomPage = () => {
       router.push(`/game/${roomCode || roomId}`);
     }
   }, [status, roomCode, roomId, router]);
+
+  useEffect(() => {
+    if (error && players.length === 0) {
+      const timeout = setTimeout(() => {
+        resetRoom();
+        router.replace("/lobby");
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [error, players.length, resetRoom, router]);
 
   const handleCopyCode = useCallback(() => {
     const code = roomCode || roomId;
@@ -136,14 +147,15 @@ const RoomPage = () => {
       {/* 에러 메시지 (플레이어가 정상 접속 중이면 표시하지 않음) */}
       <AnimatePresence>
         {error && players.length === 0 && (
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-red-400 text-sm mb-4"
+            className="text-center mb-4"
           >
-            {error}
-          </motion.p>
+            <p className="text-red-400 text-sm">{error}</p>
+            <p className="text-gray-500 text-xs mt-1">잠시 후 로비로 이동합니다...</p>
+          </motion.div>
         )}
       </AnimatePresence>
 

@@ -135,6 +135,17 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   },
 
   resetRoom: () => {
+    const { roomCode } = get();
+    if (roomCode) {
+      try {
+        const socket = getSocket();
+        if (socket.connected) {
+          socket.emit("room:leave", { code: roomCode });
+        }
+      } catch {
+        // socket not initialized
+      }
+    }
     disconnectSocket();
     set({
       roomCode: null,
@@ -150,6 +161,17 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   initSocketListeners: () => {
     const socket = getSocket();
+
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("auth:forceLogout");
+    socket.off("room:created");
+    socket.off("room:updated");
+    socket.off("room:error");
+    socket.off("game:started");
+    socket.off("game:playerPlaced");
+    socket.off("game:nextRound");
+    socket.off("game:results");
 
     socket.on("connect", () => {
       set({ isConnected: true });
@@ -190,7 +212,11 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("room:updated", ({ code, players, status }) => {
-      set({ roomCode: code, players, status, error: null });
+      if (status === "waiting") {
+        set({ roomCode: code, players, status, error: null, multiDeck: null, playerResults: [], roundPlacedPlayers: [] });
+      } else {
+        set({ roomCode: code, players, status, error: null });
+      }
     });
 
     socket.on("room:error", ({ message }) => {

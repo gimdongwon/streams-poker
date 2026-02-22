@@ -13,7 +13,7 @@ type Mode = "select" | "multi_create" | "multi_join";
 
 const LobbyPage = () => {
   const router = useRouter();
-  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode } = useRoomStore();
+  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom } = useRoomStore();
   const { user, isLoggedIn, logout, hasHydrated } = useAuthStore();
 
   const [mode, setMode] = useState<Mode>("select");
@@ -45,10 +45,12 @@ const LobbyPage = () => {
   }, [user, setNickname]);
 
   useEffect(() => {
-    if (storeRoomCode) {
+    if (storeRoomCode && roomStatus === "waiting" && isConnected) {
       router.push(`/room/${storeRoomCode}`);
+    } else if (storeRoomCode && !isConnected) {
+      resetRoom();
     }
-  }, [storeRoomCode, router]);
+  }, [storeRoomCode, roomStatus, isConnected, router, resetRoom]);
 
   const handleSinglePlay = () => {
     router.push("/game/single");

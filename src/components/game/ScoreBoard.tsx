@@ -10,6 +10,7 @@ type ScoreBoardProps = {
   combinations: ScoredCombination[];
   totalScore: number;
   onBackToLobby: () => void;
+  onPlayAgain?: () => void;
   saveStatus?: SaveStatus;
   playerRank?: number | null;
 };
@@ -18,6 +19,7 @@ export const ScoreBoard = ({
   combinations,
   totalScore,
   onBackToLobby,
+  onPlayAgain,
   saveStatus = "idle",
   playerRank,
 }: ScoreBoardProps) => {
@@ -97,13 +99,35 @@ export const ScoreBoard = ({
         )}
       </div>
 
-      <button
-        onClick={onBackToLobby}
-        className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold text-sm rounded-xl transition-all active:scale-95"
-        aria-label="로비로 돌아가기"
-      >
-        로비로 돌아가기
-      </button>
+      {onPlayAgain ? (
+        <div className="flex gap-2">
+          <button
+            onClick={onPlayAgain}
+            className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold text-sm rounded-xl transition-all active:scale-95"
+            aria-label="한번더하기"
+            tabIndex={0}
+          >
+            한번더하기
+          </button>
+          <button
+            onClick={onBackToLobby}
+            className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white font-bold text-sm rounded-xl transition-all active:scale-95 border border-gray-600"
+            aria-label="로비로 돌아가기"
+            tabIndex={0}
+          >
+            로비로 돌아가기
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={onBackToLobby}
+          className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold text-sm rounded-xl transition-all active:scale-95"
+          aria-label="로비로 돌아가기"
+          tabIndex={0}
+        >
+          로비로 돌아가기
+        </button>
+      )}
     </motion.div>
   );
 };

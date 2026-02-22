@@ -413,9 +413,16 @@ app.prepare().then(() => {
       const room = rooms.get(code);
       if (!room) return;
 
+      if (room.roundTimer) {
+        clearTimeout(room.roundTimer);
+        room.roundTimer = null;
+      }
+
       room.status = "waiting";
       room.deck = [];
       room.results = [];
+      room.currentRound = 0;
+      room.roundPlacements = new Set();
       room.players.forEach((p) => {
         p.status = "waiting";
       });
@@ -425,8 +432,12 @@ app.prepare().then(() => {
         players: getPublicPlayers(room.players),
         status: room.status,
       });
+
+      console.log(`[Room] Play again in ${code}`);
     });
   });
+
+  const ROOM_CLEANUP_GRACE_MS = 5000;
 
   function handleLeave(socket: { id: string; leave: (room: string) => void }, code: string) {
     const room = rooms.get(code);
@@ -442,8 +453,14 @@ app.prepare().then(() => {
         clearTimeout(room.roundTimer);
         room.roundTimer = null;
       }
-      rooms.delete(code);
-      console.log(`[Room] Deleted empty room: ${code}`);
+      setTimeout(() => {
+        const r = rooms.get(code);
+        if (r && r.players.length === 0) {
+          rooms.delete(code);
+          console.log(`[Room] Deleted empty room after grace period: ${code}`);
+        }
+      }, ROOM_CLEANUP_GRACE_MS);
+      console.log(`[Room] Room ${code} empty, scheduled cleanup in ${ROOM_CLEANUP_GRACE_MS}ms`);
       return;
     }
 

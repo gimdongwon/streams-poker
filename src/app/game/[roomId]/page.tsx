@@ -12,8 +12,8 @@ const GamePage = () => {
   const router = useRouter();
   const roomId = params.roomId as string;
   const isSingle = roomId === "single";
-  const { resetGame } = useGameStore();
-  const { resetRoom, initSocketListeners, cleanupSocketListeners } = useRoomStore();
+  const { phase, resetGame } = useGameStore();
+  const { status, roomCode, resetRoom, playAgain, initSocketListeners, cleanupSocketListeners } = useRoomStore();
   const { user, isLoggedIn, hasHydrated } = useAuthStore();
 
   useEffect(() => {
@@ -32,11 +32,22 @@ const GamePage = () => {
     };
   }, [isSingle, hasHydrated, isLoggedIn, initSocketListeners, cleanupSocketListeners]);
 
+  useEffect(() => {
+    if (!isSingle && status === "waiting" && phase === "game_over" && roomCode) {
+      resetGame();
+      router.push(`/room/${roomCode}`);
+    }
+  }, [isSingle, status, phase, roomCode, resetGame, router]);
+
   const handleBackToLobby = useCallback(() => {
     resetGame();
     resetRoom();
     router.push("/lobby");
   }, [resetGame, resetRoom, router]);
+
+  const handlePlayAgain = useCallback(() => {
+    playAgain();
+  }, [playAgain]);
 
   if (!hasHydrated || !isLoggedIn) return null;
 
@@ -46,6 +57,7 @@ const GamePage = () => {
         mode={isSingle ? "single" : "multi"}
         playerName={user?.nickname ?? "Player"}
         onBackToLobby={handleBackToLobby}
+        onPlayAgain={isSingle ? undefined : handlePlayAgain}
       />
     </main>
   );

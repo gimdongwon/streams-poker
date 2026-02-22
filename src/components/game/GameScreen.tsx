@@ -25,12 +25,14 @@ type GameScreenProps = {
   mode: "single" | "multi";
   playerName: string;
   onBackToLobby: () => void;
+  onPlayAgain?: () => void;
 };
 
 export const GameScreen = ({
   mode,
   playerName,
   onBackToLobby,
+  onPlayAgain,
 }: GameScreenProps) => {
   const {
     phase,
@@ -204,6 +206,7 @@ export const GameScreen = ({
             combinations={combinations}
             totalScore={score}
             onBackToLobby={onBackToLobby}
+            onPlayAgain={mode === "multi" ? onPlayAgain : undefined}
             saveStatus={saveStatus}
             playerRank={playerRank}
           />
