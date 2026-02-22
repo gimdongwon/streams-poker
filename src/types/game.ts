@@ -80,7 +80,7 @@ export const COMBINATION_TABLE: CombinationInfo[] = [
   { type: "full_house", name: "풀하우스", score: 15, rank: 6 },
   { type: "back_straight", name: "백스트레이트", score: 12, rank: 7 },
   { type: "flush", name: "플러시", score: 12, rank: 8 },
-  { type: "straight", name: "스트레이트", score: 9, rank: 9 },
+  { type: "straight", name: "스트레이트", score: 12, rank: 9 },
   { type: "triple", name: "트리플", score: 6, rank: 10 },
   { type: "two_pair", name: "투페어", score: 3, rank: 11 },
   { type: "one_pair", name: "원페어", score: 2, rank: 12 },
