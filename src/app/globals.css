@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #111827;
-  --foreground: #f9fafb;
+  --background: #0b0e14;
+  --foreground: #eaf2ff;
+
+  /* TENS neon palette */
+  --tens-void: #0b0e14;
+  --tens-panel: #131826;
+  --tens-edge: #232b3d;
+  --tens-haze: #7c89a6;
+  --tens-snow: #eaf2ff;
+  --tens-cyan: #2de2e6;
+  --tens-magenta: #ff2e97;
 }
 
 @theme inline {
@@ -10,6 +19,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* TENS neon palette → utilities (bg-void, text-haze, border-edge, …) */
+  --color-void: var(--tens-void);
+  --color-panel: var(--tens-panel);
+  --color-edge: var(--tens-edge);
+  --color-haze: var(--tens-haze);
+  --color-snow: var(--tens-snow);
+  --color-neon-cyan: var(--tens-cyan);
+  --color-neon-magenta: var(--tens-magenta);
 }
 
 body {

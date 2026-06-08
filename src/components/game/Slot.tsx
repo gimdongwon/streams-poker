@@ -30,10 +30,10 @@ const EMPTY_SIZE_MAP: Record<CardSize, string> = {
 };
 
 const BADGE_SIZE_MAP: Record<CardSize, string> = {
-  xs: "w-4 h-4 text-[8px] -top-1.5 -left-0.5",
-  sm: "w-5 h-5 text-[10px] -top-2 -left-1",
-  md: "w-6 h-6 text-xs -top-2.5 -left-1",
-  lg: "w-6 h-6 text-xs -top-2 -left-1",
+  xs: "w-4 h-4 text-[8px] -top-1.5 -right-0.5",
+  sm: "w-5 h-5 text-[10px] -top-2 -right-1",
+  md: "w-6 h-6 text-xs -top-2.5 -right-1",
+  lg: "w-6 h-6 text-xs -top-2 -right-1",
 };
 
 export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotProps) => {
@@ -75,7 +75,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotPr
         >
           <GameCard card={slot.card} size={size} />
         </div>
-        <div className={`absolute bg-gray-700 text-white font-bold rounded-full flex items-center justify-center z-20 ${BADGE_SIZE_MAP[size]}`}>
+        <div className={`absolute bg-edge text-snow font-bold rounded-full flex items-center justify-center z-20 ring-1 ring-white/10 ${BADGE_SIZE_MAP[size]}`}>
           {slot.index + 1}
         </div>
         {highlight && (
@@ -95,8 +95,8 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotPr
       whileTap={isActive ? { scale: 0.95 } : {}}
       className={`${EMPTY_SIZE_MAP[size]} rounded-lg border-2 border-dashed flex items-center justify-center relative transition-colors ${
         isActive
-          ? "border-green-400 bg-green-400/10 cursor-pointer hover:bg-green-400/20"
-          : "border-gray-600 bg-gray-800/30 cursor-not-allowed"
+          ? "border-neon-cyan bg-neon-cyan/10 cursor-pointer hover:bg-neon-cyan/20"
+          : "border-edge bg-panel/40 cursor-not-allowed"
       }`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -105,7 +105,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotPr
       aria-label={`슬롯 ${slot.index + 1} ${isActive ? "배치 가능" : "비활성"}`}
     >
       <span
-        className={`font-medium ${size === "xs" ? "text-xs" : "text-sm"} ${isActive ? "text-green-400" : "text-gray-600"}`}
+        className={`font-medium ${size === "xs" ? "text-xs" : "text-sm"} ${isActive ? "text-neon-cyan" : "text-haze/60"}`}
       >
         {slot.index + 1}
       </span>
