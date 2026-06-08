@@ -26,18 +26,18 @@ const JOKER_GRADIENT = `linear-gradient(135deg, ${CYAN}, ${MAGENTA})`;
 type SizeSpec = {
   box: string;
   hero: string;
-  rank: string;
   suit: string;
+  suitBR: string;
   border: number;
   jokerMark: string;
   jokerLabel: string;
 };
 
 const SIZE_MAP: Record<CardSize, SizeSpec> = {
-  xs: { box: "w-[3.2rem] h-[4.5rem] rounded-md", hero: "text-xl", rank: "text-[9px]", suit: "text-[7px]", border: 1.5, jokerMark: "text-lg", jokerLabel: "text-[7px]" },
-  sm: { box: "w-14 h-20 rounded-lg", hero: "text-2xl", rank: "text-[11px]", suit: "text-[9px]", border: 1.5, jokerMark: "text-2xl", jokerLabel: "text-[8px]" },
-  md: { box: "w-20 h-28 rounded-xl", hero: "text-[2.6rem]", rank: "text-base", suit: "text-xs", border: 2, jokerMark: "text-4xl", jokerLabel: "text-[10px]" },
-  lg: { box: "w-24 h-36 rounded-xl", hero: "text-6xl", rank: "text-lg", suit: "text-sm", border: 2, jokerMark: "text-5xl", jokerLabel: "text-xs" },
+  xs: { box: "w-[3.2rem] h-[4.5rem] rounded-md", hero: "text-xl", suit: "text-[10px]", suitBR: "text-[13px]", border: 1.5, jokerMark: "text-lg", jokerLabel: "text-[7px]" },
+  sm: { box: "w-14 h-20 rounded-lg", hero: "text-2xl", suit: "text-xs", suitBR: "text-base", border: 1.5, jokerMark: "text-2xl", jokerLabel: "text-[8px]" },
+  md: { box: "w-20 h-28 rounded-xl", hero: "text-[2.6rem]", suit: "text-base", suitBR: "text-xl", border: 2, jokerMark: "text-4xl", jokerLabel: "text-[10px]" },
+  lg: { box: "w-24 h-36 rounded-xl", hero: "text-6xl", suit: "text-lg", suitBR: "text-2xl", border: 2, jokerMark: "text-5xl", jokerLabel: "text-xs" },
 };
 
 export const GameCard = ({
@@ -117,12 +117,18 @@ export const GameCard = ({
       >
         {card.rank}
       </span>
-      <div className="absolute top-1 left-1 flex flex-col items-start leading-none">
-        <span className={`${s.rank} font-extrabold text-snow leading-none`}>{card.rank}</span>
-        <span className={`${s.suit} font-bold leading-none`} style={{ color: neon }}>
-          {`${suitSymbol}︎`}
-        </span>
-      </div>
+      <span
+        className={`${s.suit} font-bold leading-none absolute top-1 left-1`}
+        style={{ color: neon }}
+      >
+        {`${suitSymbol}︎`}
+      </span>
+      <span
+        className={`${s.suitBR} font-bold leading-none absolute bottom-1 right-1`}
+        style={{ color: neon }}
+      >
+        {`${suitSymbol}︎`}
+      </span>
     </motion.div>
   );
 };
