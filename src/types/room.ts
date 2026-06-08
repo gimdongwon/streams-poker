@@ -1,11 +1,25 @@
+import type { Card } from "./card";
+
 export type PlayerStatus = "waiting" | "ready";
 
+// Trimmed combination sent over the wire for board highlighting / breakdown.
+export type ResultCombo = {
+  type: string;
+  name: string;
+  score: number;
+  slotIndices: number[];
+};
+
 export type PlayerResult = {
+  playerId?: string;
   nickname: string;
   score: number;
   rank: number;
   isMe: boolean;
   combinationNames: string[];
+  // Each player's final board + scored combos, so any board can be reviewed.
+  slots?: (Card | null)[];
+  combinations?: ResultCombo[];
 };
 
 export type Player = {
