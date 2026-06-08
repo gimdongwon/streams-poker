@@ -1,0 +1,14 @@
+[Unit]
+Description=Cloudflare Tunnel (streams-poker)
+After=network-online.target streams-poker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=YOUR_LINUX_USER
+ExecStart=/usr/bin/cloudflared tunnel --config /home/YOUR_LINUX_USER/.cloudflared/config.yml run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

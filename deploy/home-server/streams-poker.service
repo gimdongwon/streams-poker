@@ -1,0 +1,24 @@
+[Unit]
+Description=Streams Poker (Next.js + Socket.io)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 집 서버 사용자·경로에 맞게 수정하세요.
+User=YOUR_LINUX_USER
+WorkingDirectory=/home/YOUR_LINUX_USER/streams-poker
+
+# 배포 시 .env.local 또는 아래 파일에 시크릿을 두고 사용
+EnvironmentFile=-/home/YOUR_LINUX_USER/streams-poker/.env.production.local
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+# nvm을 쓰면 ExecStart를 절대 경로로 바꾸는 편이 안전합니다.
+# 예: ExecStart=/home/user/.nvm/versions/node/v22.0.0/bin/node ...
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

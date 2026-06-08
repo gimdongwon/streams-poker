@@ -1,0 +1,13 @@
+# Cloudflare Zero Trust → Networks → Tunnels 에서 터널 생성 후
+# 받은 <TUNNEL-UUID> 와 credentials JSON 경로를 맞춥니다.
+#
+# 실행 예: cloudflared tunnel --config /path/to/this-file.yml run
+
+tunnel: YOUR_TUNNEL_UUID
+credentials-file: /home/YOUR_USER/.cloudflared/YOUR_TUNNEL_UUID.json
+
+ingress:
+  # 집에서 뜬 Node(Next+Socket.io) — WebSocket도 같은 포트로 프록시됩니다.
+  - hostname: poker.example.com
+    service: http://127.0.0.1:3000
+  - service: http_status:404

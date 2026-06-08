@@ -172,6 +172,10 @@ npm run dev
 
 > **참고**: `npm run dev`는 커스텀 서버(`server.ts`)를 실행하여 Next.js와 Socket.io를 동시에 구동합니다.
 
+### 집 서버로 외부 공개 (비용 절감)
+
+Railway 등 유료/트라이얼 없이 **집 PC + Cloudflare Tunnel** 로 HTTPS·WebSocket을 노출할 수 있습니다. 단계별 가이드·systemd 예시는 [`deploy/home-server/README.md`](deploy/home-server/README.md) 를 참고하세요.
+
 ## 🎮 How to Play
 
 ### 싱글 모드
