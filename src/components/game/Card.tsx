@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Card as CardType } from "@/types/card";
-import { isJoker, SUIT_SYMBOLS, SUIT_COLORS } from "@/types/card";
+import { isJoker, SUIT_SYMBOLS } from "@/types/card";
 
 type CardSize = "xs" | "sm" | "md" | "lg";
 
@@ -14,11 +14,30 @@ type CardProps = {
   className?: string;
 };
 
-const SIZE_MAP: Record<CardSize, string> = {
-  xs: "w-[3.2rem] h-[4.5rem] text-[10px]",
-  sm: "w-14 h-20 text-xs",
-  md: "w-20 h-28 text-sm",
-  lg: "w-24 h-36 text-base",
+// TENS duotone — red suits glow magenta, black suits glow cyan
+const CYAN = "#2de2e6";
+const MAGENTA = "#ff2e97";
+const VOID = "#0b0e14";
+const neonFor = (suit: "spade" | "heart" | "diamond" | "club"): string =>
+  suit === "heart" || suit === "diamond" ? MAGENTA : CYAN;
+
+const JOKER_GRADIENT = `linear-gradient(135deg, ${CYAN}, ${MAGENTA})`;
+
+type SizeSpec = {
+  box: string;
+  hero: string;
+  rank: string;
+  suit: string;
+  border: number;
+  jokerMark: string;
+  jokerLabel: string;
+};
+
+const SIZE_MAP: Record<CardSize, SizeSpec> = {
+  xs: { box: "w-[3.2rem] h-[4.5rem] rounded-md", hero: "text-xl", rank: "text-[9px]", suit: "text-[7px]", border: 1.5, jokerMark: "text-lg", jokerLabel: "text-[7px]" },
+  sm: { box: "w-14 h-20 rounded-lg", hero: "text-2xl", rank: "text-[11px]", suit: "text-[9px]", border: 1.5, jokerMark: "text-2xl", jokerLabel: "text-[8px]" },
+  md: { box: "w-20 h-28 rounded-xl", hero: "text-[2.6rem]", rank: "text-base", suit: "text-xs", border: 2, jokerMark: "text-4xl", jokerLabel: "text-[10px]" },
+  lg: { box: "w-24 h-36 rounded-xl", hero: "text-6xl", rank: "text-lg", suit: "text-sm", border: 2, jokerMark: "text-5xl", jokerLabel: "text-xs" },
 };
 
 export const GameCard = ({
@@ -28,24 +47,34 @@ export const GameCard = ({
   onClick,
   className = "",
 }: CardProps) => {
+  const s = SIZE_MAP[size];
+
+  // Card back — gradient X tile on a panel
   if (isFlipped) {
     return (
       <div
-        className={`${SIZE_MAP[size]} rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 shadow-lg flex items-center justify-center ${className}`}
+        className={`${s.box} bg-panel border border-edge flex items-center justify-center ${className}`}
       >
-        <div className="w-3/4 h-3/4 rounded border border-blue-400/50 bg-blue-700/50 flex items-center justify-center">
-          <span className="text-blue-300 font-bold text-lg">♠</span>
+        <div
+          className="flex items-center justify-center rounded-lg"
+          style={{ width: "48%", height: "34%", background: JOKER_GRADIENT }}
+        >
+          <span className={`${s.jokerMark} font-extrabold leading-none`} style={{ color: VOID }}>
+            X
+          </span>
         </div>
       </div>
     );
   }
 
+  // Joker — full-bleed gradient with X mark
   if (isJoker(card)) {
     return (
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className={`${SIZE_MAP[size]} rounded-lg bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 border-2 border-yellow-300 shadow-lg shadow-yellow-500/30 flex flex-col items-center justify-center cursor-pointer select-none ${className}`}
+        className={`${s.box} flex flex-col items-center justify-center cursor-pointer select-none ${className}`}
+        style={{ background: JOKER_GRADIENT }}
         onClick={onClick}
         role="button"
         tabIndex={0}
@@ -54,24 +83,26 @@ export const GameCard = ({
           if (e.key === "Enter" || e.key === " ") onClick?.();
         }}
       >
-        <span className={`text-white font-black drop-shadow-md ${size === "xs" ? "text-sm" : "text-lg"}`}>
-          ★
+        <span className={`${s.jokerMark} font-extrabold leading-none`} style={{ color: VOID, letterSpacing: "-0.04em" }}>
+          X
         </span>
-        <span className={`text-white font-bold tracking-wider ${size === "xs" ? "text-[8px]" : "text-[10px] mt-0.5"}`}>
+        <span className={`${s.jokerLabel} font-extrabold tracking-[0.25em] mt-0.5`} style={{ color: VOID }}>
           JOKER
         </span>
       </motion.div>
     );
   }
 
+  // Normal — dark panel, neon edge, hero numeral, corner rank+suit
   const suitSymbol = SUIT_SYMBOLS[card.suit];
-  const colorClass = SUIT_COLORS[card.suit];
+  const neon = neonFor(card.suit);
 
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`${SIZE_MAP[size]} rounded-lg bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-lg flex flex-col items-center justify-between ${size === "xs" ? "p-1" : "p-1.5"} cursor-pointer select-none hover:shadow-xl transition-shadow ${className}`}
+      className={`${s.box} bg-panel relative flex items-center justify-center cursor-pointer select-none transition-shadow ${className}`}
+      style={{ border: `${s.border}px solid ${neon}` }}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -80,14 +111,17 @@ export const GameCard = ({
         if (e.key === "Enter" || e.key === " ") onClick?.();
       }}
     >
-      <div className={`self-start font-bold ${colorClass}`}>
-        <div className="leading-none">{card.rank}</div>
-        <div className={`leading-none ${size === "xs" ? "text-[8px]" : "text-[10px]"}`}>{suitSymbol}</div>
-      </div>
-      <div className={`${size === "xs" ? "text-base" : "text-2xl"} ${colorClass}`}>{suitSymbol}</div>
-      <div className={`self-end font-bold rotate-180 ${colorClass}`}>
-        <div className="leading-none">{card.rank}</div>
-        <div className={`leading-none ${size === "xs" ? "text-[8px]" : "text-[10px]"}`}>{suitSymbol}</div>
+      <span
+        className={`${s.hero} font-extrabold leading-none`}
+        style={{ color: neon, letterSpacing: "-0.05em" }}
+      >
+        {card.rank}
+      </span>
+      <div className="absolute top-1 left-1 flex flex-col items-start leading-none">
+        <span className={`${s.rank} font-extrabold text-snow leading-none`}>{card.rank}</span>
+        <span className={`${s.suit} font-bold leading-none`} style={{ color: neon }}>
+          {`${suitSymbol}︎`}
+        </span>
       </div>
     </motion.div>
   );
