@@ -14,8 +14,7 @@ import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
 import { Timer } from "./Timer";
 import { RoundInfo } from "./RoundInfo";
-import { ScoreBoard } from "./ScoreBoard";
-import { MultiResultBoard } from "./MultiResultBoard";
+import { ResultScreen } from "./ResultScreen";
 import { TIMER_SECONDS } from "@/types/game";
 import { Logo } from "@/components/common/Logo";
 
@@ -48,6 +47,7 @@ export const GameScreen = ({
     startGameWithDeck,
     setScore,
     setCombinations,
+    resetGame,
   } = useGameStore();
 
   const {
@@ -136,7 +136,14 @@ export const GameScreen = ({
     const comboNames = results.map((r) => r.name);
 
     if (mode === "multi") {
-      submitResult(total, comboNames, tiebreaker);
+      const boardSlots = slots.map((s) => s.card);
+      const resultCombos = results.map((r) => ({
+        type: r.type,
+        name: r.name,
+        score: r.score,
+        slotIndices: r.slotIndices,
+      }));
+      submitResult(total, comboNames, tiebreaker, boardSlots, resultCombos);
     }
 
     if (mode === "single") {
@@ -181,46 +188,27 @@ export const GameScreen = ({
 
   const isWaitingForOthers = phase === "round_end" && mode === "multi";
 
+  const handleSinglePlayAgain = () => {
+    hasSavedRef.current = false;
+    setSaveStatus("idle");
+    setPlayerRank(null);
+    resetGame();
+  };
+
   if (phase === "game_over") {
     return (
-      <div className="min-h-[100dvh] overflow-y-auto p-3">
-        <div className="flex items-center justify-between w-full max-w-3xl mx-auto py-1 mb-3">
-          <Logo size="sm" />
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 text-xs">{playerName}</span>
-            <span className="text-gray-600 text-[10px]">
-              ({mode === "single" ? "싱글" : "멀티"})
-            </span>
-          </div>
-        </div>
-
-        <div className="w-full max-w-3xl mx-auto space-y-3">
-          {mode === "multi" && (
-            <MultiResultBoard
-              results={playerResults}
-              totalPlayers={players.length}
-            />
-          )}
-
-          <ScoreBoard
-            combinations={combinations}
-            totalScore={score}
-            onBackToLobby={onBackToLobby}
-            onPlayAgain={mode === "multi" ? onPlayAgain : undefined}
-            saveStatus={saveStatus}
-            playerRank={playerRank}
-          />
-
-          <div className="flex justify-center pb-4">
-            <Board
-              slots={slots}
-              isActive={false}
-              onPlace={handlePlace}
-              combinations={combinations}
-            />
-          </div>
-        </div>
-      </div>
+      <ResultScreen
+        mode={mode}
+        playerName={playerName}
+        slots={slots}
+        combinations={combinations}
+        totalScore={score}
+        saveStatus={saveStatus}
+        playerRank={playerRank}
+        playerResults={playerResults}
+        onBackToLobby={onBackToLobby}
+        onPlayAgain={mode === "multi" ? onPlayAgain : handleSinglePlayAgain}
+      />
     );
   }
 
