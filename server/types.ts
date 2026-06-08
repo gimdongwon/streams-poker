@@ -14,12 +14,22 @@ export type CardData = {
   id: string;
 };
 
+export type ResultCombo = {
+  type: string;
+  name: string;
+  score: number;
+  slotIndices: number[];
+};
+
 export type GameResult = {
   playerId: string;
   nickname: string;
   score: number;
   combinationNames: string[];
   tiebreaker: number;
+  // Final board + scored combos so any player's board can be reviewed.
+  slots?: (CardData | null)[];
+  combinations?: ResultCombo[];
 };
 
 export type Room = {

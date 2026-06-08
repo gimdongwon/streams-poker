@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Player, PlayerResult, RoomStatus } from "@/types/room";
+import type { Player, PlayerResult, ResultCombo, RoomStatus } from "@/types/room";
 import type { Card } from "@/types/card";
 import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
 import { useAuthStore } from "@/stores/authStore";
@@ -28,7 +28,13 @@ type RoomStore = {
   joinRoom: (code: string, nickname: string) => void;
   toggleReady: () => void;
   startGame: () => void;
-  submitResult: (score: number, combinationNames: string[], tiebreaker: number) => void;
+  submitResult: (
+    score: number,
+    combinationNames: string[],
+    tiebreaker: number,
+    slots: (Card | null)[],
+    combinations: ResultCombo[]
+  ) => void;
   emitPlaced: (round: number) => void;
   leaveRoom: () => void;
   playAgain: () => void;
@@ -95,11 +101,18 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.emit("game:start", { code: roomCode });
   },
 
-  submitResult: (score: number, combinationNames: string[], tiebreaker: number) => {
+  submitResult: (score, combinationNames, tiebreaker, slots, combinations) => {
     const { roomCode } = get();
     if (!roomCode) return;
     const socket = getSocket();
-    socket.emit("game:result", { code: roomCode, score, combinationNames, tiebreaker });
+    socket.emit("game:result", {
+      code: roomCode,
+      score,
+      combinationNames,
+      tiebreaker,
+      slots,
+      combinations,
+    });
   },
 
   emitPlaced: (round: number) => {
@@ -243,12 +256,23 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       const myId = socket.id;
 
       const playerResults: PlayerResult[] = results.map(
-        (r: { playerId: string; nickname: string; score: number; rank: number; combinationNames: string[] }) => ({
+        (r: {
+          playerId: string;
+          nickname: string;
+          score: number;
+          rank: number;
+          combinationNames: string[];
+          slots?: (Card | null)[];
+          combinations?: ResultCombo[];
+        }) => ({
+          playerId: r.playerId,
           nickname: r.nickname,
           score: r.score,
           rank: r.rank,
           isMe: r.playerId === myId,
           combinationNames: r.combinationNames,
+          slots: r.slots,
+          combinations: r.combinations,
         })
       );
 

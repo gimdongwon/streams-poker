@@ -1,4 +1,5 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
+import type { CardData, ResultCombo } from "../types";
 import { rooms } from "../state";
 import { createGameDeck } from "../deck";
 import { startRoundTimer, checkRoundCompletion } from "../rounds";
@@ -64,11 +65,13 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   });
 
   // -- Game: Submit Result --
-  socket.on("game:result", ({ code, score, combinationNames, tiebreaker }: {
+  socket.on("game:result", ({ code, score, combinationNames, tiebreaker, slots, combinations }: {
     code: string;
     score: number;
     combinationNames: string[];
     tiebreaker: number;
+    slots?: (CardData | null)[];
+    combinations?: ResultCombo[];
   }) => {
     const room = rooms.get(code);
     if (!room || room.status !== "playing") return;
@@ -85,6 +88,8 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
       score,
       combinationNames,
       tiebreaker: tiebreaker ?? 0,
+      slots,
+      combinations,
     });
 
     console.log(`[Game] ${player.nickname} submitted: ${score}pts (tb:${tiebreaker}) (${room.results.length}/${room.players.length})`);
