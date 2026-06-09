@@ -54,8 +54,8 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-sm"
     >
-      <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
-        <h2 className="text-lg font-bold text-white text-center mb-5">
+      <div className="bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-6">
+        <h2 className="text-lg font-bold text-snow text-center mb-5">
           {mode === "login" ? "로그인" : "회원가입"}
         </h2>
 
@@ -63,7 +63,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           <div>
             <label
               htmlFor="auth-username"
-              className="block text-gray-400 text-xs mb-1 font-medium"
+              className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
             >
               아이디
             </label>
@@ -75,7 +75,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               onKeyDown={handleKeyDown}
               placeholder="3~20자"
               maxLength={20}
-              className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
           </div>
 
@@ -89,7 +89,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               >
                 <label
                   htmlFor="auth-nickname"
-                  className="block text-gray-400 text-xs mb-1 font-medium"
+                  className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
                 >
                   닉네임
                 </label>
@@ -101,7 +101,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
                   onKeyDown={handleKeyDown}
                   placeholder="게임에서 표시될 이름 (1~12자)"
                   maxLength={12}
-                  className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
                 />
               </motion.div>
             )}
@@ -110,7 +110,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           <div>
             <label
               htmlFor="auth-password"
-              className="block text-gray-400 text-xs mb-1 font-medium"
+              className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
             >
               비밀번호
             </label>
@@ -121,7 +121,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="4자 이상"
-              className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
           </div>
         </div>
@@ -142,12 +142,13 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className="w-full mt-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed"
+          style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+          className="w-full mt-4 py-3 text-void font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           aria-label={mode === "login" ? "로그인" : "가입하기"}
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-void border-t-transparent rounded-full animate-spin" />
               처리 중...
             </span>
           ) : mode === "login" ? (
@@ -159,7 +160,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
 
         <button
           onClick={handleNavigate}
-          className="w-full mt-3 text-gray-400 hover:text-gray-200 text-xs transition-colors py-1"
+          className="w-full mt-3 text-haze hover:text-snow text-xs transition-colors py-1"
           aria-label={mode === "login" ? "회원가입으로 이동" : "로그인으로 이동"}
           tabIndex={0}
         >

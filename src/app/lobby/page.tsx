@@ -84,7 +84,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-gray-900 flex flex-col items-center justify-center p-3 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center justify-center p-3 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -113,7 +113,7 @@ const LobbyPage = () => {
               <Leaderboard highlightNickname={user.nickname} />
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="w-full mt-2 py-2 text-gray-400 hover:text-white text-xs font-medium rounded-xl transition-colors bg-gray-800 border border-gray-700 hover:bg-gray-700"
+                className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
                 aria-label="닫기"
                 tabIndex={0}
               >
@@ -133,18 +133,21 @@ const LobbyPage = () => {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="flex items-center gap-2 bg-gray-800/60 rounded-xl border border-gray-700 px-3 py-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+            <div className="flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2">
+              <div
+                style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-void font-bold text-xs"
+              >
                 {user.nickname[0]}
               </div>
               <div>
-                <p className="text-white font-medium text-xs">{user.nickname}</p>
-                <p className="text-gray-500 text-[10px]">@{user.username}</p>
+                <p className="text-snow font-medium text-xs">{user.nickname}</p>
+                <p className="text-haze text-[10px]">@{user.username}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="text-gray-500 hover:text-gray-300 text-[10px] transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-700/50 border border-gray-700"
+              className="text-haze hover:text-snow text-[10px] transition-colors px-2 py-1.5 rounded-lg hover:bg-edge border border-edge"
               aria-label="로그아웃"
               tabIndex={0}
             >
@@ -177,9 +180,9 @@ const LobbyPage = () => {
           transition={{ delay: 0.2 }}
           className="landscape:flex-1 landscape:min-w-0 w-full max-w-sm landscape:max-w-none order-2 landscape:order-1"
         >
-          <div className="bg-gray-800/40 rounded-xl p-3 border border-gray-700/50 mb-3">
-            <h3 className="text-gray-300 font-bold text-xs mb-2">게임 규칙</h3>
-            <ul className="text-gray-500 text-[10px] space-y-1">
+          <div className="bg-panel/40 rounded-xl p-3 border border-edge mb-3">
+            <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">게임 규칙</h3>
+            <ul className="text-haze text-[10px] space-y-1">
               <li>• 10라운드 동안 매 라운드 카드 1장이 공개됩니다</li>
               <li>• 10초 안에 10개 슬롯 중 하나에 배치하세요</li>
               <li>• 슬롯 순서가 스트레이트 판정에 영향을 줍니다</li>
@@ -190,7 +193,7 @@ const LobbyPage = () => {
 
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="w-full py-2 px-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-xs font-medium rounded-xl transition-all border border-gray-700 hover:border-gray-600"
+            className="w-full py-2 px-3 bg-panel hover:bg-edge text-snow text-xs font-medium rounded-xl transition-all border border-edge active:scale-95"
             aria-label="리더보드 보기"
             tabIndex={0}
           >
@@ -214,14 +217,14 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-5 px-5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+                  className="w-full py-5 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="싱글 모드로 시작"
                 >
                   <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">🎮</span>
+                    <span className="text-2xl text-neon-cyan">🎮</span>
                     <div className="text-left">
-                      <div className="text-base">싱글 모드</div>
-                      <div className="text-xs font-normal opacity-80">
+                      <div className="text-base text-neon-cyan">싱글 모드</div>
+                      <div className="text-xs font-normal text-haze">
                         혼자서 최고 점수에 도전
                       </div>
                     </div>
@@ -233,14 +236,14 @@ const LobbyPage = () => {
                     setMode("multi_create");
                     setError("");
                   }}
-                  className="w-full py-5 px-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-purple-500/20"
+                  className="w-full py-5 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
                   aria-label="멀티플레이 모드"
                 >
                   <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">👥</span>
+                    <span className="text-2xl text-neon-magenta">👥</span>
                     <div className="text-left">
-                      <div className="text-base">멀티플레이</div>
-                      <div className="text-xs font-normal opacity-80">
+                      <div className="text-base text-neon-magenta">멀티플레이</div>
+                      <div className="text-xs font-normal text-haze">
                         친구와 함께 대결 (최대 10명)
                       </div>
                     </div>
@@ -259,7 +262,8 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleCreateRoom}
-                  className="w-full py-5 px-5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-green-500/20"
+                  style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                  className="w-full py-5 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
                   aria-label="방 만들기"
                 >
                   <div className="flex items-center justify-center gap-3">
@@ -278,14 +282,14 @@ const LobbyPage = () => {
                     setMode("multi_join");
                     setError("");
                   }}
-                  className="w-full py-5 px-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-orange-500/20"
+                  className="w-full py-5 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="방 참여하기"
                 >
                   <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">🚪</span>
+                    <span className="text-2xl text-neon-cyan">🚪</span>
                     <div className="text-left">
-                      <div className="text-base">방 참여하기</div>
-                      <div className="text-xs font-normal opacity-80">
+                      <div className="text-base text-neon-cyan">방 참여하기</div>
+                      <div className="text-xs font-normal text-haze">
                         코드를 입력하여 참여
                       </div>
                     </div>
@@ -297,7 +301,7 @@ const LobbyPage = () => {
                     setMode("select");
                     setError("");
                   }}
-                  className="text-gray-500 hover:text-gray-300 text-sm transition-colors py-1"
+                  className="text-haze hover:text-snow text-sm transition-colors py-1"
                   aria-label="뒤로가기"
                 >
                   ← 뒤로가기
@@ -316,7 +320,7 @@ const LobbyPage = () => {
                 <div>
                   <label
                     htmlFor="room-code"
-                    className="block text-gray-400 text-xs mb-1.5 font-medium"
+                    className="block text-haze text-[10px] tracking-[2px] uppercase mb-1.5 font-medium"
                   >
                     방 코드 입력
                   </label>
@@ -330,14 +334,15 @@ const LobbyPage = () => {
                     }}
                     placeholder="6자리 코드 입력"
                     maxLength={6}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white text-center text-xl font-mono tracking-[0.3em] placeholder-gray-500 focus:outline-none focus:border-orange-500 transition-colors uppercase"
+                    className="w-full px-4 py-3 bg-void border border-edge rounded-xl text-snow text-center text-xl font-mono tracking-[0.3em] placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors uppercase"
                   />
                 </div>
 
                 <button
                   onClick={handleJoinRoom}
                   disabled={joinCode.length < 6}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white text-sm font-bold rounded-2xl transition-all active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                  className="w-full py-3 px-4 text-void text-sm font-bold rounded-2xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="참여하기"
                 >
                   참여하기
@@ -349,7 +354,7 @@ const LobbyPage = () => {
                     setError("");
                     setJoinCode("");
                   }}
-                  className="text-gray-500 hover:text-gray-300 text-sm transition-colors py-1"
+                  className="text-haze hover:text-snow text-sm transition-colors py-1"
                   aria-label="뒤로가기"
                 >
                   ← 뒤로가기
