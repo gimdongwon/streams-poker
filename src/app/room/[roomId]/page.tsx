@@ -111,7 +111,7 @@ const RoomPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-gray-900 flex flex-col items-center landscape:justify-start portrait:justify-center p-3 landscape:py-2 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center landscape:justify-start portrait:justify-center p-3 landscape:py-2 overflow-auto">
       <Logo size="sm" className="mb-2 landscape:mb-1" />
 
       <motion.div
@@ -119,12 +119,12 @@ const RoomPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-3 landscape:mb-2"
       >
-        <h2 className="text-lg font-black text-white mb-2">대기방</h2>
+        <h2 className="text-lg font-black text-snow mb-2">대기방</h2>
         <div className="flex items-center justify-center gap-2">
-          <span className="text-gray-400 text-xs">방 코드:</span>
+          <span className="text-haze text-[10px] tracking-[2px] uppercase">방 코드</span>
           <button
             onClick={handleCopyCode}
-            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-lg font-mono tracking-[0.2em] text-yellow-400 hover:bg-gray-700 transition-colors"
+            className="bg-panel border border-neon-cyan/40 rounded-lg px-3 py-1.5 text-lg font-mono tracking-[0.2em] text-neon-cyan hover:bg-edge transition-colors active:scale-95"
             aria-label="방 코드 복사"
           >
             {roomCode || roomId}
@@ -154,7 +154,7 @@ const RoomPage = () => {
             className="text-center mb-4"
           >
             <p className="text-red-400 text-sm">{error}</p>
-            <p className="text-gray-500 text-xs mt-1">잠시 후 로비로 이동합니다...</p>
+            <p className="text-haze text-xs mt-1">잠시 후 로비로 이동합니다...</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -166,10 +166,10 @@ const RoomPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="w-full landscape:flex-1 landscape:min-w-0 max-w-sm landscape:max-w-none bg-gray-800/60 rounded-2xl border border-gray-700 p-3 order-2 landscape:order-1"
+          className="w-full landscape:flex-1 landscape:min-w-0 max-w-sm landscape:max-w-none bg-panel/60 rounded-2xl border border-edge p-3 order-2 landscape:order-1"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-bold text-sm">
+            <h3 className="text-snow font-bold text-sm">
               플레이어 ({players.length}/{MAX_PLAYERS})
             </h3>
           </div>
@@ -187,7 +187,7 @@ const RoomPage = () => {
             </AnimatePresence>
 
             {players.length === 0 && (
-              <p className="text-gray-500 text-center py-6 text-sm">
+              <p className="text-haze text-center py-6 text-sm">
                 연결 중...
               </p>
             )}
@@ -205,10 +205,15 @@ const RoomPage = () => {
             <button
               onClick={handleStart}
               disabled={!canStart}
+              style={
+                canStart
+                  ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
+                  : undefined
+              }
               className={`w-full py-5 px-5 text-base font-bold rounded-2xl transition-all ${
                 canStart
-                  ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white active:scale-95 shadow-lg shadow-green-500/20"
-                  : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                  ? "text-void active:scale-95 hover:scale-[1.02]"
+                  : "bg-edge text-haze cursor-not-allowed"
               }`}
               aria-label="게임 시작"
             >
@@ -221,11 +226,16 @@ const RoomPage = () => {
           ) : currentPlayer ? (
             <button
               onClick={toggleReady}
-            className={`w-full py-5 px-5 text-base font-bold rounded-2xl transition-all active:scale-95 ${
-              currentPlayer.status === "ready"
-                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/20"
-                : "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20"
-            }`}
+              style={
+                currentPlayer.status === "ready"
+                  ? undefined
+                  : { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
+              }
+              className={`w-full py-5 px-5 text-base font-bold rounded-2xl transition-all active:scale-95 ${
+                currentPlayer.status === "ready"
+                  ? "bg-panel border border-neon-cyan/60 text-neon-cyan hover:bg-neon-cyan/10"
+                  : "text-void"
+              }`}
               aria-label={currentPlayer.status === "ready" ? "대기로 변경" : "준비 완료"}
             >
               {currentPlayer.status === "ready" ? "Ready 취소" : "Ready!"}
@@ -234,13 +244,13 @@ const RoomPage = () => {
 
           <button
             onClick={handleLeave}
-            className="w-full py-2.5 px-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white text-sm font-medium rounded-2xl transition-all border border-gray-700"
+            className="w-full py-2.5 px-4 bg-panel hover:bg-edge text-haze hover:text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
             aria-label="방 나가기"
           >
             방 나가기
           </button>
 
-          <p className="text-gray-600 text-[10px] text-center mt-1">
+          <p className="text-haze/70 text-[10px] text-center mt-1">
             방 코드를 친구에게 공유하여 초대하세요
           </p>
         </motion.div>
@@ -264,23 +274,26 @@ const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
       transition={{ delay: index * 0.05 }}
       className={`flex items-center justify-between p-3 rounded-xl ${
         isCurrentPlayer
-          ? "bg-purple-900/30 border border-purple-700/50"
-          : "bg-gray-700/30"
+          ? "bg-neon-cyan/10 border border-neon-cyan/40"
+          : "bg-edge/40"
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+        <div
+          style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-void text-sm font-bold"
+        >
           {player.nickname[0]?.toUpperCase()}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium">
+          <span className="text-snow text-sm font-medium">
             {player.nickname}
           </span>
           {isCurrentPlayer && (
-            <span className="text-purple-400 text-[10px]">(나)</span>
+            <span className="text-neon-cyan text-[10px]">(나)</span>
           )}
           {player.isHost && (
-            <span className="bg-yellow-500/20 text-yellow-400 text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+            <span className="bg-neon-magenta/20 text-neon-magenta text-[10px] px-1.5 py-0.5 rounded-full font-medium">
               방장
             </span>
           )}
@@ -290,12 +303,12 @@ const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
       <div className="flex items-center gap-2">
         <div
           className={`w-2 h-2 rounded-full ${
-            player.status === "ready" ? "bg-green-500" : "bg-gray-600"
+            player.status === "ready" ? "bg-green-500" : "bg-haze/40"
           }`}
         />
         <span
           className={`text-xs font-medium ${
-            player.status === "ready" ? "text-green-400" : "text-gray-500"
+            player.status === "ready" ? "text-green-400" : "text-haze"
           }`}
         >
           {player.status === "ready" ? "READY" : "대기중"}
