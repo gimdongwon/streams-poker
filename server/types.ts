@@ -4,6 +4,10 @@ export type Player = {
   nickname: string;
   status: "waiting" | "ready";
   isHost: boolean;
+  // Stable identity used to re-bind a player to a new socket on reconnect.
+  userId?: string;
+  // True while the player's socket is gone but inside the reconnect grace window.
+  disconnected?: boolean;
 };
 
 export type CardData = {

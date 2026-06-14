@@ -7,6 +7,11 @@ export const getSocket = (): Socket => {
     socket = io({
       path: "/api/socketio",
       autoConnect: false,
+      // 네트워크 블립/탭 전환 후 자동 재연결 (socket.io 기본값을 명시).
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 4000,
     });
   }
   return socket;
