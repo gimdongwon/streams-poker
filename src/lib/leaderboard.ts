@@ -1,38 +1,52 @@
 import { supabase } from "./supabase";
-import type { LeaderboardEntry, LeaderboardInsert } from "@/types/leaderboard";
+import type {
+  LeaderboardInsert,
+  UserRankingEntry,
+  UserRankInfo,
+} from "@/types/leaderboard";
 
-export const fetchLeaderboard = async (
+// 유저별 누적 랭킹 상위 N명 (total_score 내림차순)
+export const fetchUserRankings = async (
   limit = 20
-): Promise<LeaderboardEntry[]> => {
+): Promise<UserRankingEntry[]> => {
   const { data, error } = await supabase
-    .from("leaderboard")
+    .from("user_rankings")
     .select("*")
-    .order("score", { ascending: false })
+    .order("total_score", { ascending: false })
+    .order("games_played", { ascending: true })
     .limit(limit);
 
   if (error) throw error;
   return data ?? [];
 };
 
-export const submitScore = async (
-  entry: LeaderboardInsert
-): Promise<LeaderboardEntry> => {
-  const { data, error } = await supabase
-    .from("leaderboard")
-    .insert(entry)
-    .select()
-    .single();
-
+// 게임 1판 결과를 기록(history)에 저장 → 뷰가 자동으로 누적 합산
+export const submitScore = async (entry: LeaderboardInsert): Promise<void> => {
+  const { error } = await supabase.from("leaderboard").insert(entry);
   if (error) throw error;
-  return data;
 };
 
-export const fetchPlayerRank = async (score: number): Promise<number> => {
-  const { count, error } = await supabase
-    .from("leaderboard")
-    .select("*", { count: "exact", head: true })
-    .gt("score", score);
+// 특정 유저의 누적 점수/순위 조회
+export const fetchUserRank = async (userId: string): Promise<UserRankInfo> => {
+  const { data: me, error: meErr } = await supabase
+    .from("user_rankings")
+    .select("total_score, games_played")
+    .eq("user_id", userId)
+    .maybeSingle();
 
-  if (error) throw error;
-  return (count ?? 0) + 1;
+  if (meErr) throw meErr;
+  if (!me) return { rank: null, totalScore: 0, gamesPlayed: 0 };
+
+  const { count, error: rankErr } = await supabase
+    .from("user_rankings")
+    .select("*", { count: "exact", head: true })
+    .gt("total_score", me.total_score);
+
+  if (rankErr) throw rankErr;
+
+  return {
+    rank: (count ?? 0) + 1,
+    totalScore: me.total_score,
+    gamesPlayed: me.games_played,
+  };
 };
