@@ -92,9 +92,9 @@ export const GameScreen = ({
   }, [phase, mode, currentRound, emitPlaced, nextRound]);
 
   const handleSubmitScore = useCallback(
-    async (totalScore: number, comboNames: string[]) => {
-      // 싱글·멀티 모두 자신의 게임 결과를 기록 → 유저 누적 점수에 합산된다
-      // (누적 점수/순위는 랭킹보드에서만 노출)
+    async () => {
+      // 싱글·멀티 모두 자신의 게임 결과를 기록 → 유저 누적 점수에 합산된다.
+      // 점수는 서버가 보드(slots)로 재계산하므로 클라 점수는 보내지 않는다(치팅 방지).
       if (hasSavedRef.current || !playerId) return;
       hasSavedRef.current = true;
 
@@ -105,9 +105,7 @@ export const GameScreen = ({
           body: JSON.stringify({
             user_id: playerId,
             nickname: playerName,
-            score: totalScore,
-            combinations: comboNames,
-            combination_count: comboNames.length,
+            slots: slots.map((s) => s.card),
             mode,
           }),
         });
@@ -117,7 +115,7 @@ export const GameScreen = ({
         hasSavedRef.current = false;
       }
     },
-    [mode, playerName, playerId]
+    [mode, playerName, playerId, slots]
   );
 
   const handleEvaluate = useCallback(() => {
@@ -140,8 +138,8 @@ export const GameScreen = ({
       submitResult(total, comboNames, tiebreaker, boardSlots, resultCombos);
     }
 
-    // 싱글·멀티 모두 글로벌 리더보드에 기록 (각 클라이언트가 자신의 결과 저장)
-    handleSubmitScore(total, comboNames);
+    // 싱글·멀티 모두 글로벌 리더보드에 기록 (서버가 점수 재계산)
+    handleSubmitScore();
   }, [slots, setCombinations, setScore, mode, submitResult, handleSubmitScore]);
 
   useEffect(() => {
