@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { connectSocket } from "@/lib/socket";
+import type { UserRankInfo } from "@/types/leaderboard";
 
 type Mode = "select" | "multi_create" | "multi_join";
 
@@ -20,6 +21,8 @@ const LobbyPage = () => {
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     if (showLeaderboard) {
@@ -43,6 +46,25 @@ const LobbyPage = () => {
       setNickname(user.nickname);
     }
   }, [user, setNickname]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const fetchRank = async () => {
+      try {
+        const res = await fetch(`/api/leaderboard/rank?userId=${user.id}`);
+        if (!res.ok) return;
+        const data: UserRankInfo = await res.json();
+        if (!cancelled) setRankInfo(data);
+      } catch {
+        // 랭킹 정보 조회 실패 시 무시
+      }
+    };
+    fetchRank();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (storeRoomCode && roomStatus === "waiting" && isConnected) {
@@ -84,7 +106,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center justify-center p-3 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -110,7 +132,7 @@ const LobbyPage = () => {
               exit={{ scale: 0.9, y: 20 }}
               className="relative z-10 w-full max-w-md"
             >
-              <Leaderboard highlightNickname={user.nickname} />
+              <Leaderboard highlightNickname={user.nickname} highlightUserId={user.id} />
               <button
                 onClick={() => setShowLeaderboard(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
@@ -124,39 +146,117 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
-      {/* 상단: 유저 정보 */}
-      <div className="w-full max-w-2xl mb-4">
-        <div className="flex items-center justify-between">
+      {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
+      <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
+        {/* 좌측: 로고 */}
+        <div className="flex-1 flex justify-start min-w-0">
           <Logo size="sm" />
+        </div>
+
+        {/* 가운데: 내 랭킹 & 점수 */}
+        {rankInfo && (
           <motion.div
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0"
           >
-            <div className="flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2">
+            <div className="text-center">
+              <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
+                내 랭킹
+              </p>
+              <p className="text-snow font-bold text-base leading-tight">
+                {rankInfo.rank != null ? `#${rankInfo.rank}` : "-"}
+              </p>
+            </div>
+            <div className="w-px h-7 bg-edge" />
+            <div className="text-center">
+              <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
+                누적 점수
+              </p>
+              <p className="text-neon-cyan font-bold text-base leading-tight">
+                {rankInfo.totalScore.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-px h-7 bg-edge" />
+            <div className="text-center">
+              <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
+                판수
+              </p>
+              <p className="text-snow font-bold text-base leading-tight">
+                {rankInfo.gamesPlayed}
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* 우측: 유저 정보 */}
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex-1 flex items-center justify-end gap-3 min-w-0"
+        >
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu((v) => !v)}
+              className="flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
+              aria-label="계정 메뉴 열기"
+              aria-haspopup="true"
+              aria-expanded={showUserMenu}
+              tabIndex={0}
+            >
               <div
                 style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-void font-bold text-xs"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-void font-bold text-xs shrink-0"
               >
                 {user.nickname[0]}
               </div>
-              <div>
-                <p className="text-snow font-medium text-xs">{user.nickname}</p>
-                <p className="text-haze text-[10px]">@{user.username}</p>
+              <div className="min-w-0 text-left">
+                <p className="text-snow font-medium text-xs truncate">{user.nickname}</p>
+                <p className="text-haze text-[10px] truncate">@{user.username}</p>
               </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-haze hover:text-snow text-[10px] transition-colors px-2 py-1.5 rounded-lg hover:bg-edge border border-edge"
-              aria-label="로그아웃"
-              tabIndex={0}
-            >
-              로그아웃
+              <motion.span
+                animate={{ rotate: showUserMenu ? 180 : 0 }}
+                className="text-haze text-[10px] ml-0.5 shrink-0"
+              >
+                ▾
+              </motion.span>
             </button>
-          </motion.div>
-        </div>
+
+            <AnimatePresence>
+              {showUserMenu && (
+                <>
+                  {/* 바깥 클릭 시 닫기 */}
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowUserMenu(false)}
+                    role="button"
+                    tabIndex={-1}
+                    aria-label="메뉴 닫기"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="absolute right-0 mt-2 w-full z-20 bg-panel border border-edge rounded-xl overflow-hidden shadow-lg"
+                  >
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors"
+                      aria-label="로그아웃"
+                      tabIndex={0}
+                    >
+                      로그아웃
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </div>
 
+      {/* 가운데 영역: 에러 + 메인 콘텐츠 */}
+      <div className="flex-1 w-full flex flex-col items-center justify-center">
       {/* 에러 메시지 */}
       <AnimatePresence>
         {error && (
@@ -172,17 +272,17 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-4 landscape:gap-6 w-full max-w-2xl landscape:items-start items-center">
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-8 w-full max-w-4xl landscape:items-start items-center justify-center">
         {/* 좌측: 규칙 + 리더보드 */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="landscape:flex-1 landscape:min-w-0 w-full max-w-sm landscape:max-w-none order-2 landscape:order-1"
+          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1"
         >
-          <div className="bg-panel/40 rounded-xl p-3 border border-edge mb-3">
-            <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">게임 규칙</h3>
-            <ul className="text-haze text-[10px] space-y-1">
+          <div className="bg-panel/40 rounded-2xl p-4 border border-edge mb-3">
+            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5">게임 규칙</h3>
+            <ul className="text-haze text-xs space-y-1.5">
               <li>• 10라운드 동안 매 라운드 카드 1장이 공개됩니다</li>
               <li>• 10초 안에 10개 슬롯 중 하나에 배치하세요</li>
               <li>• 슬롯 순서가 스트레이트 판정에 영향을 줍니다</li>
@@ -193,11 +293,11 @@ const LobbyPage = () => {
 
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="w-full py-2 px-3 bg-panel hover:bg-edge text-snow text-xs font-medium rounded-xl transition-all border border-edge active:scale-95"
+            className="w-full py-3 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
             aria-label="리더보드 보기"
             tabIndex={0}
           >
-            <div className="flex items-center justify-center gap-1.5">
+            <div className="flex items-center justify-center gap-2">
               <span>🏆</span>
               <span>리더보드 보기</span>
             </div>
@@ -205,7 +305,7 @@ const LobbyPage = () => {
         </motion.div>
 
         {/* 우측: 모드 선택 버튼 */}
-        <div className="w-full max-w-sm landscape:w-72 landscape:shrink-0 order-1 landscape:order-2">
+        <div className="w-full max-w-md landscape:w-80 landscape:shrink-0 order-1 landscape:order-2">
           <AnimatePresence mode="wait">
             {mode === "select" && (
               <motion.div
@@ -217,14 +317,14 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-5 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="싱글 모드로 시작"
                 >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl text-neon-cyan">🎮</span>
+                  <div className="flex items-center justify-start gap-4">
+                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-cyan">싱글 모드</div>
-                      <div className="text-xs font-normal text-haze">
+                      <div className="text-lg text-neon-cyan">싱글 모드</div>
+                      <div className="text-sm font-normal text-haze">
                         혼자서 최고 점수에 도전
                       </div>
                     </div>
@@ -236,14 +336,14 @@ const LobbyPage = () => {
                     setMode("multi_create");
                     setError("");
                   }}
-                  className="w-full py-5 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
+                  className="w-full py-6 px-6 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
                   aria-label="멀티플레이 모드"
                 >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl text-neon-magenta">👥</span>
+                  <div className="flex items-center justify-start gap-4">
+                    <span className="text-3xl text-neon-magenta w-10 text-center shrink-0">👥</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-magenta">멀티플레이</div>
-                      <div className="text-xs font-normal text-haze">
+                      <div className="text-lg text-neon-magenta">멀티플레이</div>
+                      <div className="text-sm font-normal text-haze">
                         친구와 함께 대결 (최대 10명)
                       </div>
                     </div>
@@ -263,14 +363,14 @@ const LobbyPage = () => {
                 <button
                   onClick={handleCreateRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-5 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
+                  className="w-full py-6 px-6 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
                   aria-label="방 만들기"
                 >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">🏠</span>
+                  <div className="flex items-center justify-start gap-4">
+                    <span className="text-3xl w-10 text-center shrink-0">🏠</span>
                     <div className="text-left">
-                      <div className="text-base">방 만들기</div>
-                      <div className="text-xs font-normal opacity-80">
+                      <div className="text-lg">방 만들기</div>
+                      <div className="text-sm font-normal opacity-80">
                         새로운 방을 생성합니다
                       </div>
                     </div>
@@ -282,14 +382,14 @@ const LobbyPage = () => {
                     setMode("multi_join");
                     setError("");
                   }}
-                  className="w-full py-5 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="방 참여하기"
                 >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl text-neon-cyan">🚪</span>
+                  <div className="flex items-center justify-start gap-4">
+                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-cyan">방 참여하기</div>
-                      <div className="text-xs font-normal text-haze">
+                      <div className="text-lg text-neon-cyan">방 참여하기</div>
+                      <div className="text-sm font-normal text-haze">
                         코드를 입력하여 참여
                       </div>
                     </div>
@@ -363,6 +463,7 @@ const LobbyPage = () => {
             )}
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </div>
   );
