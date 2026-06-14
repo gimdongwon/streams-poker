@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import { rooms, userSockets } from "../state";
 import { getPublicPlayers } from "../utils";
+import { rebindPlayerByUserId } from "./room";
 
 export const registerAuthHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Auth: Register userId to detect duplicate sessions --
@@ -47,5 +48,8 @@ export const registerAuthHandlers = (io: SocketIOServer, socket: Socket) => {
     userSockets.set(userId, socket.id);
     (socket as Socket & { userId?: string }).userId = userId;
     console.log(`[Auth] Registered userId: ${userId} -> socket: ${socket.id}`);
+
+    // 재접속이라면(게임 중 좌석이 유예 상태로 남아 있는 경우) 새 소켓에 재바인딩한다.
+    rebindPlayerByUserId(io, socket, userId);
   });
 };

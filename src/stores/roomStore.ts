@@ -60,6 +60,40 @@ type RoomStore = {
   cleanupSocketListeners: () => void;
 };
 
+// --- 재접속 의도 (sessionStorage): 멀티 게임 진행 중일 때 방 코드를 보관한다 ---
+const ACTIVE_ROOM_KEY = "tens-active-room";
+
+const setActiveRoomIntent = (code: string) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(ACTIVE_ROOM_KEY, JSON.stringify({ code, inGame: true }));
+  } catch {
+    // ignore
+  }
+};
+
+const clearActiveRoomIntent = () => {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(ACTIVE_ROOM_KEY);
+  } catch {
+    // ignore
+  }
+};
+
+const getActiveRoomIntent = (): { code: string } | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(ACTIVE_ROOM_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { code?: string; inGame?: boolean };
+    if (parsed.inGame && parsed.code) return { code: parsed.code };
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 const generateRoomCode = (): string => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -148,6 +182,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       const socket = getSocket();
       socket.emit("room:leave", { code: roomCode });
     }
+    clearActiveRoomIntent();
     disconnectSocket();
     set({
       roomCode: null,
@@ -179,6 +214,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         // socket not initialized
       }
     }
+    clearActiveRoomIntent();
     disconnectSocket();
     set({
       roomCode: null,
@@ -205,6 +241,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:playerPlaced");
     socket.off("game:nextRound");
     socket.off("game:results");
+    socket.off("game:resync");
     socket.off("room:listed");
 
     socket.on("connect", () => {
@@ -213,6 +250,12 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       const authUser = useAuthStore.getState().user;
       if (authUser?.id) {
         socket.emit("auth:register", { userId: authUser.id });
+      }
+
+      // 새로고침/네트워크 복구 후: 진행 중이던 방으로 자동 재접속 시도.
+      const intent = getActiveRoomIntent();
+      if (intent && !get().roomCode) {
+        socket.emit("room:rejoin", { code: intent.code });
       }
     });
 
@@ -258,6 +301,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("game:started", ({ deck }) => {
+      const code = get().roomCode;
+      if (code) setActiveRoomIntent(code);
       set({ multiDeck: deck, status: "playing", playerResults: [], roundPlacedPlayers: [] });
     });
 
@@ -271,6 +316,37 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         useGameStore.getState().nextRound();
       }, 300);
     });
+
+    socket.on(
+      "game:resync",
+      ({
+        code,
+        status,
+        deck,
+        currentRound,
+        players,
+      }: {
+        code: string;
+        status: RoomStatus;
+        deck: Card[];
+        currentRound: number;
+        players: Player[];
+      }) => {
+        // 진행 중인 게임으로 복귀: 방 상태를 맞추고 게임 보드를 재구성한다.
+        set({
+          roomCode: code,
+          players,
+          status,
+          multiDeck: deck,
+          error: null,
+          roundPlacedPlayers: [],
+        });
+        if (status === "playing") {
+          setActiveRoomIntent(code);
+          useGameStore.getState().resyncGame({ code, status, deck, currentRound });
+        }
+      }
+    );
 
     socket.on("game:results", ({ results }) => {
       const socket = getSocket();
@@ -297,6 +373,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         })
       );
 
+      clearActiveRoomIntent();
       set({ playerResults, status: "finished" });
     });
 
@@ -317,6 +394,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:playerPlaced");
     socket.off("game:nextRound");
     socket.off("game:results");
+    socket.off("game:resync");
     socket.off("room:listed");
   },
 
