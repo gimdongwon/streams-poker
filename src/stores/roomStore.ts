@@ -10,6 +10,13 @@ type RoundPlacedPlayer = {
   nickname: string;
 };
 
+export type PublicRoom = {
+  code: string;
+  hostNickname: string;
+  playerCount: number;
+  maxPlayers: number;
+};
+
 type RoomStore = {
   roomCode: string | null;
   players: Player[];
@@ -20,12 +27,14 @@ type RoomStore = {
   error: string | null;
   isConnected: boolean;
   roundPlacedPlayers: RoundPlacedPlayer[];
+  roomList: PublicRoom[];
 
   setNickname: (nickname: string) => void;
 
   // Socket-based actions
   createRoom: (nickname: string) => void;
   joinRoom: (code: string, nickname: string) => void;
+  requestRoomList: () => void;
   toggleReady: () => void;
   startGame: () => void;
   submitResult: (
@@ -70,6 +79,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   error: null,
   isConnected: false,
   roundPlacedPlayers: [],
+  roomList: [],
 
   setNickname: (nickname: string) => set({ nickname }),
 
@@ -85,6 +95,16 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   joinRoom: (code: string, nickname: string) => {
     const socket = connectSocket();
     socket.emit("room:join", { code, nickname });
+  },
+
+  requestRoomList: () => {
+    get().initSocketListeners();
+    const socket = connectSocket();
+    if (socket.connected) {
+      socket.emit("room:list");
+    } else {
+      socket.once("connect", () => socket.emit("room:list"));
+    }
   },
 
   toggleReady: () => {
@@ -185,6 +205,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:playerPlaced");
     socket.off("game:nextRound");
     socket.off("game:results");
+    socket.off("room:listed");
 
     socket.on("connect", () => {
       set({ isConnected: true });
@@ -278,6 +299,10 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
       set({ playerResults, status: "finished" });
     });
+
+    socket.on("room:listed", ({ rooms }: { rooms: PublicRoom[] }) => {
+      set({ roomList: rooms });
+    });
   },
 
   cleanupSocketListeners: () => {
@@ -292,6 +317,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:playerPlaced");
     socket.off("game:nextRound");
     socket.off("game:results");
+    socket.off("room:listed");
   },
 
   // --- Local-only (single mode & backward compat) ---
