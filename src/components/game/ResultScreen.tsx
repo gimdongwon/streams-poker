@@ -8,6 +8,7 @@ import type { Card } from "@/types/card";
 import { getComboStyle } from "@/lib/comboStyles";
 import { Board, type BoardCombo } from "./Board";
 import { Logo } from "@/components/common/Logo";
+import { MuteButton } from "@/components/common/MuteButton";
 
 type ResultScreenProps = {
   mode: "single" | "multi";
@@ -141,7 +142,10 @@ export const ResultScreen = ({
             {mode === "single" ? "싱글" : "멀티"}
           </span>
         </div>
-        <span className="text-haze text-xs">{playerName}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-haze text-xs">{playerName}</span>
+          <MuteButton />
+        </div>
       </div>
 
       {/* body: portrait stacks, landscape splits into columns */}

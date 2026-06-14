@@ -8,6 +8,7 @@ import type {
 } from "@/types/game";
 import { TOTAL_ROUNDS, TOTAL_SLOTS, TIMER_SECONDS } from "@/types/game";
 import { createGameDeck } from "@/lib/poker/deck";
+import { playSound } from "@/lib/sound";
 
 type GameStore = {
   phase: GamePhase;
@@ -92,6 +93,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     get().stopTimer();
     set({ slots: newSlots, currentCard: null, phase: "round_end" });
+    playSound("place");
   },
 
   autoPlaceCard: () => {
@@ -149,13 +151,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   tickTimer: () => {
-    const { timer } = get();
+    const { timer, phase } = get();
     if (timer <= 1) {
       get().stopTimer();
       get().autoPlaceCard();
       return;
     }
-    set({ timer: timer - 1 });
+    const next = timer - 1;
+    if (phase === "playing" && next >= 1 && next <= 3) {
+      playSound("warning");
+    }
+    set({ timer: next });
   },
 
   endGame: () => {

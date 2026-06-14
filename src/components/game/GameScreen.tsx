@@ -17,6 +17,8 @@ import { RoundInfo } from "./RoundInfo";
 import { ResultScreen } from "./ResultScreen";
 import { TIMER_SECONDS } from "@/types/game";
 import { Logo } from "@/components/common/Logo";
+import { MuteButton } from "@/components/common/MuteButton";
+import { playSound } from "@/lib/sound";
 
 type GameScreenProps = {
   mode: "single" | "multi";
@@ -61,6 +63,7 @@ export const GameScreen = ({
 
   const hasSavedRef = useRef(false);
   const placedEmittedRoundRef = useRef(0);
+  const resultSoundPlayedRef = useRef(false);
 
   useEffect(() => {
     if (phase !== "idle") return;
@@ -146,6 +149,19 @@ export const GameScreen = ({
     }
   }, [phase, handleEvaluate]);
 
+  // Play a result sound once when the game ends.
+  useEffect(() => {
+    if (phase !== "game_over" || resultSoundPlayedRef.current) return;
+    resultSoundPlayedRef.current = true;
+
+    if (mode === "single") {
+      playSound("win");
+    } else {
+      const myResult = playerResults.find((r) => r.isMe);
+      playSound(myResult && myResult.rank === 1 ? "win" : "reveal");
+    }
+  }, [phase, mode, playerResults]);
+
   const handlePlace = useCallback(
     (index: SlotIndex) => {
       if (phase === "playing") {
@@ -206,7 +222,10 @@ export const GameScreen = ({
             {mode === "single" ? "싱글" : "멀티"}
           </span>
         </div>
-        <RoundInfo currentRound={currentRound} />
+        <div className="flex items-center gap-1">
+          <RoundInfo currentRound={currentRound} />
+          <MuteButton />
+        </div>
       </div>
 
       <div className="flex flex-col landscape:flex-row items-center landscape:items-center landscape:justify-between gap-4 w-full max-w-3xl">
