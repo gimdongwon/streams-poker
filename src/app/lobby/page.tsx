@@ -11,11 +11,11 @@ import { connectSocket } from "@/lib/socket";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import type { UserRankInfo } from "@/types/leaderboard";
 
-type Mode = "select" | "multi_create" | "multi_join";
+type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
 const LobbyPage = () => {
   const router = useRouter();
-  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom } = useRoomStore();
+  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList } = useRoomStore();
   const { user, isLoggedIn, logout, hasHydrated } = useAuthStore();
 
   const [mode, setMode] = useState<Mode>("select");
@@ -97,6 +97,12 @@ const LobbyPage = () => {
       return;
     }
     router.push(`/room/${joinCode.trim().toUpperCase()}`);
+  };
+
+  const handleBrowseRooms = () => {
+    setMode("multi_browse");
+    setError("");
+    requestRoomList();
   };
 
   const handleLogout = () => {
@@ -398,8 +404,92 @@ const LobbyPage = () => {
                 </button>
 
                 <button
+                  onClick={handleBrowseRooms}
+                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  aria-label="방 찾기"
+                >
+                  <div className="flex items-center justify-start gap-4">
+                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
+                    <div className="text-left">
+                      <div className="text-lg text-neon-cyan">방 찾기</div>
+                      <div className="text-sm font-normal text-haze">
+                        열려 있는 방 목록에서 참여
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                <button
                   onClick={() => {
                     setMode("select");
+                    setError("");
+                  }}
+                  className="text-haze hover:text-snow text-sm transition-colors py-1"
+                  aria-label="뒤로가기"
+                >
+                  ← 뒤로가기
+                </button>
+              </motion.div>
+            )}
+
+            {mode === "multi_browse" && (
+              <motion.div
+                key="browse"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex flex-col gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-haze text-[10px] tracking-[2px] uppercase font-medium">
+                    열려 있는 방
+                  </span>
+                  <button
+                    onClick={() => requestRoomList()}
+                    className="text-haze hover:text-neon-cyan text-xs transition-colors px-2 py-1 rounded-lg active:scale-95"
+                    aria-label="새로고침"
+                  >
+                    ↻ 새로고침
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-2 max-h-[50vh] landscape:max-h-[44vh] overflow-y-auto">
+                  {roomList.length === 0 ? (
+                    <div className="bg-panel/40 border border-edge rounded-xl py-10 text-center text-haze text-sm">
+                      열려 있는 방이 없어요
+                    </div>
+                  ) : (
+                    roomList.map((room) => (
+                      <button
+                        key={room.code}
+                        onClick={() => router.push(`/room/${room.code}`)}
+                        className="w-full bg-panel border border-edge rounded-xl px-4 py-3 transition-all active:scale-95 hover:bg-edge hover:border-neon-cyan/60 text-left"
+                        aria-label={`${room.hostNickname}님의 방 참여`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-snow font-medium text-sm truncate">
+                              {room.hostNickname}님의 방
+                            </div>
+                            <div className="text-haze text-[10px] font-mono tracking-wider truncate">
+                              {room.code}
+                            </div>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <span className="text-neon-cyan font-bold text-sm">
+                              {room.playerCount}
+                            </span>
+                            <span className="text-haze text-xs">/{room.maxPlayers}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    setMode("multi_create");
                     setError("");
                   }}
                   className="text-haze hover:text-snow text-sm transition-colors py-1"

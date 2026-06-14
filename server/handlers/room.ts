@@ -84,6 +84,19 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
     console.log(`[Room] Created: ${code} by ${nickname}`);
   });
 
+  // -- Room: List (public waiting rooms) --
+  socket.on("room:list", () => {
+    const list = [...rooms.values()]
+      .filter((r) => r.status === "waiting" && r.players.length > 0)
+      .map((r) => ({
+        code: r.code,
+        hostNickname: (r.players.find((p) => p.isHost) ?? r.players[0]).nickname,
+        playerCount: r.players.length,
+        maxPlayers: 10,
+      }));
+    socket.emit("room:listed", { rooms: list });
+  });
+
   // -- Room: Join --
   socket.on("room:join", ({ code, nickname }: { code: string; nickname: string }) => {
     const room = rooms.get(code);
