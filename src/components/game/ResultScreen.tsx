@@ -9,6 +9,7 @@ import { getComboStyle } from "@/lib/comboStyles";
 import { Board, type BoardCombo } from "./Board";
 import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
+import { shareResult } from "@/lib/share";
 
 type ResultScreenProps = {
   mode: "single" | "multi";
@@ -92,6 +93,22 @@ export const ResultScreen = ({
     [playerResults]
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const handleShare = async () => {
+    const text =
+      mode === "single"
+        ? `TENS에서 ${totalScore}점 달성! 같은 카드, 다른 전략 🃏`
+        : `TENS 멀티 ${myResult ? ordinal(myResult.rank) : ""} · ${myResult?.score ?? 0}점! 🃏`;
+    const outcome = await shareResult(text);
+    if (outcome === "copied") {
+      setToast("링크가 복사됐어요");
+      setTimeout(() => setToast(null), 2000);
+    } else if (outcome === "failed") {
+      setToast("공유에 실패했어요");
+      setTimeout(() => setToast(null), 2000);
+    }
+  };
 
   const selected = useMemo(() => {
     if (mode !== "multi") return null;
@@ -133,7 +150,7 @@ export const ResultScreen = ({
   );
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col p-3 overflow-hidden">
+    <div className="relative h-[100dvh] w-full flex flex-col p-3 overflow-hidden">
       {/* header */}
       <div className="flex items-center justify-between mb-2 shrink-0">
         <div className="flex items-center gap-2">
@@ -144,9 +161,29 @@ export const ResultScreen = ({
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-haze text-xs">{playerName}</span>
+          <button
+            onClick={handleShare}
+            aria-label="결과 공유"
+            tabIndex={0}
+            className="text-haze hover:text-snow p-1.5 rounded-lg hover:bg-edge transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
           <MuteButton />
         </div>
       </div>
+
+      {toast && (
+        <div className="absolute left-1/2 top-3 -translate-x-1/2 z-50 bg-panel border border-edge text-snow text-xs px-3 py-1.5 rounded-lg shadow-lg">
+          {toast}
+        </div>
+      )}
 
       {/* body: portrait stacks, landscape splits into columns */}
       <div className="flex-1 min-h-0 flex flex-col landscape:flex-row gap-3 overflow-y-auto landscape:overflow-hidden">
