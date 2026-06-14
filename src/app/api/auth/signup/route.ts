@@ -63,9 +63,18 @@ export const POST = async (request: NextRequest) => {
 
     return NextResponse.json({ user: data }, { status: 201 });
   } catch (err) {
-    console.error("POST /api/auth/signup error:", JSON.stringify(err));
+    const detail =
+      err && typeof err === "object"
+        ? {
+            message: (err as { message?: string }).message,
+            code: (err as { code?: string }).code,
+            details: (err as { details?: string }).details,
+            hint: (err as { hint?: string }).hint,
+          }
+        : { message: String(err) };
+    console.error("POST /api/auth/signup error:", detail);
     return NextResponse.json(
-      { error: "회원가입에 실패했습니다" },
+      { error: "회원가입에 실패했습니다", detail },
       { status: 500 }
     );
   }
