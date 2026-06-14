@@ -52,10 +52,11 @@ const GamePage = () => {
   if (!hasHydrated || !isLoggedIn) return null;
 
   return (
-    <main className="min-h-screen bg-gray-900">
+    <main className="min-h-screen bg-void">
       <GameScreen
         mode={isSingle ? "single" : "multi"}
         playerName={user?.nickname ?? "Player"}
+        playerId={user?.id ?? ""}
         onBackToLobby={handleBackToLobby}
         onPlayAgain={isSingle ? undefined : handlePlayAgain}
       />
