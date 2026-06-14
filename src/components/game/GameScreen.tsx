@@ -19,6 +19,7 @@ import { TIMER_SECONDS } from "@/types/game";
 import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { playSound } from "@/lib/sound";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 type GameScreenProps = {
   mode: "single" | "multi";
@@ -98,7 +99,7 @@ export const GameScreen = ({
       hasSavedRef.current = true;
 
       try {
-        const res = await fetch("/api/leaderboard", {
+        const res = await fetchWithTimeout("/api/leaderboard", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

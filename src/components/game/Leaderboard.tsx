@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { UserRankingEntry } from "@/types/leaderboard";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 type LeaderboardProps = {
   highlightNickname?: string;
@@ -23,7 +24,7 @@ export const Leaderboard = ({
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/leaderboard?limit=10");
+      const res = await fetchWithTimeout("/api/leaderboard?limit=10");
       if (!res.ok) throw new Error("Failed to fetch");
       const data: UserRankingEntry[] = await res.json();
       setEntries(data);

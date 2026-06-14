@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { connectSocket } from "@/lib/socket";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import type { UserRankInfo } from "@/types/leaderboard";
 
 type Mode = "select" | "multi_create" | "multi_join";
@@ -52,7 +53,7 @@ const LobbyPage = () => {
     let cancelled = false;
     const fetchRank = async () => {
       try {
-        const res = await fetch(`/api/leaderboard/rank?userId=${user.id}`);
+        const res = await fetchWithTimeout(`/api/leaderboard/rank?userId=${user.id}`);
         if (!res.ok) return;
         const data: UserRankInfo = await res.json();
         if (!cancelled) setRankInfo(data);
