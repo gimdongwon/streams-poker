@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GlobalHandRankings } from "@/components/common/GlobalHandRankings";
+import { OrientationGate } from "@/components/common/OrientationGate";
 import "./globals.css";
 
 const GA_TRACKING_ID = "G-TFPP8C8KDJ";
@@ -64,6 +65,7 @@ export default function RootLayout({
           />
         </noscript>
         {children}
+        <OrientationGate />
         <GlobalHandRankings />
       </body>
     </html>
