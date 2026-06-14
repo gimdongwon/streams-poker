@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/stores/gameStore";
 import { useRoomStore } from "@/stores/roomStore";
@@ -18,11 +18,10 @@ import { ResultScreen } from "./ResultScreen";
 import { TIMER_SECONDS } from "@/types/game";
 import { Logo } from "@/components/common/Logo";
 
-type SaveStatus = "idle" | "saving" | "saved" | "error";
-
 type GameScreenProps = {
   mode: "single" | "multi";
   playerName: string;
+  playerId: string;
   onBackToLobby: () => void;
   onPlayAgain?: () => void;
 };
@@ -30,6 +29,7 @@ type GameScreenProps = {
 export const GameScreen = ({
   mode,
   playerName,
+  playerId,
   onBackToLobby,
   onPlayAgain,
 }: GameScreenProps) => {
@@ -59,8 +59,6 @@ export const GameScreen = ({
     emitPlaced,
   } = useRoomStore();
 
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [playerRank, setPlayerRank] = useState<number | null>(null);
   const hasSavedRef = useRef(false);
   const placedEmittedRoundRef = useRef(0);
 
@@ -91,39 +89,31 @@ export const GameScreen = ({
 
   const handleSubmitScore = useCallback(
     async (totalScore: number, comboNames: string[]) => {
-      if (mode !== "single" || hasSavedRef.current) return;
+      // 싱글·멀티 모두 자신의 게임 결과를 기록 → 유저 누적 점수에 합산된다
+      // (누적 점수/순위는 랭킹보드에서만 노출)
+      if (hasSavedRef.current || !playerId) return;
       hasSavedRef.current = true;
-      setSaveStatus("saving");
 
       try {
         const res = await fetch("/api/leaderboard", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            user_id: playerId,
             nickname: playerName,
             score: totalScore,
             combinations: comboNames,
             combination_count: comboNames.length,
+            mode,
           }),
         });
 
         if (!res.ok) throw new Error("Failed to submit");
-
-        const rankRes = await fetch(
-          `/api/leaderboard/rank?score=${totalScore}`
-        );
-        if (rankRes.ok) {
-          const { rank } = await rankRes.json();
-          setPlayerRank(rank);
-        }
-
-        setSaveStatus("saved");
       } catch {
-        setSaveStatus("error");
         hasSavedRef.current = false;
       }
     },
-    [mode, playerName]
+    [mode, playerName, playerId]
   );
 
   const handleEvaluate = useCallback(() => {
@@ -146,9 +136,8 @@ export const GameScreen = ({
       submitResult(total, comboNames, tiebreaker, boardSlots, resultCombos);
     }
 
-    if (mode === "single") {
-      handleSubmitScore(total, comboNames);
-    }
+    // 싱글·멀티 모두 글로벌 리더보드에 기록 (각 클라이언트가 자신의 결과 저장)
+    handleSubmitScore(total, comboNames);
   }, [slots, setCombinations, setScore, mode, submitResult, handleSubmitScore]);
 
   useEffect(() => {
@@ -190,8 +179,6 @@ export const GameScreen = ({
 
   const handleSinglePlayAgain = () => {
     hasSavedRef.current = false;
-    setSaveStatus("idle");
-    setPlayerRank(null);
     resetGame();
   };
 
@@ -203,8 +190,6 @@ export const GameScreen = ({
         slots={slots}
         combinations={combinations}
         totalScore={score}
-        saveStatus={saveStatus}
-        playerRank={playerRank}
         playerResults={playerResults}
         onBackToLobby={onBackToLobby}
         onPlayAgain={mode === "multi" ? onPlayAgain : handleSinglePlayAgain}
