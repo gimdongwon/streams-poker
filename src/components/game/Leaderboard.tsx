@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { UserRankingEntry } from "@/types/leaderboard";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { TierBadge } from "@/components/common/TierBadge";
 
 type LeaderboardProps = {
   highlightNickname?: string;
@@ -139,7 +140,8 @@ export const Leaderboard = ({
                         </span>
                       )}
                     </span>
-                    <span className="text-haze text-[10px]">
+                    <span className="flex items-center gap-1.5 text-haze text-[10px]">
+                      <TierBadge totalScore={entry.total_score} size="sm" showLabel={false} />
                       최고 {entry.best_score}점
                     </span>
                   </div>

@@ -9,6 +9,7 @@ import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { connectSocket } from "@/lib/socket";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { TierBadge } from "@/components/common/TierBadge";
 import type { UserRankInfo } from "@/types/leaderboard";
 
 type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
@@ -167,6 +168,13 @@ const LobbyPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0"
           >
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
+                티어
+              </p>
+              <TierBadge totalScore={rankInfo.totalScore} size="md" />
+            </div>
+            <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
                 내 랭킹
