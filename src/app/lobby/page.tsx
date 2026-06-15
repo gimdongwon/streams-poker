@@ -10,7 +10,9 @@ import { Logo } from "@/components/common/Logo";
 import { connectSocket } from "@/lib/socket";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
+import { FriendsPanel } from "@/components/social/FriendsPanel";
 import type { UserRankInfo } from "@/types/leaderboard";
+import type { FriendRequest } from "@/lib/friends";
 
 type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
@@ -25,9 +27,11 @@ const LobbyPage = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showFriends, setShowFriends] = useState(false);
+  const [incomingCount, setIncomingCount] = useState(0);
 
   useEffect(() => {
-    if (showLeaderboard) {
+    if (showLeaderboard || showFriends) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -35,7 +39,29 @@ const LobbyPage = () => {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showLeaderboard]);
+  }, [showLeaderboard, showFriends]);
+
+  // 받은 친구 요청 수 (배지용). 실패 시 무시.
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const fetchCount = async () => {
+      try {
+        const res = await fetchWithTimeout(
+          `/api/friends/requests?userId=${user.id}`
+        );
+        if (!res.ok) return;
+        const data: FriendRequest[] = await res.json();
+        if (!cancelled) setIncomingCount(Array.isArray(data) ? data.length : 0);
+      } catch {
+        // 친구 요청 수 조회 실패 시 무시
+      }
+    };
+    fetchCount();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, showFriends]);
 
   useEffect(() => {
     if (hasHydrated && !isLoggedIn) {
@@ -154,6 +180,45 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
+      {/* 친구 모달 */}
+      <AnimatePresence>
+        {showFriends && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 overscroll-contain"
+          >
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowFriends(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setShowFriends(false);
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="친구 닫기"
+            />
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto"
+            >
+              <FriendsPanel userId={user.id} />
+              <button
+                onClick={() => setShowFriends(false)}
+                className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
+                aria-label="닫기"
+                tabIndex={0}
+              >
+                닫기
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
       <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
         {/* 좌측: 로고 */}
@@ -210,6 +275,22 @@ const LobbyPage = () => {
           animate={{ opacity: 1, x: 0 }}
           className="flex-1 flex items-center justify-end gap-3 min-w-0"
         >
+          {/* 친구 버튼 (받은 요청 수 배지) */}
+          <button
+            onClick={() => setShowFriends(true)}
+            className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors shrink-0"
+            aria-label="친구 열기"
+            tabIndex={0}
+          >
+            <span className="text-base leading-none">👥</span>
+            <span className="text-snow font-medium text-xs">친구</span>
+            {incomingCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-neon-magenta text-void text-[10px] font-bold">
+                {incomingCount}
+              </span>
+            )}
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setShowUserMenu((v) => !v)}
