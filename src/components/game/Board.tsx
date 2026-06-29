@@ -21,6 +21,7 @@ type BoardProps = {
   combinations?: BoardCombo[];
   size?: CardSize;
   showHeader?: boolean;
+  showComboLabels?: boolean;
 };
 
 export const Board = ({
@@ -30,6 +31,7 @@ export const Board = ({
   combinations = [],
   size = "md",
   showHeader = true,
+  showComboLabels = true,
 }: BoardProps) => {
   const getHighlight = (slotIndex: number) => {
     for (const combo of combinations) {
@@ -56,7 +58,7 @@ export const Board = ({
           </span>
         </div>
       )}
-      <div className="grid grid-cols-5 gap-1.5 justify-items-center pb-5">
+      <div className={`grid grid-cols-5 gap-1.5 justify-items-center ${showComboLabels ? "pb-5" : "pb-1"}`}>
         {slots.map((slot) => (
           <Slot
             key={slot.index}
@@ -65,6 +67,7 @@ export const Board = ({
             onPlace={onPlace}
             highlight={getHighlight(slot.index)}
             size={size}
+            showLabel={showComboLabels}
           />
         ))}
       </div>

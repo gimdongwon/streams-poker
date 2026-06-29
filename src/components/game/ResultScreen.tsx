@@ -191,7 +191,7 @@ export const ResultScreen = ({
       )}
 
       {/* body: portrait stacks, landscape splits into columns */}
-      <div className="flex-1 min-h-0 flex flex-col landscape:flex-row gap-3 overflow-y-auto landscape:overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col landscape:flex-row gap-3 overflow-y-auto">
         {/* LEFT — this game's verdict (no cumulative; ranking lives in the leaderboard) */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -274,6 +274,7 @@ export const ResultScreen = ({
                 combinations={boardCombos}
                 size={boardSize}
                 showHeader={false}
+                showComboLabels={false}
               />
             ) : (
               <div className="py-6 text-center text-haze text-xs">보드 정보 없음</div>
