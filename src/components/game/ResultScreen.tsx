@@ -39,9 +39,9 @@ const slotsFromCards = (cards: (Card | null)[]): SlotType[] =>
 type BreakdownRow = { type: string; name: string; score: number };
 
 const Breakdown = ({ combos }: { combos: BreakdownRow[] }) => (
-  <div className="mt-2">
+  <div className="mt-3 text-center">
     {combos.length > 0 ? (
-      <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+      <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
         {combos.map((c, i) => {
           const st = getComboStyle(c.type);
           return (
@@ -191,7 +191,7 @@ export const ResultScreen = ({
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="landscape:w-[30%] flex flex-col landscape:justify-center shrink-0"
+          className="landscape:w-[30%] flex flex-col items-center text-center landscape:justify-center shrink-0"
         >
           {mode === "single" ? (
             <>
@@ -248,31 +248,33 @@ export const ResultScreen = ({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className={`landscape:flex-1 min-w-0 flex flex-col landscape:border-l landscape:border-edge/60 landscape:pl-3 ${
+          className={`landscape:flex-1 min-w-0 flex flex-col items-center landscape:justify-center landscape:border-l landscape:border-edge/60 landscape:pl-3 ${
             mode === "multi" ? "landscape:border-r landscape:pr-3" : ""
           }`}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-haze text-[10px] tracking-[2px]">
-              {mode === "multi" && selected ? `${selected.nickname}의 보드` : "MY BOARD"}
-            </span>
-            {mode === "multi" && (
-              <span className="text-haze/70 text-[10px]">{boardTotal}점</span>
+          <div className="w-full max-w-[19rem]">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-haze text-[10px] tracking-[2px]">
+                {mode === "multi" && selected ? `${selected.nickname}의 보드` : "MY BOARD"}
+              </span>
+              {mode === "multi" && (
+                <span className="text-haze/70 text-[10px]">{boardTotal}점</span>
+              )}
+            </div>
+            {hasBoard ? (
+              <Board
+                slots={boardSlots}
+                isActive={false}
+                onPlace={() => {}}
+                combinations={boardCombos}
+                size="sm"
+                showHeader={false}
+              />
+            ) : (
+              <div className="py-6 text-center text-haze text-xs">보드 정보 없음</div>
             )}
+            <Breakdown combos={breakdownRows} />
           </div>
-          {hasBoard ? (
-            <Board
-              slots={boardSlots}
-              isActive={false}
-              onPlace={() => {}}
-              combinations={boardCombos}
-              size="sm"
-              showHeader={false}
-            />
-          ) : (
-            <div className="py-6 text-center text-haze text-xs">보드 정보 없음</div>
-          )}
-          <Breakdown combos={breakdownRows} />
         </motion.div>
 
         {/* RIGHT — ranking (multi only) */}
