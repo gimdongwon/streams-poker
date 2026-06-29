@@ -98,8 +98,8 @@ export const ResultScreen = ({
   const handleShare = async () => {
     const text =
       mode === "single"
-        ? `TENS에서 ${totalScore}점 달성! 같은 카드, 다른 전략 🃏`
-        : `TENS 멀티 ${myResult ? ordinal(myResult.rank) : ""} · ${myResult?.score ?? 0}점! 🃏`;
+        ? `TENTENS에서 ${totalScore}점 달성! 같은 카드, 다른 전략 🃏`
+        : `TENTENS 멀티 ${myResult ? ordinal(myResult.rank) : ""} · ${myResult?.score ?? 0}점! 🃏`;
     const outcome = await shareResult(text);
     if (outcome === "copied") {
       setToast("링크가 복사됐어요");

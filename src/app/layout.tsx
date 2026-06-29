@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Streams Poker - 전략 카드 게임",
+  title: "TENTENS - 전략 카드 게임",
   description: "10장의 카드를 전략적으로 배치하여 최고 포커 점수를 만들어보세요",
 };
 

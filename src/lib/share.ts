@@ -11,7 +11,7 @@ export const shareResult = async (
   // 1) 네이티브 공유 (모바일)
   if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     try {
-      await navigator.share({ title: "TENS", text, url: shareUrl });
+      await navigator.share({ title: "TENTENS", text, url: shareUrl });
       return "shared";
     } catch (err) {
       // 사용자가 취소한 경우는 조용히 종료
