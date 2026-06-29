@@ -138,6 +138,11 @@ export const ResultScreen = ({
 
   const winner = mode === "multi" ? playerResults[0] ?? null : null;
 
+  // 싱글은 순위 컬럼이 없어 공간이 넓다 → 카드를 키우고 넓게 펼쳐 화면을 채운다.
+  // 멀티는 우측 순위판이 있어 콤팩트하게 유지.
+  const boardSize = mode === "single" ? "md" : "sm";
+  const boardWrapClass = mode === "single" ? "max-w-[42rem]" : "max-w-[19rem]";
+
   const actions = (
     <div className="flex justify-end gap-3 shrink-0 pt-2">
       {onPlayAgain ? (
@@ -252,7 +257,7 @@ export const ResultScreen = ({
             mode === "multi" ? "landscape:border-r landscape:pr-3" : ""
           }`}
         >
-          <div className="w-full max-w-[19rem]">
+          <div className={`w-full ${boardWrapClass}`}>
             <div className="flex items-center justify-between mb-1">
               <span className="text-haze text-[10px] tracking-[2px]">
                 {mode === "multi" && selected ? `${selected.nickname}의 보드` : "MY BOARD"}
@@ -267,7 +272,7 @@ export const ResultScreen = ({
                 isActive={false}
                 onPlace={() => {}}
                 combinations={boardCombos}
-                size="sm"
+                size={boardSize}
                 showHeader={false}
               />
             ) : (
