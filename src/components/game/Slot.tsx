@@ -20,6 +20,7 @@ type SlotProps = {
   onPlace: (index: SlotIndex) => void;
   highlight?: HighlightInfo | null;
   size?: CardSize;
+  showLabel?: boolean;
 };
 
 const EMPTY_SIZE_MAP: Record<CardSize, string> = {
@@ -36,7 +37,7 @@ const BADGE_SIZE_MAP: Record<CardSize, string> = {
   lg: "w-6 h-6 text-xs -top-2 -right-1",
 };
 
-export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotProps) => {
+export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabel = true }: SlotProps) => {
   const hasCard = slot.card !== null;
 
   const handleClick = () => {
@@ -78,7 +79,7 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs" }: SlotPr
         <div className={`absolute bg-edge text-snow font-bold rounded-full flex items-center justify-center z-20 ring-1 ring-white/10 ${BADGE_SIZE_MAP[size]}`}>
           {slot.index + 1}
         </div>
-        {highlight && (
+        {highlight && showLabel && (
           <div
             className={`absolute -bottom-4 left-1/2 -translate-x-1/2 font-bold whitespace-nowrap z-20 ${size === "xs" ? "text-[7px]" : "text-[9px]"} ${highlight.text}`}
           >
