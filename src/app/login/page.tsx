@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
@@ -48,6 +49,13 @@ const LoginPage = () => {
       </AnimatePresence>
 
       <AuthForm mode="login" />
+
+      <Link
+        href="/privacy"
+        className="text-haze/70 hover:text-haze text-[11px] mt-5 underline underline-offset-2"
+      >
+        개인정보처리방침
+      </Link>
     </div>
   );
 };
