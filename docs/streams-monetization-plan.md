@@ -1,6 +1,6 @@
 # Streams — 수익화 & 앱 출시 전략 정리
 
-> 게임: STREAMS POKER (가칭, 네이밍 변경 예정)
+> 게임: TENTENS (전략 카드 배치 게임)
 > 핵심 컨셉: 같은 카드, 다른 전략 — 운 제거 + 순수 전략 카드 배치 게임
 > 현재 상태: MVP 완성, 가오픈 후 지인 테스트 반응 양호
 
@@ -111,7 +111,8 @@ async function handleReadyClick() {
 
 ## 5. 네이밍
 
-- 후보 압축: **Adjacent** (인접 규칙 강조) vs **TENS** (10장/10라운드/10슬롯) — 둘 중 고민 중
+- 후보였던 것: **Adjacent**(인접 규칙) vs **TENS**(10장/10라운드/10슬롯)
+- **최종 확정: TENTENS** (TENS 계열 — "ten tens"). 로고는 `TEN`(흰색) + `TENS`(그라디언트) 분절 표기
 - "poker" 키워드는 스토어 심사·연령등급 리스크 있어 피하는 방향
 - 영문 브랜드 + 한글 표기 통일 권장
 
@@ -120,7 +121,7 @@ async function handleReadyClick() {
 ## 6. 실행 순서 (요약)
 
 1. Fly.io로 인프라 이전 + Supabase 무료 유지
-2. 네이밍 확정 (Adjacent / TENS)
+2. 네이밍 확정: **TENTENS** ✅
 3. 게임 버전 보완 업데이트 (별도 진행)
 4. Capacitor로 앱 래핑 → 안드로이드 빌드
 5. 구글플레이 스토어 출시
