@@ -1,4 +1,4 @@
-# TENS — 티어 & 친구 기능 실행 계획
+# TENTENS — 티어 & 친구 기능 실행 계획
 
 > 결정 반영:
 > - 티어: 누적 점수(user_rankings.total_score) 기준 **Bronze→Diamond 5단계**. 임계값은 한 곳(config)에서 조정 가능.
