@@ -38,8 +38,18 @@ export const Logo = ({
         >
           X
         </span>
-        <span className={`${word} font-extrabold tracking-tight text-snow`}>
-          TENS
+        <span className={`${word} font-extrabold tracking-tight leading-none`}>
+          <span className="text-snow">TEN</span>
+          <span
+            style={{
+              background: GRADIENT,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            TENS
+          </span>
         </span>
       </Link>
       {showSubtitle && (

@@ -63,7 +63,7 @@ export const OrientationGate = () => {
       <div className="space-y-2">
         <h2 className="text-2xl font-bold text-snow">가로로 돌려주세요</h2>
         <p className="text-sm text-haze">
-          TENS는 가로 모드에서 즐길 수 있어요
+          TENTENS는 가로 모드에서 즐길 수 있어요
         </p>
       </div>
     </div>
