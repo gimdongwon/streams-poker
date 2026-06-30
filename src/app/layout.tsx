@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TENTENS - 전략 카드 게임",
-  description: "10장의 카드를 전략적으로 배치하여 최고 포커 점수를 만들어보세요",
+  title: "TENTENS · 같은 카드, 다른 전략",
+  description: "10장의 카드를 전략적으로 배치하여 최고 점수를 만드는 카드 게임, TENTENS",
 };
 
 export default function RootLayout({
