@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
@@ -27,7 +26,7 @@ const LoginPage = () => {
   if (!hasHydrated || isLoggedIn) return null;
 
   return (
-    <div className="relative min-h-[100dvh] bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-auto">
       <Logo showSubtitle className="mb-6 landscape:mb-3" />
 
       <AnimatePresence>
@@ -49,13 +48,6 @@ const LoginPage = () => {
       </AnimatePresence>
 
       <AuthForm mode="login" />
-
-      <Link
-        href="/privacy"
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 text-haze/70 hover:text-haze text-[11px] underline underline-offset-2"
-      >
-        개인정보처리방침
-      </Link>
     </div>
   );
 };
