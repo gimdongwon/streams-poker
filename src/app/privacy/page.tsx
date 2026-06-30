@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 };
 
 // 운영자/연락처/시행일은 실제 정보로 교체하세요. (스토어 제출 전 검토 권장)
-const OPERATOR = "TENTENS 운영팀";
-const CONTACT_EMAIL = "your-email@example.com";
-const EFFECTIVE_DATE = "2026년 6월 15일";
+const OPERATOR = "김동원 (winter1)";
+const CONTACT_EMAIL = "ehddnjs8989@gmail.com";
+const EFFECTIVE_DATE = "2026년 7월 1일";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="mt-7">
