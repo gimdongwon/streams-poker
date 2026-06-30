@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRoomStore } from "@/stores/roomStore";
@@ -645,6 +646,13 @@ const LobbyPage = () => {
         </div>
       </div>
       </div>
+
+      <Link
+        href="/privacy"
+        className="shrink-0 mt-3 text-haze/70 hover:text-haze text-[11px] underline underline-offset-2"
+      >
+        개인정보처리방침
+      </Link>
     </div>
   );
 };
