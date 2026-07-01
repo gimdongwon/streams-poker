@@ -6,6 +6,8 @@ export type LeaderboardInsert = {
   combinations: string[];
   combination_count: number;
   mode?: "single" | "multi";
+  best_combo?: string | null;
+  best_combo_rank?: number | null;
 };
 
 // 유저별 누적 랭킹 (user_rankings 뷰)
@@ -15,6 +17,7 @@ export type UserRankingEntry = {
   total_score: number;
   games_played: number;
   best_score: number;
+  best_combo: string | null;
   last_played: string;
 };
 

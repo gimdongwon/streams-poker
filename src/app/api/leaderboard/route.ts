@@ -41,6 +41,12 @@ export const POST = async (request: NextRequest) => {
     const score = calculateTotalScore(results);
     const combinations = results.map((r) => r.name);
 
+    // 이 판의 최고 조합(등급이 가장 높은 = rank가 가장 작은 조합)
+    const best = results.reduce<(typeof results)[number] | null>(
+      (acc, r) => (acc === null || r.rank < acc.rank ? r : acc),
+      null
+    );
+
     await submitScore({
       user_id,
       nickname,
@@ -48,6 +54,8 @@ export const POST = async (request: NextRequest) => {
       combinations,
       combination_count: combinations.length,
       mode: mode === "single" || mode === "multi" ? mode : undefined,
+      best_combo: best?.name ?? null,
+      best_combo_rank: best?.rank ?? null,
     });
 
     return NextResponse.json({ ok: true, score }, { status: 201 });

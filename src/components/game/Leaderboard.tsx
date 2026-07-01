@@ -142,7 +142,10 @@ export const Leaderboard = ({
                     </span>
                     <span className="flex items-center gap-1.5 text-haze text-[10px]">
                       <TierBadge totalScore={entry.total_score} size="sm" showLabel={false} />
-                      최고 {entry.best_score}점
+                      {entry.best_combo && (
+                        <span className="text-neon-cyan/90 font-medium">{entry.best_combo}</span>
+                      )}
+                      <span>최고 {entry.best_score}점</span>
                     </span>
                   </div>
 
