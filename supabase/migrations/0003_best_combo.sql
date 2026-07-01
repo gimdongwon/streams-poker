@@ -12,8 +12,9 @@ alter table public.leaderboard
   add column if not exists best_combo text,
   add column if not exists best_combo_rank int;
 
--- 유저별 누적 랭킹 뷰 재생성 (기존 컬럼 + best_combo 추가)
-create or replace view public.user_rankings as
+-- 유저별 누적 랭킹 뷰 재생성 (컬럼 순서 변경 때문에 DROP 후 재생성)
+drop view if exists public.user_rankings;
+create view public.user_rankings as
 select
   user_id,
   (array_agg(nickname order by played_at desc))[1] as nickname,
