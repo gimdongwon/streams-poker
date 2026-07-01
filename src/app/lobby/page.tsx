@@ -10,6 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { connectSocket } from "@/lib/socket";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
+import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -28,10 +29,11 @@ const LobbyPage = () => {
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
+  const [showTierInfo, setShowTierInfo] = useState(false);
   const [incomingCount, setIncomingCount] = useState(0);
 
   useEffect(() => {
-    if (showLeaderboard || showFriends) {
+    if (showLeaderboard || showFriends || showTierInfo) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -39,7 +41,7 @@ const LobbyPage = () => {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showLeaderboard, showFriends]);
+  }, [showLeaderboard, showFriends, showTierInfo]);
 
   // 받은 친구 요청 수 (배지용). 실패 시 무시.
   useEffect(() => {
@@ -219,6 +221,16 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
+      {/* 티어 안내 모달 */}
+      <AnimatePresence>
+        {showTierInfo && rankInfo && (
+          <TierInfoModal
+            totalScore={rankInfo.totalScore}
+            onClose={() => setShowTierInfo(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
       <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
         {/* 좌측: 로고 */}
@@ -233,12 +245,16 @@ const LobbyPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0"
           >
-            <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={() => setShowTierInfo(true)}
+              className="flex flex-col items-center gap-1 hover:opacity-80 active:scale-95 transition"
+              aria-label="티어 안내 보기"
+            >
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
                 티어
               </p>
               <TierBadge totalScore={rankInfo.totalScore} size="md" />
-            </div>
+            </button>
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
