@@ -52,7 +52,13 @@
 
 ```
 streams-poker/
-├── server.ts                          # 커스텀 서버 (Next.js + Socket.io)
+├── server/                            # 커스텀 서버 (Next.js + Socket.io, tsx 실행)
+│   ├── index.ts                       # HTTP 서버 + Socket.io 부트스트랩
+│   ├── state.ts                       # 인메모리 방/세션 상태
+│   ├── rounds.ts                      # 라운드 타이머/진행
+│   ├── deck.ts                        # 서버측 덱 생성/방 코드
+│   ├── scoring.ts                     # 서버 권위 점수 재계산 (클라 evaluator 재사용)
+│   └── handlers/                      # auth / room / game 소켓 핸들러
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx                   # / → /lobby 리다이렉트
@@ -170,7 +176,7 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열면 게임이 시작됩니다.
 
-> **참고**: `npm run dev`는 커스텀 서버(`server.ts`)를 실행하여 Next.js와 Socket.io를 동시에 구동합니다.
+> **참고**: `npm run dev`(내부적으로 `tsx server/index.ts`)는 커스텀 서버(`server/`)를 실행하여 Next.js와 Socket.io를 동시에 구동합니다. 이 프로젝트는 `yarn`을 패키지 매니저로 사용합니다.
 
 ### 집 서버로 외부 공개 (비용 절감)
 
