@@ -144,7 +144,7 @@ export const ResultScreen = ({
   const boardWrapClass = mode === "single" ? "max-w-[42rem]" : "max-w-[19rem]";
 
   const actions = (
-    <div className="flex justify-end gap-3 shrink-0 pt-2">
+    <div className="flex justify-start gap-3 shrink-0 pt-2">
       {onPlayAgain ? (
         <SecondaryButton label="로비" onClick={onBackToLobby} />
       ) : (
