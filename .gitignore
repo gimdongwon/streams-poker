@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Claude local settings (machine-specific)
 .claude/settings.local.json
+
+# IDE (JetBrains / Android Studio)
+.idea/
