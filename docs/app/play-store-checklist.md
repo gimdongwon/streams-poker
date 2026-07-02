@@ -30,11 +30,13 @@
 
 ## D. 출시 전 코드/서비스 확인 (선행 작업)
 
-- [ ] **#4 RLS 강화** — anon 전면 개방 → service_role 전환. 설계: [rls-hardening-design](../superpowers/specs/2026-07-02-rls-hardening-design.md)
-- [ ] **계정 삭제 기능** — 구글은 계정 생성 앱에 삭제 수단(인앱 + 웹)을 요구. 현재 없음 → 추가 필요(간단한 삭제 API + 안내 페이지, 또는 삭제 요청 안내). **신규 작업 항목.**
-- [ ] `/privacy` 내용이 실제 수집 데이터(계정/점수)와 일치하는지 검토
-- [ ] 릴리스 서명 AAB 준비: [android-release.md](android-release.md)
-- [ ] 앱 아이콘 브랜드 교체
+- [x] **계정 삭제 기능** — 인앱 "계정 삭제"(로비 우상단 계정 메뉴) + `POST /api/account/delete`(비번 확인 후 삭제, FK 캐스케이드). end-to-end 검증 완료.
+  - **데이터 삭제 URL**(데이터 보안 양식용): `https://www.tentens.kr` 로그인 → 계정 메뉴 → 계정 삭제. (웹뷰 앱이라 인앱=웹 동일 경로)
+- [x] **앱 아이콘** — `store-assets/play-store-icon-512.png`(리스팅 512), 안드로이드 런처 아이콘 전 밀도 교체. AAB 빌드 시 자동 포함.
+- [x] `/privacy` — 수집 데이터·계정 삭제 경로 명시 반영 완료.
+- [ ] **#4 RLS 강화** — service_role 코드 배포됨. **아침에 재잠금 SQL 실행 필요**(0004~0006). 설계: [rls-hardening-design](../superpowers/specs/2026-07-02-rls-hardening-design.md)
+- [ ] 릴리스 서명 AAB 빌드: [android-release.md](android-release.md) (Android Studio)
+- [ ] 스토어 등록정보 자산(스크린샷·설명·그래픽) 준비
 
 ## E. 업로드·출시
 
