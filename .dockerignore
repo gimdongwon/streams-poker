@@ -1,0 +1,25 @@
+# 의존성/빌드 산출물 (이미지 안에서 재설치/재빌드)
+node_modules
+.next
+out
+
+# 네이티브 앱 / 모바일 (웹 서버 이미지엔 불필요)
+android
+ios
+capacitor-webdir
+
+# VCS / 로컬 / 문서
+.git
+.github
+.claude
+docs
+homework
+deploy
+
+# 환경/시크릿 (NEXT_PUBLIC 은 build-arg 로 주입)
+.env*
+
+# 기타
+*.tsbuildinfo
+.DS_Store
+npm-debug.log*

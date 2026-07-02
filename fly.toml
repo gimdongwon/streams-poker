@@ -1,0 +1,31 @@
+# TENTENS — Fly.io 앱 설정
+# ⚠️ 인메모리 방 상태(기술부채 #3) 때문에 절대 2대 이상으로 스케일하지 말 것.
+#    Redis 도입 전까지 단일 인스턴스 고정: fly scale count 1
+
+app = "tentens"
+primary_region = "nrt"  # 도쿄 (한국 사용자 근접)
+
+[build]
+  # NEXT_PUBLIC_* 는 배포 시 --build-arg 로 전달한다 (anon 키는 공개값이라 무방):
+  #   fly deploy \
+  #     --build-arg NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co \
+  #     --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  # 유휴(연결 0) 시 정지해 비용 절감. WebSocket 연결이 있으면 정지되지 않음.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0   # 콜드스타트가 싫으면 1(상시가동)로.
+  processes = ["app"]
+
+  # Socket.io 는 같은 http_service 로 WSS 프록시된다(별도 설정 불필요).
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
