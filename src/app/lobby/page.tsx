@@ -142,7 +142,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-20 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
