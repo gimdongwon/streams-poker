@@ -142,7 +142,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-20 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -429,14 +429,14 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="싱글 모드로 시작"
                 >
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
+                  <div className="flex items-center justify-start gap-3">
+                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
                     <div className="text-left">
-                      <div className="text-lg text-neon-cyan">싱글 모드</div>
-                      <div className="text-sm font-normal text-haze">
+                      <div className="text-base text-neon-cyan">싱글 모드</div>
+                      <div className="text-xs font-normal text-haze">
                         혼자서 최고 점수에 도전
                       </div>
                     </div>
@@ -448,14 +448,14 @@ const LobbyPage = () => {
                     setMode("multi_create");
                     setError("");
                   }}
-                  className="w-full py-6 px-6 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
+                  className="w-full py-4 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
                   aria-label="멀티플레이 모드"
                 >
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="text-3xl text-neon-magenta w-10 text-center shrink-0">👥</span>
+                  <div className="flex items-center justify-start gap-3">
+                    <span className="text-2xl text-neon-magenta w-10 text-center shrink-0">👥</span>
                     <div className="text-left">
-                      <div className="text-lg text-neon-magenta">멀티플레이</div>
-                      <div className="text-sm font-normal text-haze">
+                      <div className="text-base text-neon-magenta">멀티플레이</div>
+                      <div className="text-xs font-normal text-haze">
                         친구와 함께 대결 (최대 10명)
                       </div>
                     </div>
@@ -475,14 +475,14 @@ const LobbyPage = () => {
                 <button
                   onClick={handleCreateRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-6 px-6 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
+                  className="w-full py-4 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
                   aria-label="방 만들기"
                 >
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="text-3xl w-10 text-center shrink-0">🏠</span>
+                  <div className="flex items-center justify-start gap-3">
+                    <span className="text-2xl w-10 text-center shrink-0">🏠</span>
                     <div className="text-left">
-                      <div className="text-lg">방 만들기</div>
-                      <div className="text-sm font-normal opacity-80">
+                      <div className="text-base">방 만들기</div>
+                      <div className="text-xs font-normal opacity-80">
                         새로운 방을 생성합니다
                       </div>
                     </div>
@@ -494,14 +494,14 @@ const LobbyPage = () => {
                     setMode("multi_join");
                     setError("");
                   }}
-                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="방 참여하기"
                 >
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
+                  <div className="flex items-center justify-start gap-3">
+                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
                     <div className="text-left">
-                      <div className="text-lg text-neon-cyan">방 참여하기</div>
-                      <div className="text-sm font-normal text-haze">
+                      <div className="text-base text-neon-cyan">방 참여하기</div>
+                      <div className="text-xs font-normal text-haze">
                         코드를 입력하여 참여
                       </div>
                     </div>
@@ -510,14 +510,14 @@ const LobbyPage = () => {
 
                 <button
                   onClick={handleBrowseRooms}
-                  className="w-full py-6 px-6 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label="방 찾기"
                 >
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="text-3xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
+                  <div className="flex items-center justify-start gap-3">
+                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
                     <div className="text-left">
-                      <div className="text-lg text-neon-cyan">방 찾기</div>
-                      <div className="text-sm font-normal text-haze">
+                      <div className="text-base text-neon-cyan">방 찾기</div>
+                      <div className="text-xs font-normal text-haze">
                         열려 있는 방 목록에서 참여
                       </div>
                     </div>
