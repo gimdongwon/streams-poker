@@ -1,8 +1,9 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
-import type { CardData, ResultCombo } from "../types";
+import type { CardData } from "../types";
 import { rooms } from "../state";
 import { createGameDeck } from "../deck";
 import { startRoundTimer, checkRoundCompletion } from "../rounds";
+import { scoreBoard } from "../scoring";
 
 export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Game: Start --
@@ -65,13 +66,11 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   });
 
   // -- Game: Submit Result --
-  socket.on("game:result", ({ code, score, combinationNames, tiebreaker, slots, combinations }: {
+  // 클라이언트가 보낸 점수/조합은 신뢰하지 않는다. 보드(slots)만으로 서버가 재계산해
+  // 방 순위의 권위값으로 삼는다. (글로벌 리더보드는 /api/leaderboard 에서 별도 재계산)
+  socket.on("game:result", ({ code, slots }: {
     code: string;
-    score: number;
-    combinationNames: string[];
-    tiebreaker: number;
     slots?: (CardData | null)[];
-    combinations?: ResultCombo[];
   }) => {
     const room = rooms.get(code);
     if (!room || room.status !== "playing") return;
@@ -82,17 +81,20 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
     const alreadySubmitted = room.results.some((r) => r.playerId === player.id);
     if (alreadySubmitted) return;
 
+    // 서버 권위 재계산
+    const { score, tiebreaker, combinationNames, combinations } = scoreBoard(slots);
+
     room.results.push({
       playerId: player.id,
       nickname: player.nickname,
       score,
       combinationNames,
-      tiebreaker: tiebreaker ?? 0,
+      tiebreaker,
       slots,
       combinations,
     });
 
-    console.log(`[Game] ${player.nickname} submitted: ${score}pts (tb:${tiebreaker}) (${room.results.length}/${room.players.length})`);
+    console.log(`[Game] ${player.nickname} scored (server): ${score}pts (tb:${tiebreaker}) (${room.results.length}/${room.players.length})`);
 
     if (room.results.length === room.players.length) {
       room.results.sort((a, b) => {

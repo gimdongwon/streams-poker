@@ -5,11 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/stores/gameStore";
 import { useRoomStore } from "@/stores/roomStore";
 import type { SlotIndex } from "@/types/game";
-import {
-  evaluateSlots,
-  calculateTotalScore,
-  calculateTiebreaker,
-} from "@/lib/poker/evaluator";
+import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
 import { Timer } from "./Timer";
@@ -119,23 +115,14 @@ export const GameScreen = ({
   );
 
   const handleEvaluate = useCallback(() => {
+    // 로컬 결과 표시용 계산 (본인 결과 화면). 방 순위·리더보드 점수는 서버가 재계산한다.
     const results = evaluateSlots(slots);
-    const total = calculateTotalScore(results);
-    const tiebreaker = calculateTiebreaker(results);
     setCombinations(results);
-    setScore(total);
+    setScore(calculateTotalScore(results));
 
-    const comboNames = results.map((r) => r.name);
-
+    // 멀티: 방 순위는 서버가 slots 로 재계산 (클라 점수 미전송, 치팅 방지)
     if (mode === "multi") {
-      const boardSlots = slots.map((s) => s.card);
-      const resultCombos = results.map((r) => ({
-        type: r.type,
-        name: r.name,
-        score: r.score,
-        slotIndices: r.slotIndices,
-      }));
-      submitResult(total, comboNames, tiebreaker, boardSlots, resultCombos);
+      submitResult(slots.map((s) => s.card));
     }
 
     // 싱글·멀티 모두 글로벌 리더보드에 기록 (서버가 점수 재계산)

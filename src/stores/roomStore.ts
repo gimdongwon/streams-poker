@@ -37,13 +37,7 @@ type RoomStore = {
   requestRoomList: () => void;
   toggleReady: () => void;
   startGame: () => void;
-  submitResult: (
-    score: number,
-    combinationNames: string[],
-    tiebreaker: number,
-    slots: (Card | null)[],
-    combinations: ResultCombo[]
-  ) => void;
+  submitResult: (slots: (Card | null)[]) => void;
   emitPlaced: (round: number) => void;
   leaveRoom: () => void;
   playAgain: () => void;
@@ -155,18 +149,12 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.emit("game:start", { code: roomCode });
   },
 
-  submitResult: (score, combinationNames, tiebreaker, slots, combinations) => {
+  submitResult: (slots) => {
     const { roomCode } = get();
     if (!roomCode) return;
     const socket = getSocket();
-    socket.emit("game:result", {
-      code: roomCode,
-      score,
-      combinationNames,
-      tiebreaker,
-      slots,
-      combinations,
-    });
+    // 점수는 서버가 slots 로 재계산한다. 클라 점수/조합은 보내지 않는다(치팅 방지).
+    socket.emit("game:result", { code: roomCode, slots });
   },
 
   emitPlaced: (round: number) => {
