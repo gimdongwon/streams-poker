@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TENTENS</string>
+    <string name="title_activity_main">TENTENS</string>
+    <string name="package_name">kr.tentens.app</string>
+    <string name="custom_url_scheme">kr.tentens.app</string>
+</resources>
