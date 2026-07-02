@@ -6,8 +6,10 @@
 
 ## 목표
 
-집 서버 + Cloudflare Tunnel 의존을 제거하고, 커스텀 tsx 서버(Next + Socket.io)를 Fly.io에
-always-on 가능한 컨테이너로 올린다. 안정적인 공개 HTTPS/WSS 엔드포인트 + `app-ads.txt` 호스팅 확보.
+현재 Railway 에서 운영 중인 커스텀 tsx 서버(Next + Socket.io)를 Fly.io로 이전한다.
+(Railway 안정성 이슈 + 무료 티어 종료가 이전 동기 — monetization 문서 참고.)
+안정적인 공개 HTTPS/WSS 엔드포인트 + `app-ads.txt` 호스팅 확보. 도메인 `www.tentens.kr`(구매) 은
+현재 Railway 를 가리키며, 이전 시 Fly 로 재지정한다.
 
 ## 아키텍처 사실 (컨테이너화에 영향)
 
@@ -30,7 +32,7 @@ always-on 가능한 컨테이너로 올린다. 안정적인 공개 HTTPS/WSS 엔
    - 콜드스타트가 싫으면 `min_machines_running=1`(상시가동, 비용↑)로 전환.
 4. **VM**: `shared-cpu-1x`, 512MB (Next+소켓 소규모).
 5. **포트**: 컨테이너 3000, Fly `http_service`가 443→3000 프록시 + WSS 자동 처리.
-6. **도메인**: `www.tentens.kr` 를 Fly 앱에 연결(인증서 발급). 전환 시 DNS를 Cloudflare Tunnel → Fly로 변경.
+6. **도메인**: `www.tentens.kr`(구매 도메인, 현재 Railway 연결) 를 Fly 앱에 연결(인증서 발급). 전환 시 DNS를 Railway → Fly로 재지정.
 
 ## 산출물
 

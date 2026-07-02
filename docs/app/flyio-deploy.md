@@ -65,11 +65,11 @@ fly certs add www.tentens.kr
 fly certs show www.tentens.kr   # 요구하는 DNS 레코드 확인
 ```
 
-- DNS(현재 Cloudflare)에서 `www` 를 Fly가 안내하는 대상으로 변경한다.
-  - Cloudflare 사용 시 **프록시(주황 구름) 끄고 DNS-only** 로 두는 게 WSS + Fly 인증서에 안전.
+- `www.tentens.kr` 은 현재 **Railway** 를 가리킨다. DNS(도메인 등록기관 또는 Cloudflare)에서 `www` 를 Fly 대상으로 재지정한다.
   - `CNAME www → <app>.fly.dev` + Fly가 요구하는 `_acme-challenge` TXT (인증서 발급용).
+  - Cloudflare DNS 를 쓴다면 해당 레코드는 **프록시(주황 구름) 끄고 DNS-only** 로 두는 게 WSS + Fly 인증서에 안전.
 - 인증서 `Ready` 되면 https://www.tentens.kr 이 Fly로 연결된다.
-- 전환 후 기존 집 서버 + Cloudflare Tunnel 은 내려도 된다.
+- 전환·검증 후 기존 **Railway** 서비스는 정지/삭제한다.
 
 > 앱(Capacitor 방식 A)의 `server.url` 은 이미 `https://www.tentens.kr` 라 도메인이 Fly로 옮겨가도
 > **APK 재빌드 불필요** — 웹뷰가 같은 도메인을 계속 로드한다.
