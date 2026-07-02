@@ -39,7 +39,7 @@ export const HandRankingsButton = () => {
 
   return (
     <>
-      <div className="fixed bottom-4 right-4 z-40 group">
+      <div className="fixed bottom-4 left-4 z-40 group">
         <button
           onClick={() => setIsOpen(true)}
           className="w-11 h-11 rounded-full bg-panel border border-edge hover:bg-edge hover:border-neon-cyan/50 flex items-center justify-center transition-all shadow-lg shadow-black/30 hover:scale-110 active:scale-95"
@@ -65,9 +65,9 @@ export const HandRankingsButton = () => {
           </svg>
         </button>
         {/* 툴팁 */}
-        <div className="absolute bottom-full right-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
+        <div className="absolute bottom-full left-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
           족보 보기
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
         </div>
       </div>
 

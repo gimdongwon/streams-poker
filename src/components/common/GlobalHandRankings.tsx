@@ -13,8 +13,8 @@ export const GlobalHandRankings = () => {
 
   return (
     <>
-      {/* 개인정보처리방침 (족보 버튼 왼쪽) */}
-      <div className="fixed bottom-4 right-[4.5rem] z-40 group">
+      {/* 개인정보처리방침 (족보 버튼 오른쪽) */}
+      <div className="fixed bottom-4 left-[4.5rem] z-40 group">
         <Link
           href="/privacy"
           aria-label="개인정보처리방침"
@@ -35,9 +35,9 @@ export const GlobalHandRankings = () => {
           </svg>
         </Link>
         {/* 툴팁 */}
-        <div className="absolute bottom-full right-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
+        <div className="absolute bottom-full left-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
           개인정보처리방침
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
         </div>
       </div>
 
