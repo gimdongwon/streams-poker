@@ -15,13 +15,14 @@ type AuthStore = {
     password: string
   ) => Promise<string | null>;
   logout: () => void;
+  deleteAccount: (password: string) => Promise<string | null>;
   clearForcedOut: () => void;
   setHasHydrated: (v: boolean) => void;
 };
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isLoggedIn: false,
       forcedOut: false,
@@ -69,6 +70,27 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => {
         set({ user: null, isLoggedIn: false, forcedOut: false });
+      },
+
+      deleteAccount: async (password) => {
+        const { user } = get();
+        if (!user) return "로그인이 필요합니다";
+        try {
+          const res = await fetch("/api/account/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id, password }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) return data.error ?? "계정 삭제에 실패했습니다";
+
+          set({ user: null, isLoggedIn: false, forcedOut: false });
+          return null;
+        } catch {
+          return "서버 연결에 실패했습니다";
+        }
       },
 
       clearForcedOut: () => set({ forcedOut: false }),

@@ -12,6 +12,7 @@ import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
+import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
@@ -30,6 +31,7 @@ const LobbyPage = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showTierInfo, setShowTierInfo] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [incomingCount, setIncomingCount] = useState(0);
 
   useEffect(() => {
@@ -231,6 +233,12 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
+      {/* 계정 삭제 확인 모달 */}
+      <DeleteAccountModal
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
+
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
       <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
         {/* 좌측: 로고 */}
@@ -358,6 +366,17 @@ const LobbyPage = () => {
                       tabIndex={0}
                     >
                       로그아웃
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowDeleteModal(true);
+                      }}
+                      className="w-full text-left px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-edge text-xs transition-colors border-t border-edge"
+                      aria-label="계정 삭제"
+                      tabIndex={0}
+                    >
+                      계정 삭제
                     </button>
                   </motion.div>
                 </>
