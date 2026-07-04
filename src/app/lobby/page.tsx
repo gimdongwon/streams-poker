@@ -9,12 +9,7 @@ import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
-import { TierInfoModal } from "@/components/common/TierInfoModal";
-import { FriendsPanel } from "@/components/social/FriendsPanel";
-import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
-import { EditNicknameModal } from "@/components/auth/EditNicknameModal";
 import { Spinner } from "@/components/common/Spinner";
-import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -25,7 +20,7 @@ const LobbyPage = () => {
   const t = useT();
   const router = useRouter();
   const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList, isCreatingRoom, isLoadingRoomList } = useRoomStore();
-  const { user, isLoggedIn, logout, hasHydrated } = useAuthStore();
+  const { user, isLoggedIn, hasHydrated } = useAuthStore();
 
   const [mode, setMode] = useState<Mode>("select");
   const [joinCode, setJoinCode] = useState("");
@@ -33,23 +28,14 @@ const LobbyPage = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showFriends, setShowFriends] = useState(false);
-  const [showTierInfo, setShowTierInfo] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showEditNickname, setShowEditNickname] = useState(false);
   const [incomingCount, setIncomingCount] = useState(0);
 
   useEffect(() => {
-    if (showLeaderboard || showFriends || showTierInfo) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = showLeaderboard ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showLeaderboard, showFriends, showTierInfo]);
+  }, [showLeaderboard]);
 
   // 받은 친구 요청 수 (배지용). 실패 시 무시.
   useEffect(() => {
@@ -71,7 +57,7 @@ const LobbyPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [user?.id, showFriends]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (hasHydrated && !isLoggedIn) {
@@ -141,11 +127,6 @@ const LobbyPage = () => {
     requestRoomList();
   };
 
-  const handleLogout = () => {
-    logout();
-    router.replace("/login");
-  };
-
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
@@ -189,67 +170,6 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
-      {/* 친구 모달 */}
-      <AnimatePresence>
-        {showFriends && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 overscroll-contain"
-          >
-            <div
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={() => setShowFriends(false)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") setShowFriends(false);
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={t("lobby.friends.close")}
-            />
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto"
-            >
-              <FriendsPanel userId={user.id} />
-              <button
-                onClick={() => setShowFriends(false)}
-                className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
-                aria-label={t("lobby.modal.close")}
-                tabIndex={0}
-              >
-                {t("lobby.modal.close")}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 티어 안내 모달 */}
-      <AnimatePresence>
-        {showTierInfo && rankInfo && (
-          <TierInfoModal
-            totalScore={rankInfo.totalScore}
-            onClose={() => setShowTierInfo(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* 닉네임 변경 모달 */}
-      <EditNicknameModal
-        open={showEditNickname}
-        onClose={() => setShowEditNickname(false)}
-      />
-
-      {/* 계정 삭제 확인 모달 */}
-      <DeleteAccountModal
-        open={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-      />
-
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
       <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
         {/* 좌측: 로고 */}
@@ -286,9 +206,9 @@ const LobbyPage = () => {
             className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0"
           >
             <button
-              onClick={() => setShowTierInfo(true)}
+              onClick={() => router.push("/me")}
               className="flex flex-col items-center gap-1 hover:opacity-80 active:scale-95 transition"
-              aria-label={t("lobby.rank.tierInfo")}
+              aria-label={t("lobby.account.myPage")}
             >
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
                 {t("lobby.rank.tier")}
@@ -325,111 +245,34 @@ const LobbyPage = () => {
           </motion.div>
         )}
 
-        {/* 우측: 유저 정보 */}
+        {/* 우측: 마이페이지 진입 (아바타) */}
         <motion.div
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex-1 flex items-center justify-end gap-3 min-w-0"
+          className="flex-1 flex items-center justify-end min-w-0"
         >
-          {/* 친구 버튼 (받은 요청 수 배지) */}
           <button
-            onClick={() => setShowFriends(true)}
-            className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors shrink-0"
-            aria-label={t("lobby.friends.open")}
+            onClick={() => router.push("/me")}
+            className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
+            aria-label={t("lobby.account.myPage")}
             tabIndex={0}
           >
-            <span className="text-base leading-none">👥</span>
-            <span className="text-snow font-medium text-xs">{t("lobby.friends.label")}</span>
+            <div
+              style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-void font-bold text-xs shrink-0"
+            >
+              {user.nickname[0]}
+            </div>
+            <div className="min-w-0 text-left">
+              <p className="text-snow font-medium text-xs truncate">{user.nickname}</p>
+              <p className="text-haze text-[10px] truncate">@{user.username}</p>
+            </div>
             {incomingCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-neon-magenta text-void text-[10px] font-bold">
                 {incomingCount}
               </span>
             )}
           </button>
-
-          <div className="relative">
-            <button
-              onClick={() => setShowUserMenu((v) => !v)}
-              className="flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
-              aria-label={t("lobby.account.menu")}
-              aria-haspopup="true"
-              aria-expanded={showUserMenu}
-              tabIndex={0}
-            >
-              <div
-                style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-void font-bold text-xs shrink-0"
-              >
-                {user.nickname[0]}
-              </div>
-              <div className="min-w-0 text-left">
-                <p className="text-snow font-medium text-xs truncate">{user.nickname}</p>
-                <p className="text-haze text-[10px] truncate">@{user.username}</p>
-              </div>
-              <motion.span
-                animate={{ rotate: showUserMenu ? 180 : 0 }}
-                className="text-haze text-[10px] ml-0.5 shrink-0"
-              >
-                ▾
-              </motion.span>
-            </button>
-
-            <AnimatePresence>
-              {showUserMenu && (
-                <>
-                  {/* 바깥 클릭 시 닫기 */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowUserMenu(false)}
-                    role="button"
-                    tabIndex={-1}
-                    aria-label={t("lobby.account.menuClose")}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    className="absolute right-0 mt-2 w-full z-20 bg-panel border border-edge rounded-xl overflow-hidden shadow-lg"
-                  >
-                    <div className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-edge">
-                      <span className="text-haze text-xs">{t("lobby.account.language")}</span>
-                      <LanguageToggle />
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowEditNickname(true);
-                      }}
-                      className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors border-b border-edge"
-                      aria-label={t("lobby.account.editNickname")}
-                      tabIndex={0}
-                    >
-                      {t("lobby.account.editNickname")}
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors"
-                      aria-label={t("lobby.account.logout")}
-                      tabIndex={0}
-                    >
-                      {t("lobby.account.logout")}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setShowDeleteModal(true);
-                      }}
-                      className="w-full text-left px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-edge text-xs transition-colors border-t border-edge"
-                      aria-label={t("lobby.account.delete")}
-                      tabIndex={0}
-                    >
-                      {t("lobby.account.delete")}
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
         </motion.div>
       </div>
 

@@ -30,12 +30,19 @@ export const submitScore = async (entry: LeaderboardInsert): Promise<void> => {
 export const fetchUserRank = async (userId: string): Promise<UserRankInfo> => {
   const { data: me, error: meErr } = await supabase
     .from("user_rankings")
-    .select("total_score, games_played")
+    .select("total_score, games_played, best_score, best_combo")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (meErr) throw meErr;
-  if (!me) return { rank: null, totalScore: 0, gamesPlayed: 0 };
+  if (!me)
+    return {
+      rank: null,
+      totalScore: 0,
+      gamesPlayed: 0,
+      bestScore: 0,
+      bestCombo: null,
+    };
 
   const { count, error: rankErr } = await supabase
     .from("user_rankings")
@@ -48,5 +55,7 @@ export const fetchUserRank = async (userId: string): Promise<UserRankInfo> => {
     rank: (count ?? 0) + 1,
     totalScore: me.total_score,
     gamesPlayed: me.games_played,
+    bestScore: me.best_score ?? 0,
+    bestCombo: me.best_combo ?? null,
   };
 };

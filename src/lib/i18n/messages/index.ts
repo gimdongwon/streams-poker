@@ -10,6 +10,7 @@ import { tier } from "./tier";
 import { hands } from "./hands";
 import { leaderboard } from "./leaderboard";
 import { misc } from "./misc";
+import { me } from "./me";
 
 const NAMESPACES: Namespace[] = [
   common,
@@ -23,6 +24,7 @@ const NAMESPACES: Namespace[] = [
   hands,
   leaderboard,
   misc,
+  me,
 ];
 
 const mergeLocale = (locale: Locale): Dict =>

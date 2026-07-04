@@ -26,4 +26,6 @@ export type UserRankInfo = {
   rank: number | null;
   totalScore: number;
   gamesPlayed: number;
+  bestScore: number;
+  bestCombo: string | null;
 };
