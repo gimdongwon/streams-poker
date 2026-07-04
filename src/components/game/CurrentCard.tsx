@@ -4,15 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Card } from "@/types/card";
 import { isJoker } from "@/types/card";
 import { GameCard } from "./Card";
+import { useT } from "@/lib/i18n/useT";
 
 type CurrentCardProps = {
   card: Card | null;
 };
 
 export const CurrentCard = ({ card }: CurrentCardProps) => {
+  const t = useT();
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <span className="text-gray-400 text-[10px] font-medium">현재 카드</span>
+      <span className="text-gray-400 text-[10px] font-medium">{t("game.card.current")}</span>
       <div className="relative w-20 h-28 flex items-center justify-center">
         <AnimatePresence mode="wait">
           {card ? (
@@ -29,7 +31,7 @@ export const CurrentCard = ({ card }: CurrentCardProps) => {
             </motion.div>
           ) : (
             <div className="w-20 h-28 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center">
-              <span className="text-gray-600 text-[10px]">대기중</span>
+              <span className="text-gray-600 text-[10px]">{t("game.card.waiting")}</span>
             </div>
           )}
         </AnimatePresence>

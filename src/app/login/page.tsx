@@ -6,8 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { Logo } from "@/components/common/Logo";
+import { useT } from "@/lib/i18n/useT";
 
 const LoginPage = () => {
+  const t = useT();
   const router = useRouter();
   const { isLoggedIn, forcedOut, clearForcedOut, hasHydrated } = useAuthStore();
 
@@ -38,10 +40,10 @@ const LoginPage = () => {
             className="w-full max-w-sm mb-4 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center"
           >
             <p className="text-red-400 text-sm font-medium">
-              다른 곳에서 로그인되어 자동 로그아웃되었습니다
+              {t("misc.login.forcedOut")}
             </p>
             <p className="text-red-400/60 text-xs mt-1">
-              다시 로그인해주세요
+              {t("misc.login.forcedOut.retry")}
             </p>
           </motion.div>
         )}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
+import { useT } from "@/lib/i18n/useT";
 
 // 계정 삭제 확인 모달. 비밀번호를 재확인하고, 성공하면 로그인 화면으로 보낸다.
 // 삭제는 되돌릴 수 없으며 전적/친구 관계도 함께 삭제된다.
@@ -14,6 +15,7 @@ export function DeleteAccountModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const deleteAccount = useAuthStore((s) => s.deleteAccount);
   const [password, setPassword] = useState("");
@@ -31,7 +33,7 @@ export function DeleteAccountModal({
     if (busy) return;
     setError(null);
     if (!password) {
-      setError("비밀번호를 입력해주세요");
+      setError(t("auth.delete.password.required"));
       return;
     }
     setBusy(true);
@@ -56,7 +58,7 @@ export function DeleteAccountModal({
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label="계정 삭제 확인"
+          aria-label={t("auth.delete.ariaLabel")}
         >
           <motion.div
             className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-5 shadow-xl"
@@ -65,10 +67,15 @@ export function DeleteAccountModal({
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-snow font-bold text-base mb-1">계정 삭제</h2>
+            <h2 className="text-snow font-bold text-base mb-1">
+              {t("auth.delete.title")}
+            </h2>
             <p className="text-haze text-xs leading-relaxed mb-4">
-              계정을 삭제하면 <span className="text-red-400">전적·랭킹·친구 관계가 모두 영구 삭제</span>되며
-              되돌릴 수 없습니다. 계속하려면 비밀번호를 입력하세요.
+              {t("auth.delete.warning.prefix")}
+              <span className="text-red-400">
+                {t("auth.delete.warning.highlight")}
+              </span>
+              {t("auth.delete.warning.suffix")}
             </p>
 
             <input
@@ -76,11 +83,11 @@ export function DeleteAccountModal({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleDelete()}
-              placeholder="비밀번호"
+              placeholder={t("auth.delete.password.placeholder")}
               className="w-full bg-void border border-edge rounded-xl px-3 py-2.5 text-snow text-sm placeholder:text-haze/60 focus:outline-none focus:border-haze mb-2"
               autoFocus
               disabled={busy}
-              aria-label="비밀번호"
+              aria-label={t("auth.delete.password.ariaLabel")}
             />
 
             {error && <p className="text-red-400 text-xs mb-2">{error}</p>}
@@ -91,14 +98,14 @@ export function DeleteAccountModal({
                 disabled={busy}
                 className="flex-1 py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
               >
-                취소
+                {t("auth.delete.cancel")}
               </button>
               <button
                 onClick={handleDelete}
                 disabled={busy}
                 className="flex-1 py-2.5 rounded-xl bg-red-500/90 hover:bg-red-500 text-white font-medium text-sm transition-colors disabled:opacity-50"
               >
-                {busy ? "삭제 중…" : "영구 삭제"}
+                {busy ? t("auth.delete.deleting") : t("auth.delete.confirm")}
               </button>
             </div>
           </motion.div>

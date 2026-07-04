@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COMBINATION_TABLE } from "@/types/game";
+import { useT } from "@/lib/i18n/useT";
+import { comboKey } from "@/lib/i18n/combo";
 
 const COMBO_COLORS: Record<string, string> = {
   royal_straight_flush: "text-yellow-400",
@@ -19,23 +21,9 @@ const COMBO_COLORS: Record<string, string> = {
   one_pair: "text-haze",
 };
 
-const COMBO_DESCRIPTIONS: Record<string, string> = {
-  royal_straight_flush: "10-J-Q-K-A + 같은 문양",
-  back_straight_flush: "A-2-3-4-5 + 같은 문양",
-  straight_flush: "연속 5장 + 같은 문양",
-  four_of_a_kind: "동일 숫자 4장",
-  mountain: "10-J-Q-K-A (문양 무관)",
-  full_house: "같은 숫자 3장 + 2장",
-  back_straight: "A-2-3-4-5 (문양 무관)",
-  flush: "같은 문양 5장 (위치 무관)",
-  straight: "연속 슬롯 5장 연속 숫자",
-  triple: "같은 숫자 3장",
-  two_pair: "페어 2개",
-  one_pair: "같은 숫자 2장",
-};
-
 export const HandRankingsButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useT();
 
   return (
     <>
@@ -43,7 +31,7 @@ export const HandRankingsButton = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="w-11 h-11 rounded-full bg-panel border border-edge hover:bg-edge hover:border-neon-cyan/50 flex items-center justify-center transition-all shadow-lg shadow-black/30 hover:scale-110 active:scale-95"
-          aria-label="족보 보기"
+          aria-label={t("hands.button")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +54,7 @@ export const HandRankingsButton = () => {
         </button>
         {/* 툴팁 */}
         <div className="absolute bottom-full left-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
-          족보 보기
+          {t("hands.button")}
           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
         </div>
       </div>
@@ -85,6 +73,7 @@ type ModalProps = {
 };
 
 const HandRankingsModal = ({ onClose }: ModalProps) => {
+  const t = useT();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -101,7 +90,7 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
         }}
         role="button"
         tabIndex={0}
-        aria-label="모달 닫기"
+        aria-label={t("common.close")}
       />
 
       {/* 모달 */}
@@ -115,12 +104,12 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
         <div className="flex items-center justify-between px-3 py-2.5 border-b border-edge">
           <h2 className="text-sm font-bold text-snow flex items-center gap-2">
             <span className="text-neon-cyan">♠</span>
-            포커 족보
+            {t("hands.title")}
           </h2>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-edge hover:bg-edge/70 flex items-center justify-center text-haze hover:text-snow transition-colors text-xs"
-            aria-label="닫기"
+            aria-label={t("common.close")}
           >
             ✕
           </button>
@@ -140,27 +129,27 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
                   <div
                     className={`font-semibold text-xs ${COMBO_COLORS[combo.type] || "text-snow"}`}
                   >
-                    {combo.name}
+                    {t(comboKey(combo.type))}
                   </div>
                   <div className="text-haze text-[10px]">
-                    {COMBO_DESCRIPTIONS[combo.type]}
+                    {t(`hands.desc.${combo.type}`)}
                   </div>
                 </div>
               </div>
               <span className="text-yellow-400 font-bold text-xs shrink-0 ml-2">
-                {combo.score}점
+                {t("unit.points", { n: combo.score })}
               </span>
             </div>
           ))}
         </div>
 
         <div className="px-3 py-2.5 border-t border-edge bg-void/40">
-          <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-1.5">규칙</h3>
+          <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-1.5">{t("hands.rules.title")}</h3>
           <ul className="text-haze text-[10px] space-y-0.5">
-            <li>• 한 카드는 하나의 조합에만 사용 가능</li>
-            <li>• 스트레이트 계열은 연속 슬롯 기반, 상위 1개만 적용</li>
-            <li>• 플러시는 슬롯 위치 무관, 같은 문양 5장</li>
-            <li>• 조커는 와일드카드, 최적 조합 자동 배정</li>
+            <li>• {t("hands.rules.oneCardOneCombo")}</li>
+            <li>• {t("hands.rules.straight")}</li>
+            <li>• {t("hands.rules.flush")}</li>
+            <li>• {t("hands.rules.joker")}</li>
           </ul>
         </div>
       </motion.div>

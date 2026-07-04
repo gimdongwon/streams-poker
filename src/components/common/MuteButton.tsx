@@ -2,8 +2,10 @@
 
 import { useSettingsStore } from "@/stores/settingsStore";
 import { playSound } from "@/lib/sound";
+import { useT } from "@/lib/i18n/useT";
 
 export const MuteButton = () => {
+  const t = useT();
   const muted = useSettingsStore((s) => s.muted);
   const toggleMuted = useSettingsStore((s) => s.toggleMuted);
 
@@ -19,7 +21,7 @@ export const MuteButton = () => {
       type="button"
       onClick={handleToggle}
       tabIndex={0}
-      aria-label={muted ? "소리 켜기" : "소리 끄기"}
+      aria-label={muted ? t("misc.mute.on") : t("misc.mute.off")}
       aria-pressed={muted}
       className="text-haze hover:text-snow p-1.5 rounded-lg hover:bg-edge transition-colors leading-none"
     >

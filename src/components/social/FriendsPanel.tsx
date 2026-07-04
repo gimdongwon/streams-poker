@@ -6,6 +6,7 @@ import { TierBadge } from "@/components/common/TierBadge";
 import { Spinner } from "@/components/common/Spinner";
 import { useAuthStore } from "@/stores/authStore";
 import type { Friend, FriendRequest } from "@/lib/friends";
+import { useT } from "@/lib/i18n/useT";
 
 type FriendsPanelProps = {
   // 미지정 시 authStore 의 현재 유저 사용
@@ -17,6 +18,7 @@ type Message = { kind: "ok" | "error"; text: string } | null;
 export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
   const authUserId = useAuthStore((s) => s.user?.id);
   const userId = userIdProp ?? authUserId;
+  const t = useT();
 
   const [friends, setFriends] = useState<Friend[]>([]);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
@@ -68,17 +70,17 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage({ kind: "ok", text: "요청을 보냈어요" });
+        setMessage({ kind: "ok", text: t("friends.msg.sent") });
         setUsernameInput("");
         refresh();
       } else {
         setMessage({
           kind: "error",
-          text: data.error ?? "친구 요청에 실패했어요",
+          text: data.error ?? t("friends.msg.requestFailed"),
         });
       }
     } catch {
-      setMessage({ kind: "error", text: "서버 연결에 실패했어요" });
+      setMessage({ kind: "error", text: t("friends.msg.serverFailed") });
     } finally {
       setSending(false);
     }
@@ -106,10 +108,10 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
         refresh();
       } else {
         const data = await res.json();
-        setMessage({ kind: "error", text: data.error ?? "처리에 실패했어요" });
+        setMessage({ kind: "error", text: data.error ?? t("friends.msg.respondFailed") });
       }
     } catch {
-      setMessage({ kind: "error", text: "서버 연결에 실패했어요" });
+      setMessage({ kind: "error", text: t("friends.msg.serverFailed") });
     } finally {
       setBusy(friendshipId, false);
     }
@@ -128,10 +130,10 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
         refresh();
       } else {
         const data = await res.json();
-        setMessage({ kind: "error", text: data.error ?? "삭제에 실패했어요" });
+        setMessage({ kind: "error", text: data.error ?? t("friends.msg.removeFailed") });
       }
     } catch {
-      setMessage({ kind: "error", text: "서버 연결에 실패했어요" });
+      setMessage({ kind: "error", text: t("friends.msg.serverFailed") });
     } finally {
       setBusy(friendshipId, false);
     }
@@ -140,13 +142,13 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
   return (
     <div className="bg-panel border border-edge rounded-2xl p-4 w-full">
       <h2 className="text-snow font-bold text-base mb-3 flex items-center gap-2">
-        <span>👥</span> 친구
+        <span>👥</span> {t("friends.title")}
       </h2>
 
       {/* 1) 친구 추가 */}
       <section className="mb-4">
         <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">
-          친구 추가
+          {t("friends.add.title")}
         </h3>
         <div className="flex items-center gap-2">
           <input
@@ -156,17 +158,17 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleAdd();
             }}
-            placeholder="아이디 입력"
+            placeholder={t("friends.add.placeholder")}
             className="flex-1 min-w-0 px-3 py-2 bg-void border border-edge rounded-lg text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
-            aria-label="친구 아이디 입력"
+            aria-label={t("friends.add.inputAria")}
           />
           <button
             onClick={handleAdd}
             disabled={sending || !usernameInput.trim()}
             className="shrink-0 px-4 py-2 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-sm font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[3.25rem]"
-            aria-label="친구 추가"
+            aria-label={t("friends.add.buttonAria")}
           >
-            {sending ? <Spinner size="sm" /> : "추가"}
+            {sending ? <Spinner size="sm" /> : t("friends.add.button")}
           </button>
         </div>
         {message && (
@@ -183,7 +185,7 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
       {/* 2) 받은 요청 */}
       <section className="mb-4">
         <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2 flex items-center gap-2">
-          받은 요청
+          {t("friends.requests.title")}
           {requests.length > 0 && (
             <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-neon-magenta text-void text-[10px] font-bold">
               {requests.length}
@@ -193,10 +195,10 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
         {loading && requests.length === 0 ? (
           <div className="flex items-center gap-2 text-haze text-xs py-1">
             <Spinner size="sm" />
-            불러오는 중...
+            {t("common.loading")}
           </div>
         ) : requests.length === 0 ? (
-          <p className="text-haze text-xs">받은 요청이 없어요</p>
+          <p className="text-haze text-xs">{t("friends.requests.empty")}</p>
         ) : (
           <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
             {requests.map((req) => (
@@ -217,17 +219,17 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
                     onClick={() => handleRespond(req.friendshipId, true)}
                     disabled={busyIds.has(req.friendshipId)}
                     className="px-2.5 py-1 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-xs font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50 flex items-center justify-center min-w-[2.75rem]"
-                    aria-label="수락"
+                    aria-label={t("friends.requests.accept")}
                   >
-                    {busyIds.has(req.friendshipId) ? <Spinner size="sm" /> : "수락"}
+                    {busyIds.has(req.friendshipId) ? <Spinner size="sm" /> : t("friends.requests.accept")}
                   </button>
                   <button
                     onClick={() => handleRespond(req.friendshipId, false)}
                     disabled={busyIds.has(req.friendshipId)}
                     className="px-2.5 py-1 bg-edge border border-edge text-haze text-xs font-medium rounded-lg transition-all active:scale-95 hover:text-snow disabled:opacity-50"
-                    aria-label="거절"
+                    aria-label={t("friends.requests.reject")}
                   >
-                    거절
+                    {t("friends.requests.reject")}
                   </button>
                 </div>
               </div>
@@ -239,7 +241,7 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
       {/* 3) 친구 목록 */}
       <section>
         <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">
-          친구 목록
+          {t("friends.list.title")}
           {friends.length > 0 && (
             <span className="ml-2 text-haze/70 font-normal">
               {friends.length}
@@ -249,11 +251,11 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
         {loading && friends.length === 0 ? (
           <div className="bg-void border border-edge rounded-lg py-8 flex items-center justify-center gap-2 text-haze text-sm">
             <Spinner size="sm" />
-            불러오는 중...
+            {t("common.loading")}
           </div>
         ) : friends.length === 0 ? (
           <div className="bg-void border border-edge rounded-lg py-8 text-center text-haze text-sm">
-            아직 친구가 없어요
+            {t("friends.list.empty")}
           </div>
         ) : (
           <div className="flex flex-col gap-2 max-h-56 overflow-y-auto">
@@ -275,7 +277,7 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
                     </p>
                     <span className="text-haze/50 text-[10px]">·</span>
                     <p className="text-neon-cyan text-[10px] font-medium">
-                      누적 {friend.totalScore.toLocaleString()}점
+                      {t("friends.list.total", { n: friend.totalScore.toLocaleString() })}
                     </p>
                   </div>
                 </div>
@@ -283,12 +285,12 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
                   onClick={() => handleRemove(friend.friendshipId)}
                   disabled={busyIds.has(friend.friendshipId)}
                   className="shrink-0 px-2.5 py-1 text-haze hover:text-red-400 text-xs font-medium rounded-lg transition-colors active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[2.5rem]"
-                  aria-label={`${friend.nickname} 친구 삭제`}
+                  aria-label={t("friends.list.removeAria", { nick: friend.nickname })}
                 >
                   {busyIds.has(friend.friendshipId) ? (
                     <Spinner size="sm" colorClassName="border-haze" />
                   ) : (
-                    "삭제"
+                    t("friends.list.remove")
                   )}
                 </button>
               </div>

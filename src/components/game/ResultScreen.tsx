@@ -10,6 +10,8 @@ import { Board, type BoardCombo } from "./Board";
 import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { shareResult } from "@/lib/share";
+import { useT } from "@/lib/i18n/useT";
+import { comboKey } from "@/lib/i18n/combo";
 
 type ResultScreenProps = {
   mode: "single" | "multi";
@@ -38,7 +40,13 @@ const slotsFromCards = (cards: (Card | null)[]): SlotType[] =>
 
 type BreakdownRow = { type: string; name: string; score: number };
 
-const Breakdown = ({ combos }: { combos: BreakdownRow[] }) => (
+const Breakdown = ({
+  combos,
+  t,
+}: {
+  combos: BreakdownRow[];
+  t: ReturnType<typeof useT>;
+}) => (
   <div className="mt-3 text-center">
     {combos.length > 0 ? (
       <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
@@ -47,14 +55,14 @@ const Breakdown = ({ combos }: { combos: BreakdownRow[] }) => (
           return (
             <div key={`${c.type}-${i}`} className="flex items-center gap-1.5 text-[11px]">
               <span className={`w-2.5 h-2.5 rounded-[3px] ${st.dot}`} />
-              <span className="text-snow">{c.name}</span>
+              <span className="text-snow">{t(comboKey(c.type))}</span>
               <span className={`font-extrabold ${st.text}`}>+{c.score}</span>
             </div>
           );
         })}
       </div>
     ) : (
-      <span className="text-haze text-[11px]">조합 없음</span>
+      <span className="text-haze text-[11px]">{t("result.noCombo")}</span>
     )}
   </div>
 );
@@ -94,18 +102,22 @@ export const ResultScreen = ({
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const t = useT();
 
   const handleShare = async () => {
     const text =
       mode === "single"
-        ? `TENTENS에서 ${totalScore}점 달성! 같은 카드, 다른 전략 🃏`
-        : `TENTENS 멀티 ${myResult ? ordinal(myResult.rank) : ""} · ${myResult?.score ?? 0}점! 🃏`;
+        ? t("result.share.single", { n: totalScore })
+        : t("result.share.multi", {
+            rank: myResult ? ordinal(myResult.rank) : "",
+            n: myResult?.score ?? 0,
+          });
     const outcome = await shareResult(text);
     if (outcome === "copied") {
-      setToast("링크가 복사됐어요");
+      setToast(t("result.toast.copied"));
       setTimeout(() => setToast(null), 2000);
     } else if (outcome === "failed") {
-      setToast("공유에 실패했어요");
+      setToast(t("result.toast.failed"));
       setTimeout(() => setToast(null), 2000);
     }
   };
@@ -146,11 +158,11 @@ export const ResultScreen = ({
   const actions = (
     <div className="flex justify-end gap-3 shrink-0 pt-2">
       {onPlayAgain ? (
-        <SecondaryButton label="로비" onClick={onBackToLobby} />
+        <SecondaryButton label={t("result.lobby")} onClick={onBackToLobby} />
       ) : (
-        <PrimaryButton label="로비로 돌아가기" onClick={onBackToLobby} />
+        <PrimaryButton label={t("result.backToLobby")} onClick={onBackToLobby} />
       )}
-      {onPlayAgain && <PrimaryButton label="한번 더" onClick={onPlayAgain} />}
+      {onPlayAgain && <PrimaryButton label={t("result.playAgain")} onClick={onPlayAgain} />}
     </div>
   );
 
@@ -161,14 +173,14 @@ export const ResultScreen = ({
         <div className="flex items-center gap-2">
           <Logo size="sm" />
           <span className="text-haze text-[10px] bg-panel px-1.5 py-0.5 rounded">
-            {mode === "single" ? "싱글" : "멀티"}
+            {mode === "single" ? t("result.mode.single") : t("result.mode.multi")}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-haze text-xs">{playerName}</span>
           <button
             onClick={handleShare}
-            aria-label="결과 공유"
+            aria-label={t("result.share.aria")}
             tabIndex={0}
             className="text-haze hover:text-snow p-1.5 rounded-lg hover:bg-edge transition-colors"
           >
@@ -200,7 +212,7 @@ export const ResultScreen = ({
         >
           {mode === "single" ? (
             <>
-              <span className="text-haze text-[10px] tracking-[2px]">YOUR SCORE</span>
+              <span className="text-haze text-[10px] tracking-[2px]">{t("result.yourScore")}</span>
               <div className="flex items-baseline gap-1.5">
                 <span
                   className="font-extrabold text-neon-cyan leading-none"
@@ -212,17 +224,17 @@ export const ResultScreen = ({
                 >
                   {totalScore}
                 </span>
-                <span className="text-haze text-2xl font-bold">점</span>
+                <span className="text-haze text-2xl font-bold">{t("result.pointSuffix")}</span>
               </div>
               {combinations.length > 0 && (
                 <div className="mt-2.5 text-[11px] text-haze">
-                  BEST · {combinations[0].name}
+                  {t("result.best", { name: t(comboKey(combinations[0].type)) })}
                 </div>
               )}
             </>
           ) : (
             <>
-              <span className="text-haze text-[10px] tracking-[2px]">YOU PLACED</span>
+              <span className="text-haze text-[10px] tracking-[2px]">{t("result.youPlaced")}</span>
               <div
                 className="font-extrabold text-neon-cyan leading-none"
                 style={{ fontSize: "clamp(3rem, 8.5vw, 5rem)", textShadow: SCORE_GLOW }}
@@ -231,12 +243,13 @@ export const ResultScreen = ({
               </div>
               {myResult && (
                 <div className="mt-2 text-sm text-snow">
-                  내 점수 <span className="font-extrabold">{myResult.score}점</span>
+                  {t("result.myScore")}{" "}
+                  <span className="font-extrabold">{t("unit.points", { n: myResult.score })}</span>
                 </div>
               )}
               {winner && (
                 <>
-                  <div className="mt-3 text-[10px] tracking-[1px] text-haze">WINNER</div>
+                  <div className="mt-3 text-[10px] tracking-[1px] text-haze">{t("result.winner")}</div>
                   <div className="mt-0.5 flex items-center gap-1.5 text-sm text-snow">
                     <span>🏆</span>
                     <span className="font-extrabold">{winner.nickname}</span>
@@ -260,10 +273,12 @@ export const ResultScreen = ({
           <div className={`w-full ${boardWrapClass}`}>
             <div className="flex items-center justify-between mb-1">
               <span className="text-haze text-[10px] tracking-[2px]">
-                {mode === "multi" && selected ? `${selected.nickname}의 보드` : "MY BOARD"}
+                {mode === "multi" && selected
+                  ? t("result.playerBoard", { nick: selected.nickname })
+                  : t("result.myBoard")}
               </span>
               {mode === "multi" && (
-                <span className="text-haze/70 text-[10px]">{boardTotal}점</span>
+                <span className="text-haze/70 text-[10px]">{t("unit.points", { n: boardTotal })}</span>
               )}
             </div>
             {hasBoard ? (
@@ -277,9 +292,9 @@ export const ResultScreen = ({
                 showComboLabels={false}
               />
             ) : (
-              <div className="py-6 text-center text-haze text-xs">보드 정보 없음</div>
+              <div className="py-6 text-center text-haze text-xs">{t("result.noBoard")}</div>
             )}
-            <Breakdown combos={breakdownRows} />
+            <Breakdown combos={breakdownRows} t={t} />
           </div>
         </motion.div>
 
@@ -291,7 +306,7 @@ export const ResultScreen = ({
             transition={{ delay: 0.1 }}
             className="landscape:w-[26%] flex flex-col shrink-0"
           >
-            <span className="text-haze text-[10px] tracking-[2px] mb-1">RANKING</span>
+            <span className="text-haze text-[10px] tracking-[2px] mb-1">{t("result.ranking")}</span>
               <div className="flex flex-col gap-1.5">
                 {playerResults.map((r) => {
                   const isSel = (selected?.playerId ?? null) === (r.playerId ?? null);
@@ -312,7 +327,7 @@ export const ResultScreen = ({
                         <span className="text-[12px] text-snow truncate">{r.nickname}</span>
                         {r.isMe && (
                           <span className="text-[8px] font-extrabold text-void bg-neon-cyan px-1.5 py-0.5 rounded-full shrink-0">
-                            나
+                            {t("common.me")}
                           </span>
                         )}
                       </span>
@@ -328,7 +343,7 @@ export const ResultScreen = ({
                 })}
               </div>
             <p className="text-haze/70 text-[9px] pt-1.5">
-              플레이어를 누르면 보드를 볼 수 있어요
+              {t("result.tapHint")}
             </p>
           </motion.div>
         )}

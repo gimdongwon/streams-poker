@@ -13,12 +13,15 @@ import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
 import { Spinner } from "@/components/common/Spinner";
+import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
 type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
 const LobbyPage = () => {
+  const t = useT();
   const router = useRouter();
   const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList, isCreatingRoom, isLoadingRoomList } = useRoomStore();
   const { user, isLoggedIn, logout, hasHydrated } = useAuthStore();
@@ -124,7 +127,7 @@ const LobbyPage = () => {
 
   const handleJoinRoom = () => {
     if (!joinCode.trim()) {
-      setError("방 코드를 입력해주세요");
+      setError(t("lobby.join.error.empty"));
       return;
     }
     router.push(`/room/${joinCode.trim().toUpperCase()}`);
@@ -162,7 +165,7 @@ const LobbyPage = () => {
               }}
               role="button"
               tabIndex={0}
-              aria-label="리더보드 닫기"
+              aria-label={t("lobby.leaderboard.close")}
             />
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
@@ -174,10 +177,10 @@ const LobbyPage = () => {
               <button
                 onClick={() => setShowLeaderboard(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
-                aria-label="닫기"
+                aria-label={t("lobby.modal.close")}
                 tabIndex={0}
               >
-                닫기
+                {t("lobby.modal.close")}
               </button>
             </motion.div>
           </motion.div>
@@ -201,7 +204,7 @@ const LobbyPage = () => {
               }}
               role="button"
               tabIndex={0}
-              aria-label="친구 닫기"
+              aria-label={t("lobby.friends.close")}
             />
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
@@ -213,10 +216,10 @@ const LobbyPage = () => {
               <button
                 onClick={() => setShowFriends(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
-                aria-label="닫기"
+                aria-label={t("lobby.modal.close")}
                 tabIndex={0}
               >
-                닫기
+                {t("lobby.modal.close")}
               </button>
             </motion.div>
           </motion.div>
@@ -250,7 +253,7 @@ const LobbyPage = () => {
         {!rankInfo && rankLoading && (
           <div
             className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0 animate-pulse"
-            aria-label="랭킹 정보 불러오는 중"
+            aria-label={t("lobby.rank.loading")}
           >
             <div className="flex flex-col items-center gap-1.5">
               <div className="h-2 w-6 rounded bg-edge" />
@@ -277,17 +280,17 @@ const LobbyPage = () => {
             <button
               onClick={() => setShowTierInfo(true)}
               className="flex flex-col items-center gap-1 hover:opacity-80 active:scale-95 transition"
-              aria-label="티어 안내 보기"
+              aria-label={t("lobby.rank.tierInfo")}
             >
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
-                티어
+                {t("lobby.rank.tier")}
               </p>
               <TierBadge totalScore={rankInfo.totalScore} size="md" />
             </button>
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
-                내 랭킹
+                {t("lobby.rank.myRank")}
               </p>
               <p className="text-snow font-bold text-base leading-tight">
                 {rankInfo.rank != null ? `#${rankInfo.rank}` : "-"}
@@ -296,7 +299,7 @@ const LobbyPage = () => {
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
-                누적 점수
+                {t("lobby.rank.totalScore")}
               </p>
               <p className="text-neon-cyan font-bold text-base leading-tight">
                 {rankInfo.totalScore.toLocaleString()}
@@ -305,7 +308,7 @@ const LobbyPage = () => {
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
-                판수
+                {t("lobby.rank.gamesPlayed")}
               </p>
               <p className="text-snow font-bold text-base leading-tight">
                 {rankInfo.gamesPlayed}
@@ -324,11 +327,11 @@ const LobbyPage = () => {
           <button
             onClick={() => setShowFriends(true)}
             className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors shrink-0"
-            aria-label="친구 열기"
+            aria-label={t("lobby.friends.open")}
             tabIndex={0}
           >
             <span className="text-base leading-none">👥</span>
-            <span className="text-snow font-medium text-xs">친구</span>
+            <span className="text-snow font-medium text-xs">{t("lobby.friends.label")}</span>
             {incomingCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-neon-magenta text-void text-[10px] font-bold">
                 {incomingCount}
@@ -340,7 +343,7 @@ const LobbyPage = () => {
             <button
               onClick={() => setShowUserMenu((v) => !v)}
               className="flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
-              aria-label="계정 메뉴 열기"
+              aria-label={t("lobby.account.menu")}
               aria-haspopup="true"
               aria-expanded={showUserMenu}
               tabIndex={0}
@@ -372,7 +375,7 @@ const LobbyPage = () => {
                     onClick={() => setShowUserMenu(false)}
                     role="button"
                     tabIndex={-1}
-                    aria-label="메뉴 닫기"
+                    aria-label={t("lobby.account.menuClose")}
                   />
                   <motion.div
                     initial={{ opacity: 0, y: -6 }}
@@ -380,13 +383,17 @@ const LobbyPage = () => {
                     exit={{ opacity: 0, y: -6 }}
                     className="absolute right-0 mt-2 w-full z-20 bg-panel border border-edge rounded-xl overflow-hidden shadow-lg"
                   >
+                    <div className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-edge">
+                      <span className="text-haze text-xs">{t("lobby.account.language")}</span>
+                      <LanguageToggle />
+                    </div>
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors"
-                      aria-label="로그아웃"
+                      aria-label={t("lobby.account.logout")}
                       tabIndex={0}
                     >
-                      로그아웃
+                      {t("lobby.account.logout")}
                     </button>
                     <button
                       onClick={() => {
@@ -394,10 +401,10 @@ const LobbyPage = () => {
                         setShowDeleteModal(true);
                       }}
                       className="w-full text-left px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-edge text-xs transition-colors border-t border-edge"
-                      aria-label="계정 삭제"
+                      aria-label={t("lobby.account.delete")}
                       tabIndex={0}
                     >
-                      계정 삭제
+                      {t("lobby.account.delete")}
                     </button>
                   </motion.div>
                 </>
@@ -433,25 +440,25 @@ const LobbyPage = () => {
           className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1"
         >
           <div className="bg-panel/40 rounded-2xl p-4 border border-edge mb-3">
-            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5">게임 규칙</h3>
+            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5">{t("lobby.rules.title")}</h3>
             <ul className="text-haze text-xs space-y-1.5">
-              <li>• 10라운드 동안 매 라운드 카드 1장이 공개됩니다</li>
-              <li>• 10초 안에 10개 슬롯 중 하나에 배치하세요</li>
-              <li>• 슬롯 순서가 스트레이트 판정에 영향을 줍니다</li>
-              <li>• 조커는 와일드카드로 최적 조합에 자동 배정됩니다</li>
-              <li>• 가장 높은 총점의 플레이어가 승리합니다</li>
+              <li>{t("lobby.rules.item1")}</li>
+              <li>{t("lobby.rules.item2")}</li>
+              <li>{t("lobby.rules.item3")}</li>
+              <li>{t("lobby.rules.item4")}</li>
+              <li>{t("lobby.rules.item5")}</li>
             </ul>
           </div>
 
           <button
             onClick={() => setShowLeaderboard(true)}
             className="w-full py-3 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
-            aria-label="리더보드 보기"
+            aria-label={t("lobby.leaderboard.view")}
             tabIndex={0}
           >
             <div className="flex items-center justify-center gap-2">
               <span>🏆</span>
-              <span>리더보드 보기</span>
+              <span>{t("lobby.leaderboard.view")}</span>
             </div>
           </button>
         </motion.div>
@@ -470,14 +477,14 @@ const LobbyPage = () => {
                 <button
                   onClick={handleSinglePlay}
                   className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
-                  aria-label="싱글 모드로 시작"
+                  aria-label={t("lobby.mode.single.aria")}
                 >
                   <div className="flex items-center justify-start gap-3">
                     <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-cyan">싱글 모드</div>
+                      <div className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</div>
                       <div className="text-xs font-normal text-haze">
-                        혼자서 최고 점수에 도전
+                        {t("lobby.mode.single.desc")}
                       </div>
                     </div>
                   </div>
@@ -489,14 +496,14 @@ const LobbyPage = () => {
                     setError("");
                   }}
                   className="w-full py-4 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
-                  aria-label="멀티플레이 모드"
+                  aria-label={t("lobby.mode.multi.aria")}
                 >
                   <div className="flex items-center justify-start gap-3">
                     <span className="text-2xl text-neon-magenta w-10 text-center shrink-0">👥</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-magenta">멀티플레이</div>
+                      <div className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</div>
                       <div className="text-xs font-normal text-haze">
-                        친구와 함께 대결 (최대 10명)
+                        {t("lobby.mode.multi.desc")}
                       </div>
                     </div>
                   </div>
@@ -517,7 +524,7 @@ const LobbyPage = () => {
                   disabled={isCreatingRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
                   className="w-full py-4 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  aria-label="방 만들기"
+                  aria-label={t("lobby.create.aria")}
                 >
                   <div className="flex items-center justify-start gap-3">
                     <span className="text-2xl w-10 flex items-center justify-center shrink-0">
@@ -529,10 +536,10 @@ const LobbyPage = () => {
                     </span>
                     <div className="text-left">
                       <div className="text-base">
-                        {isCreatingRoom ? "방 만드는 중..." : "방 만들기"}
+                        {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
                       </div>
                       <div className="text-xs font-normal opacity-80">
-                        새로운 방을 생성합니다
+                        {t("lobby.create.desc")}
                       </div>
                     </div>
                   </div>
@@ -544,14 +551,14 @@ const LobbyPage = () => {
                     setError("");
                   }}
                   className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
-                  aria-label="방 참여하기"
+                  aria-label={t("lobby.join.aria")}
                 >
                   <div className="flex items-center justify-start gap-3">
                     <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-cyan">방 참여하기</div>
+                      <div className="text-base text-neon-cyan">{t("lobby.join.title")}</div>
                       <div className="text-xs font-normal text-haze">
-                        코드를 입력하여 참여
+                        {t("lobby.join.desc")}
                       </div>
                     </div>
                   </div>
@@ -560,14 +567,14 @@ const LobbyPage = () => {
                 <button
                   onClick={handleBrowseRooms}
                   className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
-                  aria-label="방 찾기"
+                  aria-label={t("lobby.browse.aria")}
                 >
                   <div className="flex items-center justify-start gap-3">
                     <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
                     <div className="text-left">
-                      <div className="text-base text-neon-cyan">방 찾기</div>
+                      <div className="text-base text-neon-cyan">{t("lobby.browse.title")}</div>
                       <div className="text-xs font-normal text-haze">
-                        열려 있는 방 목록에서 참여
+                        {t("lobby.browse.desc")}
                       </div>
                     </div>
                   </div>
@@ -579,9 +586,9 @@ const LobbyPage = () => {
                     setError("");
                   }}
                   className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label="뒤로가기"
+                  aria-label={t("lobby.common.back")}
                 >
-                  ← 뒤로가기
+                  {t("lobby.common.back")}
                 </button>
               </motion.div>
             )}
@@ -596,14 +603,14 @@ const LobbyPage = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-haze text-[10px] tracking-[2px] uppercase font-medium">
-                    열려 있는 방
+                    {t("lobby.browse.openRooms")}
                   </span>
                   <button
                     onClick={() => requestRoomList()}
                     className="text-haze hover:text-neon-cyan text-xs transition-colors px-2 py-1 rounded-lg active:scale-95"
-                    aria-label="새로고침"
+                    aria-label={t("lobby.browse.refreshAria")}
                   >
-                    ↻ 새로고침
+                    {t("lobby.browse.refresh")}
                   </button>
                 </div>
 
@@ -611,11 +618,11 @@ const LobbyPage = () => {
                   {isLoadingRoomList && roomList.length === 0 ? (
                     <div className="bg-panel/40 border border-edge rounded-xl py-10 flex items-center justify-center gap-2 text-haze text-sm">
                       <Spinner size="sm" />
-                      방 목록을 불러오는 중...
+                      {t("lobby.browse.loading")}
                     </div>
                   ) : roomList.length === 0 ? (
                     <div className="bg-panel/40 border border-edge rounded-xl py-10 text-center text-haze text-sm">
-                      열려 있는 방이 없어요
+                      {t("lobby.browse.empty")}
                     </div>
                   ) : (
                     roomList.map((room) => (
@@ -623,12 +630,12 @@ const LobbyPage = () => {
                         key={room.code}
                         onClick={() => router.push(`/room/${room.code}`)}
                         className="w-full bg-panel border border-edge rounded-xl px-4 py-3 transition-all active:scale-95 hover:bg-edge hover:border-neon-cyan/60 text-left"
-                        aria-label={`${room.hostNickname}님의 방 참여`}
+                        aria-label={t("lobby.browse.roomJoinAria", { host: room.hostNickname })}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
                             <div className="text-snow font-medium text-sm truncate">
-                              {room.hostNickname}님의 방
+                              {t("lobby.browse.roomTitle", { host: room.hostNickname })}
                             </div>
                             <div className="text-haze text-[10px] font-mono tracking-wider truncate">
                               {room.code}
@@ -652,9 +659,9 @@ const LobbyPage = () => {
                     setError("");
                   }}
                   className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label="뒤로가기"
+                  aria-label={t("lobby.common.back")}
                 >
-                  ← 뒤로가기
+                  {t("lobby.common.back")}
                 </button>
               </motion.div>
             )}
@@ -672,7 +679,7 @@ const LobbyPage = () => {
                     htmlFor="room-code"
                     className="block text-haze text-[10px] tracking-[2px] uppercase mb-1.5 font-medium"
                   >
-                    방 코드 입력
+                    {t("lobby.join.label")}
                   </label>
                   <input
                     id="room-code"
@@ -682,7 +689,7 @@ const LobbyPage = () => {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleJoinRoom();
                     }}
-                    placeholder="6자리 코드 입력"
+                    placeholder={t("lobby.join.placeholder")}
                     maxLength={6}
                     className="w-full px-4 py-3 bg-void border border-edge rounded-xl text-snow text-center text-xl font-mono tracking-[0.3em] placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors uppercase"
                   />
@@ -693,9 +700,9 @@ const LobbyPage = () => {
                   disabled={joinCode.length < 6}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
                   className="w-full py-3 px-4 text-void text-sm font-bold rounded-2xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="참여하기"
+                  aria-label={t("lobby.join.submitAria")}
                 >
-                  참여하기
+                  {t("lobby.join.submit")}
                 </button>
 
                 <button
@@ -705,9 +712,9 @@ const LobbyPage = () => {
                     setJoinCode("");
                   }}
                   className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label="뒤로가기"
+                  aria-label={t("lobby.common.back")}
                 >
-                  ← 뒤로가기
+                  {t("lobby.common.back")}
                 </button>
               </motion.div>
             )}

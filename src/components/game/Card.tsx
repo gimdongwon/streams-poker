@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Card as CardType } from "@/types/card";
 import { isJoker, SUIT_SYMBOLS } from "@/types/card";
+import { useT } from "@/lib/i18n/useT";
 
 type CardSize = "xs" | "sm" | "md" | "lg";
 
@@ -47,6 +48,7 @@ export const GameCard = ({
   onClick,
   className = "",
 }: CardProps) => {
+  const t = useT();
   const s = SIZE_MAP[size];
 
   // Card back — gradient X tile on a panel
@@ -78,7 +80,7 @@ export const GameCard = ({
         onClick={onClick}
         role="button"
         tabIndex={0}
-        aria-label="조커 카드"
+        aria-label={t("game.card.joker")}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") onClick?.();
         }}
@@ -106,7 +108,7 @@ export const GameCard = ({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`${suitSymbol}${card.rank} 카드`}
+      aria-label={t("game.card.label", { suit: suitSymbol, rank: card.rank })}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") onClick?.();
       }}

@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
+import { useT } from "@/lib/i18n/useT";
 
 type AuthFormProps = {
   mode: "login" | "signup";
 };
 
 export const AuthForm = ({ mode }: AuthFormProps) => {
+  const t = useT();
   const router = useRouter();
   const { login, signup } = useAuthStore();
   const [username, setUsername] = useState("");
@@ -56,7 +58,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
     >
       <div className="bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-6">
         <h2 className="text-lg font-bold text-snow text-center mb-5">
-          {mode === "login" ? "로그인" : "회원가입"}
+          {mode === "login" ? t("auth.login.title") : t("auth.signup.title")}
         </h2>
 
         <div className="space-y-3">
@@ -65,7 +67,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               htmlFor="auth-username"
               className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
             >
-              아이디
+              {t("auth.field.username")}
             </label>
             <input
               id="auth-username"
@@ -73,7 +75,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="3~20자"
+              placeholder={t("auth.field.username.placeholder")}
               maxLength={20}
               className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
@@ -91,7 +93,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
                   htmlFor="auth-nickname"
                   className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
                 >
-                  닉네임
+                  {t("auth.field.nickname")}
                 </label>
                 <input
                   id="auth-nickname"
@@ -99,7 +101,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="게임에서 표시될 이름 (1~12자)"
+                  placeholder={t("auth.field.nickname.placeholder")}
                   maxLength={12}
                   className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
                 />
@@ -112,7 +114,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               htmlFor="auth-password"
               className="block text-haze text-[10px] tracking-[2px] uppercase mb-1 font-medium"
             >
-              비밀번호
+              {t("auth.field.password")}
             </label>
             <input
               id="auth-password"
@@ -120,7 +122,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="4자 이상"
+              placeholder={t("auth.field.password.placeholder")}
               className="w-full px-4 py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
           </div>
@@ -144,29 +146,33 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           disabled={isLoading}
           style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
           className="w-full mt-4 py-3 text-void font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          aria-label={mode === "login" ? "로그인" : "가입하기"}
+          aria-label={
+            mode === "login" ? t("auth.action.login") : t("auth.action.signup")
+          }
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-void border-t-transparent rounded-full animate-spin" />
-              처리 중...
+              {t("auth.action.processing")}
             </span>
           ) : mode === "login" ? (
-            "로그인"
+            t("auth.action.login")
           ) : (
-            "가입하기"
+            t("auth.action.signup")
           )}
         </button>
 
         <button
           onClick={handleNavigate}
           className="w-full mt-3 text-haze hover:text-snow text-xs transition-colors py-1"
-          aria-label={mode === "login" ? "회원가입으로 이동" : "로그인으로 이동"}
+          aria-label={
+            mode === "login" ? t("auth.nav.toSignup") : t("auth.nav.toLogin")
+          }
           tabIndex={0}
         >
           {mode === "login"
-            ? "계정이 없으신가요? 회원가입"
-            : "이미 계정이 있으신가요? 로그인"}
+            ? t("auth.nav.noAccount")
+            : t("auth.nav.hasAccount")}
         </button>
       </div>
     </motion.div>

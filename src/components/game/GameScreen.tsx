@@ -16,6 +16,7 @@ import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { playSound } from "@/lib/sound";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { useT } from "@/lib/i18n/useT";
 
 type GameScreenProps = {
   mode: "single" | "multi";
@@ -32,6 +33,7 @@ export const GameScreen = ({
   onBackToLobby,
   onPlayAgain,
 }: GameScreenProps) => {
+  const t = useT();
   const {
     phase,
     currentRound,
@@ -205,7 +207,7 @@ export const GameScreen = ({
         <div className="flex items-center gap-2">
           <Logo size="sm" />
           <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded">
-            {mode === "single" ? "싱글" : "멀티"}
+            {mode === "single" ? t("game.mode.single") : t("game.mode.multi")}
           </span>
         </div>
         <div className="flex items-center gap-1">
@@ -229,7 +231,7 @@ export const GameScreen = ({
               >
                 {/* 카드 뒷면 */}
                 <div className="flex flex-col items-center gap-1.5">
-                  <span className="text-emerald-400 text-[10px] font-medium">배치 완료!</span>
+                  <span className="text-emerald-400 text-[10px] font-medium">{t("game.status.placed")}</span>
                   <motion.div
                     initial={{ rotateY: 0 }}
                     animate={{ rotateY: 180 }}
@@ -266,7 +268,7 @@ export const GameScreen = ({
                     })}
                   </div>
                   <p className="text-[10px] text-gray-500 mt-2 text-center">
-                    {roundPlacedPlayers.length}/{players.length} 배치 완료
+                    {t("game.status.placedCount", { n: roundPlacedPlayers.length, total: players.length })}
                   </p>
                 </div>
               </motion.div>
@@ -300,8 +302,8 @@ export const GameScreen = ({
 
       <p className="text-gray-500 text-[10px] text-center mt-2">
         {isWaitingForOthers
-          ? "다른 플레이어의 배치를 기다리는 중..."
-          : "슬롯을 터치하거나 키보드 1~0으로 배치"}
+          ? t("game.hint.waiting")
+          : t("game.hint.place")}
       </p>
     </div>
   );

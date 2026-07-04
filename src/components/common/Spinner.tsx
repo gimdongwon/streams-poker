@@ -1,3 +1,7 @@
+"use client";
+
+import { useT } from "@/lib/i18n/useT";
+
 type SpinnerSize = "sm" | "md" | "lg";
 
 type SpinnerProps = {
@@ -18,10 +22,13 @@ export const Spinner = ({
   size = "sm",
   colorClassName = "border-neon-cyan",
   className = "",
-}: SpinnerProps) => (
-  <span
-    role="status"
-    aria-label="로딩 중"
-    className={`inline-block shrink-0 rounded-full border-t-transparent animate-spin ${SIZE_MAP[size]} ${colorClassName} ${className}`}
-  />
-);
+}: SpinnerProps) => {
+  const t = useT();
+  return (
+    <span
+      role="status"
+      aria-label={t("common.loading")}
+      className={`inline-block shrink-0 rounded-full border-t-transparent animate-spin ${SIZE_MAP[size]} ${colorClassName} ${className}`}
+    />
+  );
+};

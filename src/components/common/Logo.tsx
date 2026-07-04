@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useT } from "@/lib/i18n/useT";
 
 type LogoProps = {
   size?: "sm" | "lg";
@@ -19,6 +20,7 @@ export const Logo = ({
   const isLg = size === "lg";
   const tile = isLg ? "w-11 h-11 rounded-xl text-2xl" : "w-7 h-7 rounded-lg text-base";
   const word = isLg ? "text-3xl" : "text-lg";
+  const t = useT();
 
   return (
     <motion.div
@@ -29,7 +31,7 @@ export const Logo = ({
       <Link
         href="/lobby"
         className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
-        aria-label="홈으로 이동"
+        aria-label={t("misc.logo.home")}
         tabIndex={0}
       >
         <span
@@ -53,7 +55,7 @@ export const Logo = ({
         </span>
       </Link>
       {showSubtitle && (
-        <p className="text-haze mt-2">전략 카드 배치 게임</p>
+        <p className="text-haze mt-2">{t("misc.logo.tagline")}</p>
       )}
     </motion.div>
   );

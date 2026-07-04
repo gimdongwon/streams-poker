@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TIERS, getTier, nextTier } from "@/lib/tier";
+import { useT } from "@/lib/i18n/useT";
 
 type TierInfoModalProps = {
   totalScore: number;
@@ -9,6 +10,7 @@ type TierInfoModalProps = {
 };
 
 export const TierInfoModal = ({ totalScore, onClose }: TierInfoModalProps) => {
+  const t = useT();
   const current = getTier(totalScore);
   const next = nextTier(totalScore);
 
@@ -38,7 +40,7 @@ export const TierInfoModal = ({ totalScore, onClose }: TierInfoModalProps) => {
         }}
         role="button"
         tabIndex={0}
-        aria-label="티어 안내 닫기"
+        aria-label={t("tier.closeAria")}
       />
       <motion.div
         initial={{ scale: 0.9, y: 20 }}
@@ -46,18 +48,18 @@ export const TierInfoModal = ({ totalScore, onClose }: TierInfoModalProps) => {
         exit={{ scale: 0.9, y: 20 }}
         className="relative z-10 w-full max-w-sm bg-panel border border-edge rounded-2xl p-4"
       >
-        <h3 className="text-snow text-sm font-bold mb-1">티어 안내</h3>
+        <h3 className="text-snow text-sm font-bold mb-1">{t("tier.title")}</h3>
         <p className="text-haze text-[11px] mb-3">
-          누적 점수로 티어가 결정돼요.{" "}
+          {t("tier.intro")}{" "}
           {next ? (
             <>
               <span className="font-bold" style={{ color: next.next.color }}>
                 {next.next.label}
               </span>
-              까지 <span className="text-snow font-bold">{next.remaining}점</span> 남음
+              {t("tier.remaining", { n: next.remaining })}
             </>
           ) : (
-            <span className="text-snow font-bold">최고 티어 달성!</span>
+            <span className="text-snow font-bold">{t("tier.max")}</span>
           )}
         </p>
 
@@ -74,27 +76,29 @@ export const TierInfoModal = ({ totalScore, onClose }: TierInfoModalProps) => {
 
         {/* 구간 목록 (높은 → 낮은) */}
         <div className="space-y-1.5">
-          {[...TIERS].reverse().map((t) => {
-            const isCurrent = t.key === current.key;
-            const idx = TIERS.findIndex((x) => x.key === t.key);
+          {[...TIERS].reverse().map((tr) => {
+            const isCurrent = tr.key === current.key;
+            const idx = TIERS.findIndex((x) => x.key === tr.key);
             const upper = TIERS[idx + 1];
-            const range = upper ? `${t.min} ~ ${upper.min - 1}점` : `${t.min}점 이상`;
+            const range = upper
+              ? t("tier.range", { min: tr.min, max: upper.min - 1 })
+              : t("tier.rangeMax", { min: tr.min });
             return (
               <div
-                key={t.key}
+                key={tr.key}
                 className={`flex items-center justify-between rounded-lg px-3 py-2 border ${
                   isCurrent ? "bg-edge/60" : "border-transparent"
                 }`}
-                style={isCurrent ? { borderColor: `${t.color}66` } : undefined}
+                style={isCurrent ? { borderColor: `${tr.color}66` } : undefined}
               >
                 <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: t.color }} />
-                  <span className="text-sm font-bold" style={{ color: t.color }}>
-                    {t.label}
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tr.color }} />
+                  <span className="text-sm font-bold" style={{ color: tr.color }}>
+                    {tr.label}
                   </span>
                   {isCurrent && (
                     <span className="text-[9px] font-extrabold text-void bg-neon-cyan px-1.5 py-0.5 rounded-full">
-                      나
+                      {t("common.me")}
                     </span>
                   )}
                 </span>
@@ -107,9 +111,9 @@ export const TierInfoModal = ({ totalScore, onClose }: TierInfoModalProps) => {
         <button
           onClick={onClose}
           className="w-full mt-4 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-void border border-edge hover:bg-edge"
-          aria-label="닫기"
+          aria-label={t("common.close")}
         >
-          닫기
+          {t("common.close")}
         </button>
       </motion.div>
     </motion.div>

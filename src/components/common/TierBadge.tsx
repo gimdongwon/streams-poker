@@ -1,4 +1,7 @@
+"use client";
+
 import { getTier } from "@/lib/tier";
+import { useT } from "@/lib/i18n/useT";
 
 type TierBadgeProps = {
   totalScore: number;
@@ -14,6 +17,7 @@ export const TierBadge = ({
   showLabel = true,
   className = "",
 }: TierBadgeProps) => {
+  const t = useT();
   const tier = getTier(totalScore);
   const dot = size === "md" ? "w-2.5 h-2.5" : "w-2 h-2";
   const text = size === "md" ? "text-xs" : "text-[10px]";
@@ -27,7 +31,7 @@ export const TierBadge = ({
         backgroundColor: `${tier.color}1f`, // ~12% alpha
         border: `1px solid ${tier.color}66`,
       }}
-      aria-label={`티어 ${tier.label}`}
+      aria-label={t("tier.badgeAria", { label: tier.label })}
     >
       <span className={`${dot} rounded-full`} style={{ backgroundColor: tier.color }} />
       {showLabel && tier.label}

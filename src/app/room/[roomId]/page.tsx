@@ -10,8 +10,10 @@ import { Logo } from "@/components/common/Logo";
 import { Spinner } from "@/components/common/Spinner";
 import type { Player } from "@/types/room";
 import { MAX_PLAYERS } from "@/types/room";
+import { useT } from "@/lib/i18n/useT";
 
 const RoomPage = () => {
+  const t = useT();
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
@@ -126,13 +128,13 @@ const RoomPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-3 landscape:mb-2"
       >
-        <h2 className="text-lg font-black text-snow mb-2">대기방</h2>
+        <h2 className="text-lg font-black text-snow mb-2">{t("room.waiting.title")}</h2>
         <div className="flex items-center justify-center gap-2">
-          <span className="text-haze text-[10px] tracking-[2px] uppercase">방 코드</span>
+          <span className="text-haze text-[10px] tracking-[2px] uppercase">{t("room.code.label")}</span>
           <button
             onClick={handleCopyCode}
             className="bg-panel border border-neon-cyan/40 rounded-lg px-3 py-1.5 text-lg font-mono tracking-[0.2em] text-neon-cyan hover:bg-edge transition-colors active:scale-95"
-            aria-label="방 코드 복사"
+            aria-label={t("room.code.copy")}
           >
             {roomCode || roomId}
           </button>
@@ -144,7 +146,7 @@ const RoomPage = () => {
                 exit={{ opacity: 0 }}
                 className="text-green-400 text-[10px]"
               >
-                복사됨!
+                {t("room.code.copied")}
               </motion.span>
             )}
           </AnimatePresence>
@@ -161,7 +163,7 @@ const RoomPage = () => {
             className="text-center mb-4"
           >
             <p className="text-red-400 text-sm">{error}</p>
-            <p className="text-haze text-xs mt-1">잠시 후 로비로 이동합니다...</p>
+            <p className="text-haze text-xs mt-1">{t("room.error.redirect")}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -177,7 +179,7 @@ const RoomPage = () => {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-snow font-bold text-sm">
-              플레이어 ({players.length}/{MAX_PLAYERS})
+              {t("room.players.count", { n: players.length, max: MAX_PLAYERS })}
             </h3>
           </div>
 
@@ -196,7 +198,7 @@ const RoomPage = () => {
             {players.length === 0 && (
               <div className="flex items-center justify-center gap-2 py-6 text-haze text-sm">
                 <Spinner size="sm" />
-                연결 중...
+                {t("room.players.connecting")}
               </div>
             )}
           </div>
@@ -223,19 +225,19 @@ const RoomPage = () => {
                   ? "text-void active:scale-95 hover:scale-[1.02] disabled:opacity-70"
                   : "bg-edge text-haze cursor-not-allowed"
               }`}
-              aria-label="게임 시작"
+              aria-label={t("room.start.label")}
             >
               {startPending ? (
                 <span className="flex items-center justify-center gap-2">
                   <Spinner size="sm" colorClassName="border-void" />
-                  시작하는 중...
+                  {t("room.start.starting")}
                 </span>
               ) : !canStart && players.length < 2 ? (
-                "최소 2명이 필요합니다"
+                t("room.start.needTwo")
               ) : !canStart ? (
-                "모든 플레이어가 Ready 해야 합니다"
+                t("room.start.needReady")
               ) : (
-                "게임 시작!"
+                t("room.start.go")
               )}
             </button>
           ) : currentPlayer ? (
@@ -251,22 +253,22 @@ const RoomPage = () => {
                   ? "bg-panel border border-neon-cyan/60 text-neon-cyan hover:bg-neon-cyan/10"
                   : "text-void"
               }`}
-              aria-label={currentPlayer.status === "ready" ? "대기로 변경" : "준비 완료"}
+              aria-label={currentPlayer.status === "ready" ? t("room.ready.toWaiting") : t("room.ready.toReady")}
             >
-              {currentPlayer.status === "ready" ? "Ready 취소" : "Ready!"}
+              {currentPlayer.status === "ready" ? t("room.ready.cancel") : t("room.ready.set")}
             </button>
           ) : null}
 
           <button
             onClick={handleLeave}
             className="w-full py-2.5 px-4 bg-panel hover:bg-edge text-haze hover:text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
-            aria-label="방 나가기"
+            aria-label={t("room.leave")}
           >
-            방 나가기
+            {t("room.leave")}
           </button>
 
           <p className="text-haze/70 text-[10px] text-center mt-1">
-            방 코드를 친구에게 공유하여 초대하세요
+            {t("room.share.hint")}
           </p>
         </motion.div>
       </div>
@@ -281,6 +283,7 @@ type PlayerRowProps = {
 };
 
 const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
+  const t = useT();
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -305,11 +308,11 @@ const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
             {player.nickname}
           </span>
           {isCurrentPlayer && (
-            <span className="text-neon-cyan text-[10px]">(나)</span>
+            <span className="text-neon-cyan text-[10px]">{t("common.you")}</span>
           )}
           {player.isHost && (
             <span className="bg-neon-magenta/20 text-neon-magenta text-[10px] px-1.5 py-0.5 rounded-full font-medium">
-              방장
+              {t("room.player.host")}
             </span>
           )}
         </div>
@@ -326,7 +329,7 @@ const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
             player.status === "ready" ? "text-green-400" : "text-haze"
           }`}
         >
-          {player.status === "ready" ? "READY" : "대기중"}
+          {player.status === "ready" ? t("room.player.readyBadge") : t("room.player.waiting")}
         </span>
       </div>
     </motion.div>

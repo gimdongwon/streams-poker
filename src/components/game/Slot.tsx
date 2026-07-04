@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { Slot as SlotType } from "@/types/game";
 import type { SlotIndex } from "@/types/game";
 import { GameCard } from "./Card";
+import { useT } from "@/lib/i18n/useT";
 
 type HighlightInfo = {
   ring: string;
@@ -38,6 +39,7 @@ const BADGE_SIZE_MAP: Record<CardSize, string> = {
 };
 
 export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabel = true }: SlotProps) => {
+  const t = useT();
   const hasCard = slot.card !== null;
 
   const handleClick = () => {
@@ -103,7 +105,10 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabe
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={isActive ? 0 : -1}
-      aria-label={`슬롯 ${slot.index + 1} ${isActive ? "배치 가능" : "비활성"}`}
+      aria-label={t("game.slot.label", {
+        n: slot.index + 1,
+        status: isActive ? t("game.slot.placeable") : t("game.slot.inactive"),
+      })}
     >
       <span
         className={`font-medium ${size === "xs" ? "text-xs" : "text-sm"} ${isActive ? "text-neon-cyan" : "text-haze/60"}`}

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { UserRankingEntry } from "@/types/leaderboard";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
+import { useT } from "@/lib/i18n/useT";
+import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 
 type LeaderboardProps = {
   highlightNickname?: string;
@@ -17,20 +19,21 @@ export const Leaderboard = ({
   highlightNickname,
   highlightUserId,
 }: LeaderboardProps) => {
+  const t = useT();
   const [entries, setEntries] = useState<UserRankingEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+    setHasError(false);
     try {
       const res = await fetchWithTimeout("/api/leaderboard?limit=10");
       if (!res.ok) throw new Error("Failed to fetch");
       const data: UserRankingEntry[] = await res.json();
       setEntries(data);
     } catch {
-      setError("랭킹을 불러올 수 없습니다");
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
@@ -45,22 +48,22 @@ export const Leaderboard = ({
       <div className="w-full bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-6">
         <div className="flex items-center justify-center gap-2 py-8">
           <div className="w-4 h-4 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
-          <span className="text-haze text-sm">로딩 중...</span>
+          <span className="text-haze text-sm">{t("common.loading")}</span>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="w-full bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-6">
-        <p className="text-haze text-center text-sm py-4">{error}</p>
+        <p className="text-haze text-center text-sm py-4">{t("leaderboard.error")}</p>
         <button
           onClick={handleFetch}
           className="w-full py-2 text-neon-cyan hover:text-neon-cyan/80 text-sm transition-colors"
-          aria-label="다시 시도"
+          aria-label={t("common.retry")}
         >
-          다시 시도
+          {t("common.retry")}
         </button>
       </div>
     );
@@ -70,30 +73,30 @@ export const Leaderboard = ({
     <div className="w-full bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-snow flex items-center gap-2">
-          <span>🏆</span> 누적 랭킹
+          <span>🏆</span> {t("leaderboard.title")}
         </h3>
         <button
           onClick={handleFetch}
           className="text-haze hover:text-snow text-xs transition-colors px-2 py-1 rounded-lg hover:bg-edge"
-          aria-label="새로고침"
+          aria-label={t("common.refresh")}
           tabIndex={0}
         >
-          새로고침
+          {t("common.refresh")}
         </button>
       </div>
 
       {entries.length === 0 ? (
         <p className="text-haze text-center text-sm py-8">
-          아직 기록이 없습니다. 첫 번째 기록을 남겨보세요!
+          {t("leaderboard.empty")}
         </p>
       ) : (
         <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
           {/* 헤더 */}
           <div className="grid grid-cols-[2.5rem_1fr_5rem_3.5rem] gap-2 px-3 py-1.5 text-haze text-[10px] tracking-[1px] uppercase font-medium">
             <span>#</span>
-            <span>닉네임</span>
-            <span className="text-right">누적점수</span>
-            <span className="text-right">판수</span>
+            <span>{t("leaderboard.col.nickname")}</span>
+            <span className="text-right">{t("leaderboard.col.totalScore")}</span>
+            <span className="text-right">{t("leaderboard.col.games")}</span>
           </div>
 
           <AnimatePresence>
@@ -136,16 +139,21 @@ export const Leaderboard = ({
                       {entry.nickname}
                       {isHighlighted && (
                         <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
-                          나
+                          {t("common.me")}
                         </span>
                       )}
                     </span>
                     <span className="flex items-center gap-1.5 text-haze text-[10px]">
                       <TierBadge totalScore={entry.total_score} size="sm" showLabel={false} />
                       {entry.best_combo && (
-                        <span className="text-neon-cyan/90 font-medium">{entry.best_combo}</span>
+                        <span className="text-neon-cyan/90 font-medium">
+                          {(() => {
+                            const ty = comboTypeFromKoName(entry.best_combo);
+                            return ty ? t(comboKey(ty)) : entry.best_combo;
+                          })()}
+                        </span>
                       )}
-                      <span>최고 {entry.best_score}점</span>
+                      <span>{t("leaderboard.best", { n: entry.best_score })}</span>
                     </span>
                   </div>
 
@@ -158,7 +166,7 @@ export const Leaderboard = ({
                   </span>
 
                   <span className="text-right text-haze text-xs">
-                    {entry.games_played}판
+                    {t("unit.games", { n: entry.games_played })}
                   </span>
                 </motion.div>
               );
