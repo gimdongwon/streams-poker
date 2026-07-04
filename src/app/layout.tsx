@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://www.tentens.kr";
 const OG_TITLE = "TENTENS · 같은 카드, 다른 전략";
 const OG_DESCRIPTION =
-  "10장의 카드를 전략적으로 배치해 최고 점수에 도전하는 실시간 카드 게임, TENTENS";
+  "10장의 카드를 배치해 최고 점수에 도전하는 실시간 카드 게임";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
