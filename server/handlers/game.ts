@@ -101,7 +101,18 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
         if (b.score !== a.score) return b.score - a.score;
         return b.tiebreaker - a.tiebreaker;
       });
-      const rankedResults = room.results.map((r, i) => ({ ...r, rank: i + 1 }));
+      // 표준 경쟁 순위(1,1,3): 점수+타이브레이커가 완전히 같으면 공동 순위.
+      let lastRank = 0;
+      const rankedResults = room.results.map((r, i) => {
+        const prev = i > 0 ? room.results[i - 1] : null;
+        const tied =
+          prev != null &&
+          prev.score === r.score &&
+          prev.tiebreaker === r.tiebreaker;
+        const rank = tied ? lastRank : i + 1;
+        lastRank = rank;
+        return { ...r, rank };
+      });
 
       room.status = "finished";
 
