@@ -28,6 +28,7 @@ const LobbyPage = () => {
   const [error, setError] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
+  const [rankLoading, setRankLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showTierInfo, setShowTierInfo] = useState(false);
@@ -83,6 +84,7 @@ const LobbyPage = () => {
     if (!user?.id) return;
     let cancelled = false;
     const fetchRank = async () => {
+      if (!cancelled) setRankLoading(true);
       try {
         const res = await fetchWithTimeout(`/api/leaderboard/rank?userId=${user.id}`);
         if (!res.ok) return;
@@ -90,6 +92,8 @@ const LobbyPage = () => {
         if (!cancelled) setRankInfo(data);
       } catch {
         // 랭킹 정보 조회 실패 시 무시
+      } finally {
+        if (!cancelled) setRankLoading(false);
       }
     };
     fetchRank();
@@ -243,6 +247,27 @@ const LobbyPage = () => {
         </div>
 
         {/* 가운데: 내 랭킹 & 점수 */}
+        {!rankInfo && rankLoading && (
+          <div
+            className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0 animate-pulse"
+            aria-label="랭킹 정보 불러오는 중"
+          >
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="h-2 w-6 rounded bg-edge" />
+              <div className="h-5 w-12 rounded-full bg-edge" />
+            </div>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="w-px h-7 bg-edge" />
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="h-2 w-8 rounded bg-edge" />
+                  <div className="h-3.5 w-8 rounded bg-edge" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {rankInfo && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
