@@ -19,9 +19,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://www.tentens.kr";
+const OG_TITLE = "TENTENS · 같은 카드, 다른 전략";
+const OG_DESCRIPTION =
+  "10장의 카드를 전략적으로 배치해 최고 점수에 도전하는 실시간 카드 게임, TENTENS";
+
 export const metadata: Metadata = {
-  title: "TENTENS · 같은 카드, 다른 전략",
-  description: "10장의 카드를 전략적으로 배치하여 최고 점수를 만드는 카드 게임, TENTENS",
+  metadataBase: new URL(SITE_URL),
+  title: OG_TITLE,
+  description: OG_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "TENTENS",
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+    locale: "ko_KR",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "TENTENS — 같은 카드, 다른 전략",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({
