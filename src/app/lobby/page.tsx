@@ -7,12 +7,12 @@ import { useRoomStore } from "@/stores/roomStore";
 import { useAuthStore } from "@/stores/authStore";
 import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
-import { connectSocket } from "@/lib/socket";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
+import { Spinner } from "@/components/common/Spinner";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
@@ -20,7 +20,7 @@ type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
 const LobbyPage = () => {
   const router = useRouter();
-  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList } = useRoomStore();
+  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList, isCreatingRoom, isLoadingRoomList } = useRoomStore();
   const { user, isLoggedIn, logout, hasHydrated } = useAuthStore();
 
   const [mode, setMode] = useState<Mode>("select");
@@ -111,15 +111,11 @@ const LobbyPage = () => {
   };
 
   const handleCreateRoom = () => {
+    if (isCreatingRoom) return;
     const nickname = user?.nickname ?? "Player";
     initSocketListeners();
-    const socket = connectSocket();
-
-    if (socket.connected) {
-      createRoom(nickname);
-    } else {
-      socket.once("connect", () => createRoom(nickname));
-    }
+    // 소켓 연결 + 방 생성 + 로딩 플래그는 store.createRoom 이 처리한다.
+    createRoom(nickname);
   };
 
   const handleJoinRoom = () => {
@@ -493,14 +489,23 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleCreateRoom}
+                  disabled={isCreatingRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-4 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
+                  className="w-full py-4 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                   aria-label="방 만들기"
                 >
                   <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl w-10 text-center shrink-0">🏠</span>
+                    <span className="text-2xl w-10 flex items-center justify-center shrink-0">
+                      {isCreatingRoom ? (
+                        <Spinner size="md" colorClassName="border-void" />
+                      ) : (
+                        "🏠"
+                      )}
+                    </span>
                     <div className="text-left">
-                      <div className="text-base">방 만들기</div>
+                      <div className="text-base">
+                        {isCreatingRoom ? "방 만드는 중..." : "방 만들기"}
+                      </div>
                       <div className="text-xs font-normal opacity-80">
                         새로운 방을 생성합니다
                       </div>
@@ -578,7 +583,12 @@ const LobbyPage = () => {
                 </div>
 
                 <div className="flex flex-col gap-2 max-h-[50vh] landscape:max-h-[44vh] overflow-y-auto">
-                  {roomList.length === 0 ? (
+                  {isLoadingRoomList && roomList.length === 0 ? (
+                    <div className="bg-panel/40 border border-edge rounded-xl py-10 flex items-center justify-center gap-2 text-haze text-sm">
+                      <Spinner size="sm" />
+                      방 목록을 불러오는 중...
+                    </div>
+                  ) : roomList.length === 0 ? (
                     <div className="bg-panel/40 border border-edge rounded-xl py-10 text-center text-haze text-sm">
                       열려 있는 방이 없어요
                     </div>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
+import { Spinner } from "@/components/common/Spinner";
 import { useAuthStore } from "@/stores/authStore";
 import type { Friend, FriendRequest } from "@/lib/friends";
 
@@ -23,9 +24,11 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<Message>(null);
   const [busyIds, setBusyIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
+    setLoading(true);
     try {
       const [friendsRes, requestsRes] = await Promise.all([
         fetchWithTimeout(`/api/friends?userId=${encodeURIComponent(userId)}`),
@@ -43,6 +46,8 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
       }
     } catch {
       // 네트워크/DB 실패 시 조용히 무시 (graceful)
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -158,10 +163,10 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
           <button
             onClick={handleAdd}
             disabled={sending || !usernameInput.trim()}
-            className="shrink-0 px-4 py-2 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-sm font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="shrink-0 px-4 py-2 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-sm font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[3.25rem]"
             aria-label="친구 추가"
           >
-            추가
+            {sending ? <Spinner size="sm" /> : "추가"}
           </button>
         </div>
         {message && (
@@ -185,7 +190,12 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
             </span>
           )}
         </h3>
-        {requests.length === 0 ? (
+        {loading && requests.length === 0 ? (
+          <div className="flex items-center gap-2 text-haze text-xs py-1">
+            <Spinner size="sm" />
+            불러오는 중...
+          </div>
+        ) : requests.length === 0 ? (
           <p className="text-haze text-xs">받은 요청이 없어요</p>
         ) : (
           <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
@@ -206,10 +216,10 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
                   <button
                     onClick={() => handleRespond(req.friendshipId, true)}
                     disabled={busyIds.has(req.friendshipId)}
-                    className="px-2.5 py-1 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-xs font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50"
+                    className="px-2.5 py-1 bg-neon-cyan/10 border border-neon-cyan/60 text-neon-cyan text-xs font-bold rounded-lg transition-all active:scale-95 hover:bg-neon-cyan/20 disabled:opacity-50 flex items-center justify-center min-w-[2.75rem]"
                     aria-label="수락"
                   >
-                    수락
+                    {busyIds.has(req.friendshipId) ? <Spinner size="sm" /> : "수락"}
                   </button>
                   <button
                     onClick={() => handleRespond(req.friendshipId, false)}
@@ -236,7 +246,12 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
             </span>
           )}
         </h3>
-        {friends.length === 0 ? (
+        {loading && friends.length === 0 ? (
+          <div className="bg-void border border-edge rounded-lg py-8 flex items-center justify-center gap-2 text-haze text-sm">
+            <Spinner size="sm" />
+            불러오는 중...
+          </div>
+        ) : friends.length === 0 ? (
           <div className="bg-void border border-edge rounded-lg py-8 text-center text-haze text-sm">
             아직 친구가 없어요
           </div>
@@ -267,10 +282,14 @@ export const FriendsPanel = ({ userId: userIdProp }: FriendsPanelProps) => {
                 <button
                   onClick={() => handleRemove(friend.friendshipId)}
                   disabled={busyIds.has(friend.friendshipId)}
-                  className="shrink-0 px-2.5 py-1 text-haze hover:text-red-400 text-xs font-medium rounded-lg transition-colors active:scale-95 disabled:opacity-50"
+                  className="shrink-0 px-2.5 py-1 text-haze hover:text-red-400 text-xs font-medium rounded-lg transition-colors active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[2.5rem]"
                   aria-label={`${friend.nickname} 친구 삭제`}
                 >
-                  삭제
+                  {busyIds.has(friend.friendshipId) ? (
+                    <Spinner size="sm" colorClassName="border-haze" />
+                  ) : (
+                    "삭제"
+                  )}
                 </button>
               </div>
             ))}

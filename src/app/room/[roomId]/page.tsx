@@ -7,6 +7,7 @@ import { useRoomStore } from "@/stores/roomStore";
 import { useAuthStore } from "@/stores/authStore";
 import { connectSocket, getSocket } from "@/lib/socket";
 import { Logo } from "@/components/common/Logo";
+import { Spinner } from "@/components/common/Spinner";
 import type { Player } from "@/types/room";
 import { MAX_PLAYERS } from "@/types/room";
 
@@ -31,6 +32,7 @@ const RoomPage = () => {
 
   const { user, isLoggedIn, hasHydrated } = useAuthStore();
   const [copied, setCopied] = useState(false);
+  const [starting, setStarting] = useState(false);
   const joinedRef = useRef(false);
 
   const mySocketId = typeof window !== "undefined" ? getSocket().id : null;
@@ -98,10 +100,15 @@ const RoomPage = () => {
     setTimeout(() => setCopied(false), 2000);
   }, [roomCode, roomId]);
 
+  // 시작 대기 상태. 에러가 나면 자동으로 해제된다(별도 effect 불필요).
+  const startPending = starting && !error;
+
   const handleStart = useCallback(() => {
+    if (startPending) return;
+    setStarting(true);
     clearError();
     startGame();
-  }, [startGame, clearError]);
+  }, [startGame, clearError, startPending]);
 
   const handleLeave = useCallback(() => {
     leaveRoom();
@@ -187,9 +194,10 @@ const RoomPage = () => {
             </AnimatePresence>
 
             {players.length === 0 && (
-              <p className="text-haze text-center py-6 text-sm">
+              <div className="flex items-center justify-center gap-2 py-6 text-haze text-sm">
+                <Spinner size="sm" />
                 연결 중...
-              </p>
+              </div>
             )}
           </div>
         </motion.div>
@@ -204,7 +212,7 @@ const RoomPage = () => {
           {isHost ? (
             <button
               onClick={handleStart}
-              disabled={!canStart}
+              disabled={!canStart || startPending}
               style={
                 canStart
                   ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
@@ -212,16 +220,23 @@ const RoomPage = () => {
               }
               className={`w-full py-5 px-5 text-base font-bold rounded-2xl transition-all ${
                 canStart
-                  ? "text-void active:scale-95 hover:scale-[1.02]"
+                  ? "text-void active:scale-95 hover:scale-[1.02] disabled:opacity-70"
                   : "bg-edge text-haze cursor-not-allowed"
               }`}
               aria-label="게임 시작"
             >
-              {!canStart && players.length < 2
-                ? "최소 2명이 필요합니다"
-                : !canStart
-                  ? "모든 플레이어가 Ready 해야 합니다"
-                  : "게임 시작!"}
+              {startPending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Spinner size="sm" colorClassName="border-void" />
+                  시작하는 중...
+                </span>
+              ) : !canStart && players.length < 2 ? (
+                "최소 2명이 필요합니다"
+              ) : !canStart ? (
+                "모든 플레이어가 Ready 해야 합니다"
+              ) : (
+                "게임 시작!"
+              )}
             </button>
           ) : currentPlayer ? (
             <button

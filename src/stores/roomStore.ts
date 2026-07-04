@@ -28,6 +28,8 @@ type RoomStore = {
   isConnected: boolean;
   roundPlacedPlayers: RoundPlacedPlayer[];
   roomList: PublicRoom[];
+  isCreatingRoom: boolean;
+  isLoadingRoomList: boolean;
 
   setNickname: (nickname: string) => void;
 
@@ -108,6 +110,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   isConnected: false,
   roundPlacedPlayers: [],
   roomList: [],
+  isCreatingRoom: false,
+  isLoadingRoomList: false,
 
   setNickname: (nickname: string) => set({ nickname }),
 
@@ -116,8 +120,13 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   // --- Socket-based multiplayer ---
 
   createRoom: (nickname: string) => {
+    set({ isCreatingRoom: true });
     const socket = connectSocket();
-    socket.emit("room:create", { nickname });
+    if (socket.connected) {
+      socket.emit("room:create", { nickname });
+    } else {
+      socket.once("connect", () => socket.emit("room:create", { nickname }));
+    }
   },
 
   joinRoom: (code: string, nickname: string) => {
@@ -126,6 +135,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   },
 
   requestRoomList: () => {
+    set({ isLoadingRoomList: true });
     get().initSocketListeners();
     const socket = connectSocket();
     if (socket.connected) {
@@ -248,7 +258,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("disconnect", () => {
-      set({ isConnected: false });
+      set({ isConnected: false, isCreatingRoom: false, isLoadingRoomList: false });
     });
 
     socket.on("auth:forceLogout", () => {
@@ -273,7 +283,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("room:created", ({ code, players, status }) => {
-      set({ roomCode: code, players, status, error: null });
+      set({ roomCode: code, players, status, error: null, isCreatingRoom: false });
     });
 
     socket.on("room:updated", ({ code, players, status }) => {
@@ -285,7 +295,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("room:error", ({ message }) => {
-      set({ error: message });
+      set({ error: message, isCreatingRoom: false });
     });
 
     socket.on("game:started", ({ deck }) => {
@@ -366,7 +376,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     });
 
     socket.on("room:listed", ({ rooms }: { rooms: PublicRoom[] }) => {
-      set({ roomList: rooms });
+      set({ roomList: rooms, isLoadingRoomList: false });
     });
   },
 
@@ -410,8 +420,6 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   generateResults: (myScore: number, myCombinationNames: string[]) => {
     const { nickname } = get();
-
-    const COMBO_POOL = ["원페어", "투페어", "트리플", "스트레이트", "플러시", "풀하우스", "포카드"];
 
     const results: PlayerResult[] = [
       {
