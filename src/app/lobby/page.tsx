@@ -265,8 +265,22 @@ const LobbyPage = () => {
             </div>
             <div className="min-w-0 text-left">
               <p className="text-snow font-medium text-xs truncate">{user.nickname}</p>
-              <p className="text-haze text-[10px] truncate">@{user.username}</p>
+              <p className="text-neon-cyan/80 text-[10px] truncate">{t("lobby.account.myPage")}</p>
             </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="text-haze shrink-0 ml-0.5"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
             {incomingCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-neon-magenta text-void text-[10px] font-bold">
                 {incomingCount}
