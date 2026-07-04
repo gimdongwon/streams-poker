@@ -10,6 +10,7 @@ import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
+import { TierProgress } from "@/components/common/TierProgress";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { MuteButton } from "@/components/common/MuteButton";
 import { Spinner } from "@/components/common/Spinner";
@@ -139,6 +140,13 @@ const MyPage = () => {
             {t("me.profile.edit")}
           </button>
         </motion.div>
+
+        {/* 티어 진행도 */}
+        <div className="mb-5">
+          <Section title={t("me.tier.section")}>
+            <TierProgress totalScore={rankInfo?.totalScore ?? 0} />
+          </Section>
+        </div>
 
         {/* 전적 */}
         <div className="mb-5">
