@@ -15,6 +15,9 @@ type AuthStore = {
     password: string
   ) => Promise<string | null>;
   logout: () => void;
+  setCoins: (coins: number) => void;
+  refreshCoins: () => Promise<boolean>; // 반환: 오늘 일일보상 수령 가능 여부
+  claimDaily: () => Promise<{ claimed: boolean; coins: number } | null>;
   updateNickname: (nickname: string) => Promise<string | null>;
   deleteAccount: (password: string) => Promise<string | null>;
   clearForcedOut: () => void;
@@ -71,6 +74,44 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => {
         set({ user: null, isLoggedIn: false, forcedOut: false });
+      },
+
+      setCoins: (coins) => {
+        const { user } = get();
+        if (user) set({ user: { ...user, coins } });
+      },
+
+      refreshCoins: async () => {
+        const { user } = get();
+        if (!user) return false;
+        try {
+          const res = await fetch(`/api/coins?userId=${user.id}`);
+          if (!res.ok) return false;
+          const data: { coins: number; canClaimDaily: boolean } =
+            await res.json();
+          set({ user: { ...user, coins: data.coins } });
+          return data.canClaimDaily;
+        } catch {
+          return false;
+        }
+      },
+
+      claimDaily: async () => {
+        const { user } = get();
+        if (!user) return null;
+        try {
+          const res = await fetch("/api/coins/daily", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id }),
+          });
+          if (!res.ok) return null;
+          const data: { claimed: boolean; coins: number } = await res.json();
+          set({ user: { ...user, coins: data.coins } });
+          return data;
+        } catch {
+          return null;
+        }
       },
 
       updateNickname: async (nickname) => {

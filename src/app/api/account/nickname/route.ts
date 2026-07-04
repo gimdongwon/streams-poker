@@ -26,7 +26,7 @@ export const POST = async (request: NextRequest) => {
       .from("users")
       .update({ nickname: trimmed })
       .eq("id", userId)
-      .select("id, username, nickname, created_at")
+      .select("id, username, nickname, created_at, coins")
       .single();
 
     if (error || !data) {

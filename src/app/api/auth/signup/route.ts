@@ -56,7 +56,7 @@ export const POST = async (request: NextRequest) => {
         nickname,
         password_hash: passwordHash,
       })
-      .select("id, username, nickname, created_at")
+      .select("id, username, nickname, created_at, coins")
       .single();
 
     if (error) throw error;

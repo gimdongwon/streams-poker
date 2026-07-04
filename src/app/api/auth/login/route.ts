@@ -15,7 +15,7 @@ export const POST = async (request: NextRequest) => {
 
     const { data: user, error } = await supabase
       .from("users")
-      .select("id, username, nickname, password_hash, created_at")
+      .select("id, username, nickname, password_hash, created_at, coins")
       .eq("username", username)
       .single();
 

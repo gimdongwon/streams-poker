@@ -14,6 +14,7 @@ import { TierProgress } from "@/components/common/TierProgress";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { MuteButton } from "@/components/common/MuteButton";
 import { Spinner } from "@/components/common/Spinner";
+import { CoinBalance } from "@/components/common/CoinBalance";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { EditNicknameModal } from "@/components/auth/EditNicknameModal";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
@@ -140,6 +141,15 @@ const MyPage = () => {
             {t("me.profile.edit")}
           </button>
         </motion.div>
+
+        {/* 코인 */}
+        <div className="mb-5">
+          <Section title={t("coins.label")}>
+            <div className="bg-panel/60 border border-edge rounded-2xl p-4">
+              <CoinBalance />
+            </div>
+          </Section>
+        </div>
 
         {/* 티어 진행도 */}
         <div className="mb-5">

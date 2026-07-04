@@ -10,6 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierProgress } from "@/components/common/TierProgress";
+import { CoinBalance } from "@/components/common/CoinBalance";
 import { Spinner } from "@/components/common/Spinner";
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
@@ -255,8 +256,9 @@ const LobbyPage = () => {
         <motion.div
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex-1 flex items-center justify-end min-w-0"
+          className="flex-1 flex items-center justify-end gap-2 min-w-0"
         >
+          <CoinBalance />
           <button
             onClick={() => router.push("/me")}
             className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
