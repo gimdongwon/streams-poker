@@ -9,6 +9,7 @@ import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
+import { TierProgress } from "@/components/common/TierProgress";
 import { Spinner } from "@/components/common/Spinner";
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
@@ -214,6 +215,11 @@ const LobbyPage = () => {
                 {t("lobby.rank.tier")}
               </p>
               <TierBadge totalScore={rankInfo.totalScore} size="md" />
+              <TierProgress
+                totalScore={rankInfo.totalScore}
+                bare
+                className="w-14 mt-0.5"
+              />
             </button>
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
