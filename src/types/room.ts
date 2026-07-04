@@ -20,6 +20,9 @@ export type PlayerResult = {
   // Each player's final board + scored combos, so any board can be reviewed.
   slots?: (Card | null)[];
   combinations?: ResultCombo[];
+  // 판돈 정산 결과 (무료 방이면 0).
+  prize?: number; // 획득 상금
+  coinDelta?: number; // 이번 판 코인 변동 (prize - bet)
 };
 
 export type Player = {

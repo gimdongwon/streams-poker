@@ -23,6 +23,7 @@ const RoomPage = () => {
     status,
     roomCode,
     error,
+    bet,
     toggleReady,
     startGame,
     leaveRoom,
@@ -150,6 +151,29 @@ const RoomPage = () => {
               </motion.span>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* 판돈 / 팟 */}
+        <div className="mt-2 flex items-center justify-center gap-2 text-xs">
+          {bet > 0 ? (
+            <>
+              <span className="text-haze">
+                {t("coins.bet.label")}{" "}
+                <span className="text-snow font-bold">
+                  🪙 {bet.toLocaleString()}
+                </span>
+              </span>
+              <span className="text-edge">·</span>
+              <span className="text-haze">
+                {t("coins.pot")}{" "}
+                <span className="text-neon-cyan font-bold">
+                  🪙 {(bet * players.length).toLocaleString()}
+                </span>
+              </span>
+            </>
+          ) : (
+            <span className="text-haze">{t("coins.bet.freeRoom")}</span>
+          )}
         </div>
       </motion.div>
 

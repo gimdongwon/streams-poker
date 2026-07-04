@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import type { Slot as SlotType, SlotIndex, ScoredCombination } from "@/types/game";
 import type { PlayerResult, ResultCombo } from "@/types/room";
@@ -10,6 +10,7 @@ import { Board, type BoardCombo } from "./Board";
 import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { shareResult } from "@/lib/share";
+import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey } from "@/lib/i18n/combo";
 
@@ -103,6 +104,11 @@ export const ResultScreen = ({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const t = useT();
+
+  // 판돈 정산 후 잔액을 최신화 (로비/마이페이지에 반영).
+  useEffect(() => {
+    useAuthStore.getState().refreshCoins();
+  }, []);
 
   const handleShare = async () => {
     const text =
@@ -247,6 +253,18 @@ export const ResultScreen = ({
                   <span className="font-extrabold">{t("unit.points", { n: myResult.score })}</span>
                 </div>
               )}
+              {myResult && (myResult.prize ?? 0) > 0 && (
+                <div className="mt-1.5 text-sm font-extrabold text-neon-cyan">
+                  🪙 {t("coins.prize.won", { n: (myResult.prize ?? 0).toLocaleString() })}
+                </div>
+              )}
+              {myResult &&
+                (myResult.prize ?? 0) === 0 &&
+                (myResult.coinDelta ?? 0) < 0 && (
+                  <div className="mt-1.5 text-xs font-bold text-haze">
+                    🪙 {t("coins.prize.paid", { n: Math.abs(myResult.coinDelta ?? 0).toLocaleString() })}
+                  </div>
+                )}
               {winner && (
                 <>
                   <div className="mt-3 text-[10px] tracking-[1px] text-haze">{t("result.winner")}</div>

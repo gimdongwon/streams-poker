@@ -15,6 +15,7 @@ export type PublicRoom = {
   hostNickname: string;
   playerCount: number;
   maxPlayers: number;
+  bet: number;
 };
 
 type RoomStore = {
@@ -30,11 +31,13 @@ type RoomStore = {
   roomList: PublicRoom[];
   isCreatingRoom: boolean;
   isLoadingRoomList: boolean;
+  bet: number;
+  pot: number;
 
   setNickname: (nickname: string) => void;
 
   // Socket-based actions
-  createRoom: (nickname: string) => void;
+  createRoom: (nickname: string, bet?: number) => void;
   joinRoom: (code: string, nickname: string) => void;
   requestRoomList: () => void;
   toggleReady: () => void;
@@ -112,6 +115,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   roomList: [],
   isCreatingRoom: false,
   isLoadingRoomList: false,
+  bet: 0,
+  pot: 0,
 
   setNickname: (nickname: string) => set({ nickname }),
 
@@ -119,13 +124,14 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   // --- Socket-based multiplayer ---
 
-  createRoom: (nickname: string) => {
+  createRoom: (nickname: string, bet = 0) => {
     set({ isCreatingRoom: true });
     const socket = connectSocket();
+    const emit = () => socket.emit("room:create", { nickname, bet });
     if (socket.connected) {
-      socket.emit("room:create", { nickname });
+      emit();
     } else {
-      socket.once("connect", () => socket.emit("room:create", { nickname }));
+      socket.once("connect", emit);
     }
   },
 
@@ -282,15 +288,26 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       useAuthStore.setState({ forcedOut: true });
     });
 
-    socket.on("room:created", ({ code, players, status }) => {
-      set({ roomCode: code, players, status, error: null, isCreatingRoom: false });
+    socket.on("room:created", ({ code, players, status, bet, pot }) => {
+      set({
+        roomCode: code,
+        players,
+        status,
+        error: null,
+        isCreatingRoom: false,
+        bet: bet ?? 0,
+        pot: pot ?? 0,
+      });
     });
 
-    socket.on("room:updated", ({ code, players, status }) => {
+    socket.on("room:updated", ({ code, players, status, bet, pot }) => {
+      // bet/pot 이 없는 갱신(일부 emit)은 기존 값을 보존한다.
+      const nextBet = bet ?? get().bet;
+      const nextPot = pot ?? get().pot;
       if (status === "waiting") {
-        set({ roomCode: code, players, status, error: null, multiDeck: null, playerResults: [], roundPlacedPlayers: [] });
+        set({ roomCode: code, players, status, error: null, multiDeck: null, playerResults: [], roundPlacedPlayers: [], bet: nextBet, pot: nextPot });
       } else {
-        set({ roomCode: code, players, status, error: null });
+        set({ roomCode: code, players, status, error: null, bet: nextBet, pot: nextPot });
       }
     });
 
@@ -298,10 +315,17 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       set({ error: message, isCreatingRoom: false });
     });
 
-    socket.on("game:started", ({ deck }) => {
+    socket.on("game:started", ({ deck, bet, pot }) => {
       const code = get().roomCode;
       if (code) setActiveRoomIntent(code);
-      set({ multiDeck: deck, status: "playing", playerResults: [], roundPlacedPlayers: [] });
+      set({
+        multiDeck: deck,
+        status: "playing",
+        playerResults: [],
+        roundPlacedPlayers: [],
+        bet: bet ?? get().bet,
+        pot: pot ?? get().pot,
+      });
     });
 
     socket.on("game:playerPlaced", ({ placedPlayers }: { round: number; placedPlayers: RoundPlacedPlayer[]; totalPlayers: number }) => {
@@ -346,7 +370,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       }
     );
 
-    socket.on("game:results", ({ results }) => {
+    socket.on("game:results", ({ results, bet, pot }) => {
       const socket = getSocket();
       const myId = socket.id;
 
@@ -359,6 +383,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           combinationNames: string[];
           slots?: (Card | null)[];
           combinations?: ResultCombo[];
+          prize?: number;
+          coinDelta?: number;
         }) => ({
           playerId: r.playerId,
           nickname: r.nickname,
@@ -368,11 +394,18 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           combinationNames: r.combinationNames,
           slots: r.slots,
           combinations: r.combinations,
+          prize: r.prize ?? 0,
+          coinDelta: r.coinDelta ?? 0,
         })
       );
 
       clearActiveRoomIntent();
-      set({ playerResults, status: "finished" });
+      set({
+        playerResults,
+        status: "finished",
+        bet: bet ?? get().bet,
+        pot: pot ?? get().pot,
+      });
     });
 
     socket.on("room:listed", ({ rooms }: { rooms: PublicRoom[] }) => {

@@ -4,10 +4,11 @@ import { rooms } from "../state";
 import { createGameDeck } from "../deck";
 import { startRoundTimer, checkRoundCompletion } from "../rounds";
 import { scoreBoard } from "../scoring";
+import { deductCoins, addCoins } from "../coins";
 
 export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Game: Start --
-  socket.on("game:start", ({ code }: { code: string }) => {
+  socket.on("game:start", async ({ code }: { code: string }) => {
     const room = rooms.get(code);
     if (!room) return;
 
@@ -25,6 +26,34 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
       return;
     }
 
+    // 판돈 방: 전원에게서 판돈을 차감(원자적). 한 명이라도 실패하면 전원 환불 후 중단.
+    if (room.bet > 0) {
+      const deducted: string[] = [];
+      let failed = false;
+      for (const p of room.players) {
+        if (!p.userId) {
+          failed = true;
+          break;
+        }
+        const bal = await deductCoins(p.userId, room.bet);
+        if (bal === -1) {
+          failed = true;
+          break;
+        }
+        deducted.push(p.userId);
+      }
+      if (failed) {
+        for (const uid of deducted) await addCoins(uid, room.bet);
+        socket.emit("room:error", {
+          message: "판돈 차감에 실패했습니다 (코인이 부족한 플레이어가 있어요)",
+        });
+        return;
+      }
+      room.pot = room.bet * room.players.length;
+    } else {
+      room.pot = 0;
+    }
+
     const deck = createGameDeck();
     room.deck = deck;
     room.status = "playing";
@@ -32,11 +61,11 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
     room.currentRound = 1;
     room.roundPlacements = new Set();
 
-    io.to(code).emit("game:started", { deck });
+    io.to(code).emit("game:started", { deck, bet: room.bet, pot: room.pot });
 
     startRoundTimer(io, room, code);
 
-    console.log(`[Game] Started in ${code} with ${room.players.length} players`);
+    console.log(`[Game] Started in ${code} with ${room.players.length} players (bet ${room.bet}, pot ${room.pot})`);
   });
 
   // -- Game: Round Placed --
@@ -68,7 +97,7 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Game: Submit Result --
   // 클라이언트가 보낸 점수/조합은 신뢰하지 않는다. 보드(slots)만으로 서버가 재계산해
   // 방 순위의 권위값으로 삼는다. (글로벌 리더보드는 /api/leaderboard 에서 별도 재계산)
-  socket.on("game:result", ({ code, slots }: {
+  socket.on("game:result", async ({ code, slots }: {
     code: string;
     slots?: (CardData | null)[];
   }) => {
@@ -116,9 +145,43 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
 
       room.status = "finished";
 
-      io.to(code).emit("game:results", { results: rankedResults });
+      // 판돈 정산: 팟을 1등에게 몰아줌. 공동 1등이면 균등 분배(나머지는 앞 승자부터 1씩).
+      const prizeByPlayerId = new Map<string, number>();
+      if (room.pot > 0) {
+        const winners = rankedResults.filter((r) => r.rank === 1);
+        if (winners.length > 0) {
+          const share = Math.floor(room.pot / winners.length);
+          let remainder = room.pot - share * winners.length;
+          for (const w of winners) {
+            let prize = share;
+            if (remainder > 0) {
+              prize += 1;
+              remainder -= 1;
+            }
+            prizeByPlayerId.set(w.playerId, prize);
+            const p = room.players.find((pl) => pl.id === w.playerId);
+            if (p?.userId && prize > 0) await addCoins(p.userId, prize);
+          }
+        }
+      }
 
-      console.log(`[Game] All results in for ${code}`);
+      // 각 결과에 이번 판 코인 변동(prize - bet)을 붙여 전달.
+      const settledResults = rankedResults.map((r) => ({
+        ...r,
+        prize: prizeByPlayerId.get(r.playerId) ?? 0,
+        coinDelta: (prizeByPlayerId.get(r.playerId) ?? 0) - room.bet,
+      }));
+
+      io.to(code).emit("game:results", {
+        results: settledResults,
+        bet: room.bet,
+        pot: room.pot,
+      });
+
+      // 팟 소진.
+      room.pot = 0;
+
+      console.log(`[Game] All results in for ${code} (pot settled)`);
     }
   });
 };

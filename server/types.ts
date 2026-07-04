@@ -45,4 +45,15 @@ export type Room = {
   currentRound: number;
   roundPlacements: Set<string>;
   roundTimer: ReturnType<typeof setTimeout> | null;
+  // 판돈(코인). 0 = 무료 방. 게임 시작 시 전원 차감, 종료 시 1등에게 몰아줌.
+  bet: number;
+  pot: number;
 };
+
+// 허용 판돈 (0 = 무료)
+export const ALLOWED_BETS = [0, 100, 500, 1000, 5000, 10000] as const;
+
+export const normalizeBet = (bet: unknown): number =>
+  typeof bet === "number" && (ALLOWED_BETS as readonly number[]).includes(bet)
+    ? bet
+    : 0;

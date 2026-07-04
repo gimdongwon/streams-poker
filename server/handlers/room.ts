@@ -1,5 +1,7 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { Player, Room } from "../types";
+import { normalizeBet } from "../types";
+import { getCoins } from "../coins";
 import {
   rooms,
   ROOM_CLEANUP_GRACE_MS,
@@ -10,6 +12,15 @@ import {
 import { generateRoomCode } from "../deck";
 import { getPublicPlayers } from "../utils";
 import { checkRoundCompletion } from "../rounds";
+
+// 방 상태 브로드캐스트 공통 페이로드 (판돈/팟 포함).
+const roomState = (room: Room) => ({
+  code: room.code,
+  players: getPublicPlayers(room.players),
+  status: room.status,
+  bet: room.bet,
+  pot: room.pot,
+});
 
 // 실제 좌석 제거 + 빈 방 정리 + 라운드 완료 체크 (기존 handleLeave 본문).
 // socketId 기준으로 제거하며, 호출 시점 기준으로 안전하게 동작한다.
@@ -161,7 +172,7 @@ export const rebindPlayerByUserId = (
 
 export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Room: Create --
-  socket.on("room:create", ({ nickname }: { nickname: string }) => {
+  socket.on("room:create", ({ nickname, bet }: { nickname: string; bet?: number }) => {
     let code = generateRoomCode();
     while (rooms.has(code)) code = generateRoomCode();
 
@@ -183,18 +194,16 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       currentRound: 0,
       roundPlacements: new Set(),
       roundTimer: null,
+      bet: normalizeBet(bet),
+      pot: 0,
     };
 
     rooms.set(code, room);
     socket.join(code);
 
-    socket.emit("room:created", {
-      code,
-      players: getPublicPlayers(room.players),
-      status: room.status,
-    });
+    socket.emit("room:created", roomState(room));
 
-    console.log(`[Room] Created: ${code} by ${nickname}`);
+    console.log(`[Room] Created: ${code} by ${nickname} (bet ${room.bet})`);
   });
 
   // -- Room: List (public waiting rooms) --
@@ -206,12 +215,13 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
         hostNickname: (r.players.find((p) => p.isHost) ?? r.players[0]).nickname,
         playerCount: r.players.length,
         maxPlayers: 10,
+        bet: r.bet,
       }));
     socket.emit("room:listed", { rooms: list });
   });
 
   // -- Room: Join --
-  socket.on("room:join", ({ code, nickname }: { code: string; nickname: string }) => {
+  socket.on("room:join", async ({ code, nickname }: { code: string; nickname: string }) => {
     const room = rooms.get(code);
 
     if (!room) {
@@ -226,11 +236,7 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
     const existing = room.players.find((p) => p.socketId === socket.id);
     if (existing) {
       socket.join(code);
-      socket.emit("room:updated", {
-        code,
-        players: getPublicPlayers(room.players),
-        status: room.status,
-      });
+      socket.emit("room:updated", roomState(room));
       return;
     }
 
@@ -239,23 +245,35 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       return;
     }
 
+    // 판돈 방: 입장 전 잔액 확인 (게임 시작 시 실제 차감).
+    const uid = (socket as Socket & { userId?: string }).userId;
+    if (room.bet > 0) {
+      if (!uid) {
+        socket.emit("room:error", { message: "로그인이 필요합니다" });
+        return;
+      }
+      const coins = await getCoins(uid);
+      if (coins < room.bet) {
+        socket.emit("room:error", {
+          message: `코인이 부족합니다 (판돈 ${room.bet.toLocaleString()})`,
+        });
+        return;
+      }
+    }
+
     const player: Player = {
       id: socket.id,
       socketId: socket.id,
       nickname,
       status: "waiting",
       isHost: false,
-      userId: (socket as Socket & { userId?: string }).userId,
+      userId: uid,
     };
 
     room.players.push(player);
     socket.join(code);
 
-    io.to(code).emit("room:updated", {
-      code,
-      players: getPublicPlayers(room.players),
-      status: room.status,
-    });
+    io.to(code).emit("room:updated", roomState(room));
 
     console.log(`[Room] ${nickname} joined ${code}`);
   });

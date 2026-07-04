@@ -18,6 +18,8 @@ import type { FriendRequest } from "@/lib/friends";
 
 type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
+const BET_TIERS = [0, 100, 500, 1000, 5000, 10000] as const;
+
 const LobbyPage = () => {
   const t = useT();
   const router = useRouter();
@@ -31,6 +33,7 @@ const LobbyPage = () => {
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
+  const [selectedBet, setSelectedBet] = useState(0);
 
   useEffect(() => {
     document.body.style.overflow = showLeaderboard ? "hidden" : "";
@@ -112,7 +115,7 @@ const LobbyPage = () => {
     const nickname = user?.nickname ?? "Player";
     initSocketListeners();
     // 소켓 연결 + 방 생성 + 로딩 플래그는 store.createRoom 이 처리한다.
-    createRoom(nickname);
+    createRoom(nickname, selectedBet);
   };
 
   const handleJoinRoom = () => {
@@ -403,6 +406,38 @@ const LobbyPage = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex flex-col gap-3"
               >
+                {/* 판돈 선택 */}
+                <div className="bg-panel/40 border border-edge rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-haze text-[10px] tracking-[2px] uppercase font-bold">
+                      {t("coins.bet.label")}
+                    </span>
+                    <span className="text-neon-cyan text-xs font-bold">
+                      🪙 {(user.coins ?? 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {BET_TIERS.map((b) => {
+                      const afford = b === 0 || (user.coins ?? 0) >= b;
+                      const active = selectedBet === b;
+                      return (
+                        <button
+                          key={b}
+                          onClick={() => setSelectedBet(b)}
+                          disabled={!afford}
+                          className={`py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                            active
+                              ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/60"
+                              : "bg-void border border-edge text-haze hover:text-snow disabled:opacity-40 disabled:cursor-not-allowed"
+                          }`}
+                        >
+                          {b === 0 ? t("coins.bet.free") : b.toLocaleString()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
@@ -423,7 +458,9 @@ const LobbyPage = () => {
                         {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
                       </div>
                       <div className="text-xs font-normal opacity-80">
-                        {t("lobby.create.desc")}
+                        {selectedBet > 0
+                          ? t("coins.bet.room", { n: selectedBet.toLocaleString() })
+                          : t("coins.bet.freeRoom")}
                       </div>
                     </div>
                   </div>
@@ -521,8 +558,21 @@ const LobbyPage = () => {
                             <div className="text-snow font-medium text-sm truncate">
                               {t("lobby.browse.roomTitle", { host: room.hostNickname })}
                             </div>
-                            <div className="text-haze text-[10px] font-mono tracking-wider truncate">
-                              {room.code}
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-haze text-[10px] font-mono tracking-wider truncate">
+                                {room.code}
+                              </span>
+                              <span
+                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                  room.bet > 0
+                                    ? "text-neon-cyan bg-neon-cyan/10"
+                                    : "text-haze bg-edge"
+                                }`}
+                              >
+                                {room.bet > 0
+                                  ? `🪙 ${room.bet.toLocaleString()}`
+                                  : t("coins.bet.free")}
+                              </span>
                             </div>
                           </div>
                           <div className="shrink-0 text-right">
