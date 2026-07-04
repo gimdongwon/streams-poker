@@ -15,6 +15,7 @@ type AuthStore = {
     password: string
   ) => Promise<string | null>;
   logout: () => void;
+  updateNickname: (nickname: string) => Promise<string | null>;
   deleteAccount: (password: string) => Promise<string | null>;
   clearForcedOut: () => void;
   setHasHydrated: (v: boolean) => void;
@@ -70,6 +71,29 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => {
         set({ user: null, isLoggedIn: false, forcedOut: false });
+      },
+
+      updateNickname: async (nickname) => {
+        const { user } = get();
+        if (!user) return "로그인이 필요합니다";
+        const trimmed = nickname.trim();
+        if (trimmed === user.nickname) return null;
+        try {
+          const res = await fetch("/api/account/nickname", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id, nickname: trimmed }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) return data.error ?? "닉네임 변경에 실패했습니다";
+
+          set({ user: data.user });
+          return null;
+        } catch {
+          return "서버 연결에 실패했습니다";
+        }
       },
 
       deleteAccount: async (password) => {

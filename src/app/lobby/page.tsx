@@ -12,6 +12,7 @@ import { TierBadge } from "@/components/common/TierBadge";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
+import { EditNicknameModal } from "@/components/auth/EditNicknameModal";
 import { Spinner } from "@/components/common/Spinner";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { useT } from "@/lib/i18n/useT";
@@ -36,6 +37,7 @@ const LobbyPage = () => {
   const [showFriends, setShowFriends] = useState(false);
   const [showTierInfo, setShowTierInfo] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditNickname, setShowEditNickname] = useState(false);
   const [incomingCount, setIncomingCount] = useState(0);
 
   useEffect(() => {
@@ -236,6 +238,12 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
+      {/* 닉네임 변경 모달 */}
+      <EditNicknameModal
+        open={showEditNickname}
+        onClose={() => setShowEditNickname(false)}
+      />
+
       {/* 계정 삭제 확인 모달 */}
       <DeleteAccountModal
         open={showDeleteModal}
@@ -387,6 +395,17 @@ const LobbyPage = () => {
                       <span className="text-haze text-xs">{t("lobby.account.language")}</span>
                       <LanguageToggle />
                     </div>
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowEditNickname(true);
+                      }}
+                      className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors border-b border-edge"
+                      aria-label={t("lobby.account.editNickname")}
+                      tabIndex={0}
+                    >
+                      {t("lobby.account.editNickname")}
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-3 py-2.5 text-haze hover:text-snow hover:bg-edge text-xs transition-colors"
