@@ -109,6 +109,13 @@ export const sendPushToUser = async (
             token,
             notification: { title: payload.title, body: payload.body },
             data: payload.data ?? {},
+            // 기본 알림음 (Android/iOS)
+            android: {
+              notification: { sound: "default" },
+            },
+            apns: {
+              payload: { aps: { sound: "default" } },
+            },
           },
         }),
       }).then(async (r) => {
