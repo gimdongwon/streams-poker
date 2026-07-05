@@ -13,10 +13,19 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- 시스템 바 영역에 흰 윈도우 배경이 비치지 않도록 다크로 고정 -->
+        <item name="android:windowBackground">@color/brandDark</item>
+        <item name="android:statusBarColor">@color/brandDark</item>
+        <item name="android:navigationBarColor">@color/brandDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/brandDark</item>
+        <!-- 스플래시 종료 후 다크 윈도우 배경 테마로 전환 (흰 여백 제거) -->
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>
