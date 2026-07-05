@@ -327,7 +327,8 @@ const LobbyPage = () => {
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
       <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-8 w-full max-w-4xl landscape:items-start items-center justify-center">
-        {/* 좌측: 규칙 + 리더보드 */}
+        {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
+        {mode === "select" && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -357,6 +358,7 @@ const LobbyPage = () => {
             </div>
           </button>
         </motion.div>
+        )}
 
         {/* 우측: 모드 선택 버튼 */}
         <div className="w-full max-w-md landscape:w-80 landscape:shrink-0 order-1 landscape:order-2">
