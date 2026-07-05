@@ -76,6 +76,8 @@ export type ResyncPayload = {
   status: "waiting" | "playing" | "finished";
   deck: Card[];
   currentRound: number;
+  // 현재 라운드 남은 시간(ms, 서버 기준). 없으면 풀 타이머로 폴백.
+  roundEndsInMs?: number;
 };
 
 type GameStore = {
@@ -95,7 +97,7 @@ type GameStore = {
   placeCard: (slotIndex: SlotIndex) => void;
   autoPlaceCard: () => void;
   nextRound: () => void;
-  startTimer: () => void;
+  startTimer: (initialSeconds?: number) => void;
   stopTimer: () => void;
   tickTimer: () => void;
   endGame: () => void;
@@ -156,7 +158,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // 재접속: 서버의 현재 라운드로 게임에 복귀한다. 스냅샷이 같은 방+라운드면
   // 직접 배치한 카드를 복원하고, 아니면 해당 라운드의 빈 보드로 시작한다.
   resyncGame: (payload: ResyncPayload) => {
-    const { code, status, deck, currentRound } = payload;
+    const { code, status, deck, currentRound, roundEndsInMs } = payload;
     if (status !== "playing" || !deck || deck.length === 0 || currentRound < 1) return;
 
     get().stopTimer();
@@ -167,16 +169,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ? snapshot.slots
         : createEmptySlots();
 
+    // 서버가 준 남은 시간으로 타이머 복원(풀 10초 리셋 방지). 없으면 기본값.
+    const remainingSec =
+      typeof roundEndsInMs === "number"
+        ? Math.max(1, Math.min(TIMER_SECONDS, Math.ceil(roundEndsInMs / 1000)))
+        : TIMER_SECONDS;
+
     set({
       phase: "playing",
       currentRound,
       currentCard: deck[currentRound - 1] ?? null,
       slots,
       deck,
-      timer: TIMER_SECONDS,
+      timer: remainingSec,
     });
     persistBoardSnapshot(deck, currentRound, slots);
-    get().startTimer();
+    get().startTimer(remainingSec);
   },
 
   placeCard: (slotIndex: SlotIndex) => {
@@ -232,7 +240,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     get().startTimer();
   },
 
-  startTimer: () => {
+  startTimer: (initialSeconds: number = TIMER_SECONDS) => {
     const { timerInterval } = get();
     if (timerInterval) clearInterval(timerInterval);
 
@@ -240,7 +248,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       get().tickTimer();
     }, 1000);
 
-    set({ timerInterval: interval, timer: TIMER_SECONDS });
+    set({ timerInterval: interval, timer: initialSeconds });
   },
 
   stopTimer: () => {

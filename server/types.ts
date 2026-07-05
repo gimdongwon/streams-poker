@@ -45,6 +45,8 @@ export type Room = {
   currentRound: number;
   roundPlacements: Set<string>;
   roundTimer: ReturnType<typeof setTimeout> | null;
+  // 현재 라운드가 서버 기준으로 끝나는 시각(ms epoch). 재접속 시 남은 시간 계산용.
+  roundEndsAt: number;
   // 판돈(코인). 0 = 무료 방. 게임 시작 시 전원 차감, 종료 시 1등에게 몰아줌.
   bet: number;
   pot: number;

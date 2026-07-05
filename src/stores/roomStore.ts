@@ -347,12 +347,14 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         deck,
         currentRound,
         players,
+        roundEndsInMs,
       }: {
         code: string;
         status: RoomStatus;
         deck: Card[];
         currentRound: number;
         players: Player[];
+        roundEndsInMs?: number;
       }) => {
         // 진행 중인 게임으로 복귀: 방 상태를 맞추고 게임 보드를 재구성한다.
         set({
@@ -365,7 +367,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         });
         if (status === "playing") {
           setActiveRoomIntent(code);
-          useGameStore.getState().resyncGame({ code, status, deck, currentRound });
+          useGameStore.getState().resyncGame({ code, status, deck, currentRound, roundEndsInMs });
         }
       }
     );

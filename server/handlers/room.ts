@@ -154,6 +154,8 @@ export const rebindPlayerByUserId = (
       deck: room.deck,
       currentRound: room.currentRound,
       players: getPublicPlayers(room.players),
+      // 현재 라운드 남은 시간(ms). 클라 타이머가 풀 10초로 리셋되지 않게.
+      roundEndsInMs: Math.max(0, room.roundEndsAt - Date.now()),
     });
 
     // 다른 클라이언트도 disconnected 플래그 해제를 반영하도록 갱신.
@@ -194,6 +196,7 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       currentRound: 0,
       roundPlacements: new Set(),
       roundTimer: null,
+      roundEndsAt: 0,
       bet: normalizeBet(bet),
       pot: 0,
     };
