@@ -453,7 +453,7 @@ const LobbyPage = () => {
                       🪙 {(user.coins ?? 0).toLocaleString()}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2 landscape:flex-1 landscape:auto-rows-fr">
                     {BET_TIERS.map((b) => {
                       const afford = b === 0 || (user.coins ?? 0) >= b;
                       const active = selectedBet === b;
@@ -462,7 +462,7 @@ const LobbyPage = () => {
                           key={b}
                           onClick={() => setSelectedBet(b)}
                           disabled={!afford}
-                          className={`py-3 rounded-lg text-sm font-bold transition-colors ${
+                          className={`py-3 rounded-lg text-sm font-bold transition-colors flex items-center justify-center ${
                             active
                               ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/60"
                               : "bg-void border border-edge text-haze hover:text-snow disabled:opacity-40 disabled:cursor-not-allowed"
