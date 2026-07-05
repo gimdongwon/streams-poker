@@ -240,13 +240,38 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       return;
     }
 
+    const uid = (socket as Socket & { userId?: string }).userId;
+
+    // 같은 유저가 이미 방에 있으면(재접속/재-join 경쟁) 새 좌석을 추가하지 않고
+    // 기존 좌석을 이 소켓에 재바인딩한다 → 같은 socketId 중복 seat 방지(React key 중복 해결).
+    if (uid) {
+      const mine = room.players.find((p) => p.userId === uid);
+      if (mine) {
+        if (room.roundPlacements.has(mine.socketId)) {
+          room.roundPlacements.delete(mine.socketId);
+          room.roundPlacements.add(socket.id);
+        }
+        mine.socketId = socket.id;
+        mine.id = socket.id;
+        mine.disconnected = false;
+        const rk = reconnectKey(code, uid);
+        const timer = removalTimers.get(rk);
+        if (timer) {
+          clearTimeout(timer);
+          removalTimers.delete(rk);
+        }
+        socket.join(code);
+        io.to(code).emit("room:updated", roomState(room));
+        return;
+      }
+    }
+
     if (room.players.length >= 10) {
       socket.emit("room:error", { message: "방이 가득 찼습니다" });
       return;
     }
 
     // 판돈 방: 입장 전 잔액 확인 (게임 시작 시 실제 차감).
-    const uid = (socket as Socket & { userId?: string }).userId;
     if (room.bet > 0) {
       if (!uid) {
         socket.emit("room:error", { message: "로그인이 필요합니다" });
