@@ -255,10 +255,18 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       const coins = await getCoins(uid);
       if (coins < room.bet) {
         socket.emit("room:error", {
-          message: `코인이 부족합니다 (판돈 ${room.bet.toLocaleString()})`,
+          message: `코인이 부족합니다 (참가비 ${room.bet.toLocaleString()})`,
         });
         return;
       }
+    }
+
+    // await(잔액 조회) 사이에 같은 소켓의 다른 join 이 먼저 좌석을 잡았을 수 있다.
+    // 중복 추가(같은 socketId 2개) 방지를 위해 push 직전에 재확인한다.
+    if (room.players.some((p) => p.socketId === socket.id)) {
+      socket.join(code);
+      socket.emit("room:updated", roomState(room));
+      return;
     }
 
     const player: Player = {
