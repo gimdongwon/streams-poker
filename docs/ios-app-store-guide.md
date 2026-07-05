@@ -151,13 +151,32 @@ npx cap open ios         # Xcode 열기
 - Mac: `npm i` 후 `npx cap sync ios` (AdMob pod 설치).
 
 ### 8.2 친구 요청 푸시 알림
-- 코드: 클라 등록 `registerPushForUser`(`src/lib/native.ts`, 로비에서 호출), 토큰 저장 API `POST /api/push/register`, 발송 `src/lib/push.ts`(FCM HTTP v1), 친구 요청 시 `api/friends/request`에서 발송.
-- DB: `supabase/migrations/0008_push_tokens.sql` 실행 필요.
-- 해야 할 일 (발송 자격증명):
-  - Firebase 프로젝트 생성 → **서비스 계정 키** 발급 → 서버 env `FCM_PROJECT_ID` / `FCM_CLIENT_EMAIL` / `FCM_PRIVATE_KEY` 설정 (없으면 발송은 no-op, 앱은 정상).
-  - **iOS**: Apple Developer에서 **APNs 인증키(.p8)** 발급 → Firebase 콘솔에 업로드(Cloud Messaging). Xcode에 Push Notifications capability 추가.
-  - Mac: `npx cap sync ios`.
-- 현재 알림 트리거: **친구 요청 받음**. (추후 일일보상 리마인더/방 초대 등 확장 가능)
+코드/DB/API 완료. 남은 건 Firebase 세팅뿐. (푸시는 **네이티브 앱에서만** 동작 — 웹 브라우저 X)
+
+**Part 1 — Firebase 프로젝트 + Android 앱 (수신용)**
+1. https://console.firebase.google.com → 프로젝트 만들기 (예: `tentens`)
+2. **Android 앱 추가** → 패키지 이름 `kr.tentens.app` (SHA 지금 불필요)
+3. **google-services.json 다운로드** → `android/app/google-services.json` 에 저장
+   - gradle 은 이미 자동 적용되게 설정됨 ✅ (`android/app/build.gradle` 이 이 파일 있으면 google-services 플러그인 적용)
+   - 이후 `npx cap sync android` → 빌드
+
+**Part 2 — 서버 발송 자격증명 (FCM HTTP v1)**
+1. Firebase 콘솔 → 프로젝트 설정(⚙) → **서비스 계정** 탭 → **새 비공개 키 생성** → JSON 다운로드
+2. 서버 env 에 JSON 값 3개 설정 (개발: `.env.local`, 운영: 배포 서버 환경변수):
+   - `FCM_PROJECT_ID` = json `project_id`
+   - `FCM_CLIENT_EMAIL` = json `client_email`
+   - `FCM_PRIVATE_KEY` = json `private_key` → **한 줄로, 개행을 `\n` 으로**, 큰따옴표로 감싸기:
+     `FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n....\n-----END PRIVATE KEY-----\n"`
+     (코드가 `\n` → 실제 개행으로 변환함. 미설정 시 발송만 no-op, 앱은 정상)
+
+**Part 3 — iOS (Mac 단계에서)**
+- Firebase에 **iOS 앱 추가**(번들 `kr.tentens.app`) → `GoogleService-Info.plist` → Xcode에 추가
+- Apple Developer → **APNs 인증키(.p8)** 발급 → Firebase 콘솔 **Cloud Messaging** 에 업로드
+- Xcode: **Push Notifications** capability 추가
+- `npx cap sync ios`
+
+**테스트**: Android 앱(빌드본) 설치 → 로그인하면 토큰 등록 → 다른 계정이 친구 요청 보내면 알림 수신.
+현재 트리거: **친구 요청 받음**. (추후 일일보상 리마인더/방 초대 등 확장 가능)
 
 > 이 스캐폴딩도 원격 URL 래퍼라 **웹 재배포 + Mac에서 cap sync** 후에 실제 기기에서 동작합니다.
 
