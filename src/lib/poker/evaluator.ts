@@ -294,13 +294,13 @@ const findNumberCombinations = (
     match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 페어: 인접 2장이 같은 숫자 (조커 포함)
-  const pairs: ScoredCombination[] = [];
+  // 페어: 인접 2장이 같은 숫자 (조커 포함).
+  // 투페어(3점)로 묶으면 원페어 2개(2+2=4점)보다 손해라, 각각 원페어로 둔다 → 총점 최대.
   for (let i = 0; i <= slots.length - 2; i++) {
     const match = checkAdjacentNOfAKind(i, 2);
     if (!match) continue;
 
-    pairs.push({
+    results.push({
       ...COMBINATION_TABLE.find((c) => c.type === "one_pair")!,
       cards: match.cards,
       slotIndices: match.slotIndices,
@@ -308,56 +308,24 @@ const findNumberCombinations = (
     match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 투페어 업그레이드
-  if (pairs.length >= 2) {
-    for (let i = 0; i < pairs.length - 1; i += 2) {
-      results.push({
-        ...COMBINATION_TABLE.find((c) => c.type === "two_pair")!,
-        cards: [...pairs[i].cards, ...pairs[i + 1].cards],
-        slotIndices: [...pairs[i].slotIndices, ...pairs[i + 1].slotIndices],
-      });
-    }
-    if (pairs.length % 2 === 1) {
-      results.push(pairs[pairs.length - 1]);
-    }
-  } else {
-    results.push(...pairs);
-  }
-
-  // 풀하우스 업그레이드: 인접 트리플 + 인접 페어
+  // 풀하우스 업그레이드: 인접 트리플 + 인접 페어 → 풀하우스(15)가 트리플+페어 합보다 높음
   const triples = results.filter((r) => r.type === "triple");
   const singlePairs = results.filter((r) => r.type === "one_pair");
-  const twoPairs = results.filter((r) => r.type === "two_pair");
 
-  if (triples.length > 0 && (singlePairs.length > 0 || twoPairs.length > 0)) {
+  if (triples.length > 0 && singlePairs.length > 0) {
     const triple = triples[0];
-    const pairSource = singlePairs[0] || twoPairs[0];
-    const pairCards = pairSource.cards.slice(0, 2);
-    const pairSlots = pairSource.slotIndices.slice(0, 2);
+    const pairSource = singlePairs[0];
 
     const fullHouse: ScoredCombination = {
       ...COMBINATION_TABLE.find((c) => c.type === "full_house")!,
-      cards: [...triple.cards, ...pairCards],
-      slotIndices: [...triple.slotIndices, ...pairSlots],
+      cards: [...triple.cards, ...pairSource.cards],
+      slotIndices: [...triple.slotIndices, ...pairSource.slotIndices],
     };
 
     const filteredResults = results.filter(
       (r) => r !== triple && r !== pairSource
     );
     filteredResults.unshift(fullHouse);
-
-    if (twoPairs.length > 0 && singlePairs.length === 0) {
-      const remaining = twoPairs[0].cards.slice(2);
-      const remainingSlots = twoPairs[0].slotIndices.slice(2);
-      if (remaining.length === 2) {
-        filteredResults.push({
-          ...COMBINATION_TABLE.find((c) => c.type === "one_pair")!,
-          cards: remaining,
-          slotIndices: remainingSlots,
-        });
-      }
-    }
-
     return filteredResults;
   }
 

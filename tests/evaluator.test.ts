@@ -69,12 +69,24 @@ test("풀하우스(인접 트리플+인접 페어) = 15", () => {
   assert.equal(score(["7c", "7s", "7h", "9c", "9s", "2d", "4h", "Jc", "Ks", "3d"]), 15);
 });
 
-test("투페어 = 3", () => {
-  assert.equal(score(["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"]), 3);
-});
-
 test("원페어 = 2", () => {
   assert.equal(score(["5c", "5s", "2h", "8d", "Tc", "3h", "9s", "Jd", "Kc", "7s"]), 2);
+});
+
+test("페어 2개는 원페어 2개로 = 4 (투페어로 묶지 않음)", () => {
+  const r = score(["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"]);
+  assert.equal(r, 4);
+  assert.deepEqual(names(["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"]), ["one_pair", "one_pair"]);
+});
+
+test("페어 4개(실측 보드) = 8", () => {
+  // A A 7 2 2 / 10 8 8 J J
+  assert.equal(score(["Ad", "Ah", "7h", "2c", "2s", "Tc", "8s", "8c", "Jh", "Jc"]), 8);
+});
+
+test("페어 3개 = 6", () => {
+  // A A _ 2 2 / 7 10 _ J J 처럼 페어 3개만 남는 케이스
+  assert.equal(score(["Ad", "Ah", "5s", "2h", "2c", "7s", "Tc", "4d", "Jh", "Jc"]), 6);
 });
 
 test("조합 없음 = 0", () => {
