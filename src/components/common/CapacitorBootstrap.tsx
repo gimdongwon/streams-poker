@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { SplashScreen } from "@capacitor/splash-screen";
+import { lockLandscape } from "@/lib/native";
 
 // 네이티브(Capacitor) 웹뷰에서만 동작하는 기기 기능 배선.
 // 브라우저에서는 isNativePlatform()가 false라 아무 것도 하지 않는다(no-op).
@@ -18,6 +19,9 @@ export function CapacitorBootstrap() {
     if (Capacitor.getPlatform() === "android") {
       StatusBar.setBackgroundColor({ color: "#0b0b12" }).catch(() => {});
     }
+
+    // 가로모드 우선 게임 → 네이티브에서 가로로 고정.
+    lockLandscape();
 
     // 원격 페이지 로드 완료(이 컴포넌트 마운트) 후 스플래시 해제.
     SplashScreen.hide().catch(() => {});

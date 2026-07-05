@@ -15,10 +15,17 @@ const config: CapacitorConfig = {
   server: {
     url: "https://www.tentens.kr",
     androidScheme: "https",
+    iosScheme: "https",
   },
   android: {
     // 원격 페이지 로드 전 잠깐 보이는 배경 (다크 테마와 맞춤)
     backgroundColor: "#0b0b12",
+  },
+  ios: {
+    // 원격 로드 전/노치 영역 배경 (다크 테마와 맞춤)
+    backgroundColor: "#0b0b12",
+    // 웹뷰 자체 바운스 스크롤 비활성 — 앱 내부에서만 스크롤(앱다운 느낌, 4.2 대비)
+    scrollEnabled: false,
   },
   plugins: {
     SplashScreen: {

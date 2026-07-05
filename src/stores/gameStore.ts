@@ -9,6 +9,7 @@ import type {
 import { TOTAL_ROUNDS, TOTAL_SLOTS, TIMER_SECONDS } from "@/types/game";
 import { createGameDeck } from "@/lib/poker/deck";
 import { playSound } from "@/lib/sound";
+import { hapticLight } from "@/lib/native";
 
 // --- 재접속 시 자신의 보드 복원을 위한 로컬 스냅샷 ---
 // sessionStorage 의 활성 방 코드와 연동하여 방 단위로 localStorage 에 저장한다.
@@ -191,6 +192,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ slots: newSlots, currentCard: null, phase: "round_end" });
     persistBoardSnapshot(deck, currentRound, newSlots);
     playSound("place");
+    hapticLight();
   },
 
   autoPlaceCard: () => {
