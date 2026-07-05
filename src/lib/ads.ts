@@ -2,10 +2,10 @@
 // 현재 Google 공식 "테스트" 광고 단위 ID 사용 — 출시 전 실제 ID로 교체할 것.
 import { Capacitor } from "@capacitor/core";
 
-// TODO(admob): AdMob 콘솔에서 발급한 실제 리워드 광고 단위 ID로 교체
+// AdMob 리워드 광고 단위 ID (실제). 앱 ID(~)는 네이티브(Info.plist/AndroidManifest)에 설정.
 const REWARDED_AD_ID = {
-  ios: "ca-app-pub-3940256099942544/1712485313", // Google test rewarded (iOS)
-  android: "ca-app-pub-3940256099942544/5224354917", // Google test rewarded (Android)
+  ios: "ca-app-pub-9943215492404656/2315068499",
+  android: "ca-app-pub-9943215492404656/7371954051",
 };
 
 let initialized = false;

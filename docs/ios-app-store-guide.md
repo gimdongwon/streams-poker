@@ -134,11 +134,21 @@ npx cap open ios         # Xcode 열기
 
 ### 8.1 리워드 광고 (일일 보상)
 - 코드: `src/lib/ads.ts` (초기화 + 리워드 노출), `DailyRewardButton`에서 보상 전 광고 노출, `CapacitorBootstrap`에서 초기화 + ATT 요청.
-- 현재 **Google 테스트 광고 ID** 사용 중.
-- 해야 할 일:
-  - AdMob 계정 생성 → 앱 등록 → **리워드 광고 단위 ID** 발급 → `src/lib/ads.ts`의 `REWARDED_AD_ID` 교체(TODO 표시됨).
-  - Mac: `npm i` 후 `npx cap sync ios` (플러그인 pod 설치).
-  - iOS `Info.plist`: `GADApplicationIdentifier`(AdMob 앱 ID), `SKAdNetworkItems`, `NSUserTrackingUsageDescription`(ATT 문구) 추가.
+- **광고 단위 ID (실제)** 는 `src/lib/ads.ts` 에 반영 완료 ✅
+  - iOS 리워드: `ca-app-pub-9943215492404656/2315068499`
+  - Android 리워드: `ca-app-pub-9943215492404656/7371954051`
+- **앱 ID (~)** — 네이티브에 설정:
+  - Android: `AndroidManifest.xml` 에 반영 완료 ✅ (`ca-app-pub-9943215492404656~3219132226`)
+  - iOS: `ios/App/App/Info.plist` 에 아래 추가 (Mac에서 `cap add ios` 후):
+    ```xml
+    <key>GADApplicationIdentifier</key>
+    <string>ca-app-pub-9943215492404656~4280932456</string>
+    <key>NSUserTrackingUsageDescription</key>
+    <string>맞춤 광고를 제공하기 위해 사용자 활동을 추적합니다.</string>
+    <!-- SKAdNetworkItems 는 AdMob 문서의 최신 목록을 붙여넣기:
+         https://developers.google.com/admob/ios/ios14 -->
+    ```
+- Mac: `npm i` 후 `npx cap sync ios` (AdMob pod 설치).
 
 ### 8.2 친구 요청 푸시 알림
 - 코드: 클라 등록 `registerPushForUser`(`src/lib/native.ts`, 로비에서 호출), 토큰 저장 API `POST /api/push/register`, 발송 `src/lib/push.ts`(FCM HTTP v1), 친구 요청 시 `api/friends/request`에서 발송.
