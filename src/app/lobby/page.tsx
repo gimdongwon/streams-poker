@@ -336,7 +336,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-start items-center justify-center">
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center">
         {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
         {mode === "select" && (
         <motion.div
@@ -372,7 +372,7 @@ const LobbyPage = () => {
 
         {/* 우측: 모드 선택 버튼 */}
         <div
-          className={`order-1 landscape:order-2 ${
+          className={`order-1 landscape:order-2 flex flex-col ${
             mode === "select"
               ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
               : "w-full max-w-2xl"
@@ -395,11 +395,11 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-3 landscape:flex-1"
               >
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.mode.single.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
@@ -418,7 +418,7 @@ const LobbyPage = () => {
                     setMode("multi_create");
                     setError("");
                   }}
-                  className="w-full py-3 px-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.mode.multi.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
