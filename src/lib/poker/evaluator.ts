@@ -307,22 +307,43 @@ const findNumberCombinations = (
     match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 풀하우스: 인접 트리플 + 페어 1개 → 풀하우스(트리플+페어 합보다 높음). 페어 하나 소모.
+  // 풀하우스: 트리플과 페어가 "연속 5칸"으로 인접할 때만 성립. (트리플[3칸] 바로 옆에 페어[2칸])
+  // 떨어져 있는 트리플·페어는 각각 트리플/원페어로 따로 계산한다.
   const triples = results.filter((r) => r.type === "triple");
-  let remainingPairs = pairs;
-  if (triples.length > 0 && pairs.length > 0) {
-    const triple = triples[0];
-    const pair = pairs[0];
-    const fullHouse: ScoredCombination = {
-      ...COMBINATION_TABLE.find((c) => c.type === "full_house")!,
-      cards: [...triple.cards, ...pair.cards],
-      slotIndices: [...triple.slotIndices, ...pair.slotIndices],
-    };
-    const idx = results.indexOf(triple);
-    if (idx !== -1) results.splice(idx, 1);
-    results.unshift(fullHouse);
-    remainingPairs = pairs.slice(1);
+  const usedPairIdx = new Set<number>();
+  const usedTriples = new Set<ScoredCombination>();
+  const fullHouses: ScoredCombination[] = [];
+
+  const range = (c: ScoredCombination): [number, number] => {
+    const min = Math.min(...c.slotIndices);
+    const max = Math.max(...c.slotIndices);
+    return [min, max];
+  };
+
+  for (const triple of triples) {
+    const [tMin, tMax] = range(triple);
+    for (let pi = 0; pi < pairs.length; pi++) {
+      if (usedPairIdx.has(pi)) continue;
+      const [pMin, pMax] = range(pairs[pi]);
+      const adjacent = pMin === tMax + 1 || pMax === tMin - 1;
+      if (!adjacent) continue;
+      fullHouses.push({
+        ...COMBINATION_TABLE.find((c) => c.type === "full_house")!,
+        cards: [...triple.cards, ...pairs[pi].cards],
+        slotIndices: [...triple.slotIndices, ...pairs[pi].slotIndices],
+      });
+      usedPairIdx.add(pi);
+      usedTriples.add(triple);
+      break;
+    }
   }
+
+  for (const t of usedTriples) {
+    const idx = results.indexOf(t);
+    if (idx !== -1) results.splice(idx, 1);
+  }
+  fullHouses.forEach((fh) => results.unshift(fh));
+  const remainingPairs = pairs.filter((_, pi) => !usedPairIdx.has(pi));
 
   // 남은 페어는 둘씩 투페어로 병합 (투페어 6 > 원페어 2개 4). 홀수면 마지막 하나는 원페어.
   for (let i = 0; i + 1 < remainingPairs.length; i += 2) {

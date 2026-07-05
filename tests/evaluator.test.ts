@@ -77,6 +77,16 @@ test("포카드", () => {
 test("풀하우스(인접 트리플+페어)", () => {
   assert.equal(score(["7c", "7s", "7h", "9c", "9s", "2d", "4h", "Jc", "Ks", "3d"]), V.full_house);
 });
+test("떨어진 트리플+페어는 풀하우스 아님 → 트리플+원페어 (회귀)", () => {
+  // 슬롯4·5=3·3(페어), 슬롯7·8·9=조커·K·K(트리플). 서로 붙어있지 않음.
+  const t = ["4d", "5d", "7s", "3s", "3c", "Jc", "*", "Kc", "Kh", "8s"];
+  assert.equal(score(t), V.triple + V.one_pair);
+  assert.deepEqual(names(t).sort(), ["one_pair", "triple"].sort());
+});
+test("조커 트리플이 페어와 인접하면 풀하우스", () => {
+  // 슬롯1·2·3=K·K·조커(트리플), 슬롯4·5=3·3(페어) → 연속 5칸
+  assert.equal(score(["Kc", "Kh", "*", "3s", "3c", "8s", "Jc", "7d", "2h", "9c"]), V.full_house);
+});
 test("원페어", () => {
   assert.equal(score(["5c", "5s", "2h", "8d", "Tc", "3h", "9s", "Jd", "Kc", "7s"]), V.one_pair);
 });
