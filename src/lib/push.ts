@@ -75,16 +75,28 @@ export const sendPushToUser = async (
   payload: PushPayload
 ): Promise<void> => {
   const projectId = process.env.FCM_PROJECT_ID;
-  if (!projectId) return; // 미설정 시 no-op
+  if (!projectId) {
+    console.log("[Push] FCM_PROJECT_ID 미설정 → 발송 생략(no-op)");
+    return;
+  }
 
   const [accessToken, tokens] = await Promise.all([
     getAccessToken(),
     getUserTokens(userId),
   ]);
-  if (!accessToken || tokens.length === 0) return;
 
+  if (!accessToken) {
+    console.log("[Push] OAuth 액세스 토큰 발급 실패 (FCM_CLIENT_EMAIL/PRIVATE_KEY 확인)");
+    return;
+  }
+  if (tokens.length === 0) {
+    console.log(`[Push] 대상 유저(${userId})의 등록 토큰 없음 (앱에서 로그인/권한 허용 필요)`);
+    return;
+  }
+
+  console.log(`[Push] ${tokens.length}개 토큰으로 발송 시도 (user ${userId})`);
   const endpoint = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     tokens.map((token) =>
       fetch(endpoint, {
         method: "POST",
@@ -99,7 +111,16 @@ export const sendPushToUser = async (
             data: payload.data ?? {},
           },
         }),
+      }).then(async (r) => {
+        if (!r.ok) {
+          const body = await r.text();
+          console.log(`[Push] FCM 실패 HTTP ${r.status}: ${body.slice(0, 300)}`);
+        } else {
+          console.log("[Push] FCM 발송 성공");
+        }
       })
     )
   );
+  const failed = results.filter((r) => r.status === "rejected").length;
+  if (failed) console.log(`[Push] 네트워크 예외 ${failed}건`);
 };
