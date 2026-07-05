@@ -319,8 +319,8 @@ const LobbyPage = () => {
         </motion.div>
       </div>
 
-      {/* 가운데 영역: 에러 + 메인 콘텐츠 */}
-      <div className="flex-1 w-full flex flex-col items-center justify-center">
+      {/* 가운데 영역: 에러 + 메인 콘텐츠 (상단 정렬 — 위 여백 제거, 하단 고정 아이콘과 겹침 방지) */}
+      <div className="flex-1 w-full flex flex-col items-center justify-start">
       {/* 에러 메시지 */}
       <AnimatePresence>
         {error && (
