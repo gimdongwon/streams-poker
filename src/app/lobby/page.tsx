@@ -145,7 +145,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-3 landscape:pb-2 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -186,7 +186,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
-      <div className="w-full max-w-4xl mb-4 flex items-center gap-3">
+      <div className="w-full max-w-4xl mb-4 landscape:mb-2 flex items-center gap-3">
         {/* 좌측: 로고 */}
         <div className="flex-1 flex justify-start min-w-0">
           <Logo size="sm" />
@@ -336,7 +336,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-8 w-full max-w-4xl landscape:items-start items-center justify-center">
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-start items-center justify-center">
         {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
         {mode === "select" && (
         <motion.div
@@ -391,9 +391,10 @@ const LobbyPage = () => {
             {mode === "select" && (
               <motion.div
                 key="select"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
                 className="flex flex-col gap-3"
               >
                 <button
@@ -436,9 +437,10 @@ const LobbyPage = () => {
             {mode === "multi_create" && (
               <motion.div
                 key="multi"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
                 className="flex flex-col landscape:flex-row gap-3 landscape:items-start"
               >
                 {/* 판돈 선택 (좌측, 6) */}
@@ -544,9 +546,10 @@ const LobbyPage = () => {
             {mode === "multi_browse" && (
               <motion.div
                 key="browse"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
                 className="flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between">
@@ -619,9 +622,10 @@ const LobbyPage = () => {
             {mode === "multi_join" && (
               <motion.div
                 key="join"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
                 className="flex flex-col gap-3"
               >
                 <div>
