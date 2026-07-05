@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByUsername, sendFriendRequest } from "@/lib/friends";
+import { sendPushToUser } from "@/lib/push";
+import { supabase } from "@/lib/supabase";
 
 // username(아이디)로 상대를 찾아 친구 요청 전송
 export const POST = async (request: NextRequest) => {
@@ -30,6 +32,24 @@ export const POST = async (request: NextRequest) => {
     }
 
     await sendFriendRequest(userId, target.id);
+
+    // 상대에게 푸시 알림 (자격증명 미설정 시 no-op)
+    try {
+      const { data: me } = await supabase
+        .from("users")
+        .select("nickname")
+        .eq("id", userId)
+        .maybeSingle();
+      const requesterName = me?.nickname ?? "누군가";
+      await sendPushToUser(target.id, {
+        title: "TENTENS",
+        body: `${requesterName}님이 친구 요청을 보냈어요`,
+        data: { type: "friend_request" },
+      });
+    } catch {
+      // 푸시 실패는 무시 (친구 요청 자체는 성공)
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("POST /api/friends/request error:", JSON.stringify(err));

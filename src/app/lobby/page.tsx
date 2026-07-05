@@ -12,6 +12,7 @@ import { TierBadge } from "@/components/common/TierBadge";
 import { TierProgress } from "@/components/common/TierProgress";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
+import { registerPushForUser } from "@/lib/native";
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -75,6 +76,11 @@ const LobbyPage = () => {
       setNickname(user.nickname);
     }
   }, [user, setNickname]);
+
+  // 네이티브 앱에서 푸시 알림 등록 (친구 요청 알림용). 브라우저에서는 no-op.
+  useEffect(() => {
+    if (user?.id) registerPushForUser(user.id);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;

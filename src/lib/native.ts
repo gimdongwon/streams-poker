@@ -37,3 +37,39 @@ export const lockLandscape = async (): Promise<void> => {
     // 무시
   }
 };
+
+// 푸시 알림 등록: 권한 요청 → 토큰 발급 → 서버에 저장.
+// (친구 요청 등 서버발 알림용. APNs/FCM 실제 발송은 서버 + 자격증명 필요)
+export const registerPushForUser = async (userId: string): Promise<void> => {
+  if (!isNative() || !userId) return;
+  try {
+    const { PushNotifications } = await import("@capacitor/push-notifications");
+
+    let perm = await PushNotifications.checkPermissions();
+    if (perm.receive === "prompt") {
+      perm = await PushNotifications.requestPermissions();
+    }
+    if (perm.receive !== "granted") return;
+
+    // 토큰 수신 리스너 등록 후 register 호출
+    await PushNotifications.addListener("registration", async (token) => {
+      try {
+        await fetch("/api/push/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            token: token.value,
+            platform: Capacitor.getPlatform(),
+          }),
+        });
+      } catch {
+        // 저장 실패 무시
+      }
+    });
+
+    await PushNotifications.register();
+  } catch {
+    // 미지원/네이티브 sync 전 무시
+  }
+};

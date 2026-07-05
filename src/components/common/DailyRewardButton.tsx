@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { Spinner } from "@/components/common/Spinner";
+import { showRewardedAd } from "@/lib/ads";
 
 type DailyRewardButtonProps = {
   className?: string;
@@ -33,8 +34,9 @@ export const DailyRewardButton = ({
 
   const handleClaim = useCallback(async () => {
     if (claiming || !canClaim) return;
-    // TODO(admob): 여기서 리워드 광고를 먼저 노출한 뒤 보상 지급.
     setClaiming(true);
+    // 네이티브: 리워드 광고 노출 후 보상. 광고 미탑재/실패("unavailable")여도 보상은 진행.
+    await showRewardedAd();
     const result = await claimDaily();
     if (result?.claimed) setCanClaim(false);
     setClaiming(false);
