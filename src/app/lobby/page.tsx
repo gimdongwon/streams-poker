@@ -398,11 +398,11 @@ const LobbyPage = () => {
               >
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label={t("lobby.mode.single.aria")}
                 >
-                  <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
                     <div className="text-left">
                       <div className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</div>
                       <div className="text-xs font-normal text-haze">
@@ -417,11 +417,11 @@ const LobbyPage = () => {
                     setMode("multi_create");
                     setError("");
                   }}
-                  className="w-full py-4 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10"
                   aria-label={t("lobby.mode.multi.aria")}
                 >
-                  <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl text-neon-magenta w-10 text-center shrink-0">👥</span>
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl text-neon-magenta w-10 text-center shrink-0">👥</span>
                     <div className="text-left">
                       <div className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</div>
                       <div className="text-xs font-normal text-haze">
@@ -479,11 +479,11 @@ const LobbyPage = () => {
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-4 px-5 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                   aria-label={t("lobby.create.aria")}
                 >
-                  <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl w-10 flex items-center justify-center shrink-0">
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl w-10 flex items-center justify-center shrink-0">
                       {isCreatingRoom ? (
                         <Spinner size="md" colorClassName="border-void" />
                       ) : (
@@ -508,11 +508,11 @@ const LobbyPage = () => {
                     setMode("multi_join");
                     setError("");
                   }}
-                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label={t("lobby.join.aria")}
                 >
-                  <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
                     <div className="text-left">
                       <div className="text-base text-neon-cyan">{t("lobby.join.title")}</div>
                       <div className="text-xs font-normal text-haze">
@@ -524,11 +524,11 @@ const LobbyPage = () => {
 
                 <button
                   onClick={handleBrowseRooms}
-                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
                   aria-label={t("lobby.browse.aria")}
                 >
-                  <div className="flex items-center justify-start gap-3">
-                    <span className="text-2xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
                     <div className="text-left">
                       <div className="text-base text-neon-cyan">{t("lobby.browse.title")}</div>
                       <div className="text-xs font-normal text-haze">
