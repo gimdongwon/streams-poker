@@ -132,6 +132,16 @@ const LobbyPage = () => {
     requestRoomList();
   };
 
+  const handleBack = () => {
+    setError("");
+    if (mode === "multi_join" || mode === "multi_browse") {
+      setMode("multi_create");
+      setJoinCode("");
+    } else {
+      setMode("select");
+    }
+  };
+
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
@@ -361,7 +371,22 @@ const LobbyPage = () => {
         )}
 
         {/* 우측: 모드 선택 버튼 */}
-        <div className="w-full max-w-md landscape:w-80 landscape:shrink-0 order-1 landscape:order-2">
+        <div
+          className={`order-1 landscape:order-2 ${
+            mode === "multi_create"
+              ? "w-full max-w-2xl"
+              : "w-full max-w-md landscape:w-80 landscape:shrink-0"
+          }`}
+        >
+          {mode !== "select" && (
+            <button
+              onClick={handleBack}
+              className="mb-3 inline-flex items-center gap-1 text-haze hover:text-snow text-sm transition-colors active:scale-95"
+              aria-label={t("lobby.common.back")}
+            >
+              {t("lobby.common.back")}
+            </button>
+          )}
           <AnimatePresence mode="wait">
             {mode === "select" && (
               <motion.div
@@ -414,10 +439,10 @@ const LobbyPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="flex flex-col gap-3"
+                className="flex flex-col landscape:flex-row gap-3 landscape:items-start"
               >
-                {/* 판돈 선택 */}
-                <div className="bg-panel/40 border border-edge rounded-2xl p-3">
+                {/* 판돈 선택 (좌측) */}
+                <div className="bg-panel/40 border border-edge rounded-2xl p-3 w-full landscape:w-64 landscape:shrink-0">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-haze text-[10px] tracking-[2px] uppercase font-bold">
                       {t("coins.bet.label")}
@@ -448,6 +473,8 @@ const LobbyPage = () => {
                   </div>
                 </div>
 
+                {/* 버튼들 (우측) */}
+                <div className="flex flex-col gap-3 flex-1 w-full min-w-0">
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
@@ -510,17 +537,7 @@ const LobbyPage = () => {
                     </div>
                   </div>
                 </button>
-
-                <button
-                  onClick={() => {
-                    setMode("select");
-                    setError("");
-                  }}
-                  className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label={t("lobby.common.back")}
-                >
-                  {t("lobby.common.back")}
-                </button>
+                </div>
               </motion.div>
             )}
 
@@ -596,17 +613,6 @@ const LobbyPage = () => {
                     ))
                   )}
                 </div>
-
-                <button
-                  onClick={() => {
-                    setMode("multi_create");
-                    setError("");
-                  }}
-                  className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label={t("lobby.common.back")}
-                >
-                  {t("lobby.common.back")}
-                </button>
               </motion.div>
             )}
 
@@ -648,26 +654,16 @@ const LobbyPage = () => {
                 >
                   {t("lobby.join.submit")}
                 </button>
-
-                <button
-                  onClick={() => {
-                    setMode("multi_create");
-                    setError("");
-                    setJoinCode("");
-                  }}
-                  className="text-haze hover:text-snow text-sm transition-colors py-1"
-                  aria-label={t("lobby.common.back")}
-                >
-                  {t("lobby.common.back")}
-                </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+      </div>
 
-      {/* 하단: 일일 보상 받기 (추후 AdMob 리워드 광고 연결) */}
-      <DailyRewardButton className="mt-4 shrink-0" />
+      {/* 우측 하단 고정: 일일 보상 받기 (추후 AdMob 리워드 광고 연결) */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <DailyRewardButton />
       </div>
     </div>
   );

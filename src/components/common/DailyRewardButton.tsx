@@ -45,7 +45,7 @@ export const DailyRewardButton = ({
       onClick={handleClaim}
       disabled={!canClaim || claiming}
       aria-label={t("coins.daily.claim")}
-      className={`w-full max-w-xs py-3 px-4 rounded-2xl text-sm font-extrabold transition-all active:scale-95 flex items-center justify-center gap-2 ${
+      className={`py-2.5 px-4 rounded-2xl text-xs font-extrabold transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-lg shadow-black/40 ${
         canClaim
           ? "text-void hover:scale-[1.02] animate-pulse"
           : "bg-panel border border-edge text-haze cursor-not-allowed"
