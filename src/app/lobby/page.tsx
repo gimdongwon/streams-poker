@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRoomStore } from "@/stores/roomStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useGameStore } from "@/stores/gameStore";
 import { Leaderboard } from "@/components/game/Leaderboard";
 import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
@@ -35,6 +36,13 @@ const LobbyPage = () => {
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
   const [selectedBet, setSelectedBet] = useState(0);
+
+  // 로비 진입 시 진행 중이던 게임 상태를 정리한다.
+  // (뒤로가기 등으로 handleBackToLobby 를 거치지 않고 로비에 온 경우,
+  //  전역 게임 타이머가 계속 tick 하며 카운트다운 사운드가 나던 문제 방지)
+  useEffect(() => {
+    useGameStore.getState().resetGame();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = showLeaderboard ? "hidden" : "";
