@@ -38,37 +38,46 @@ export const lockLandscape = async (): Promise<void> => {
   }
 };
 
-// 푸시 알림 등록: 권한 요청 → 토큰 발급 → 서버에 저장.
-// (친구 요청 등 서버발 알림용. APNs/FCM 실제 발송은 서버 + 자격증명 필요)
+// 서버에 FCM 토큰 저장 (중복 저장은 서버 upsert가 처리)
+const saveToken = async (userId: string, token: string): Promise<void> => {
+  try {
+    await fetch("/api/push/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        token,
+        platform: Capacitor.getPlatform(),
+      }),
+    });
+  } catch {
+    // 저장 실패 무시
+  }
+};
+
+// 푸시 알림 등록: 권한 요청 → FCM 토큰 발급 → 서버에 저장.
+// @capacitor-firebase/messaging 사용 → iOS·Android 모두 FCM 토큰을 반환하므로
+// 서버(FCM HTTP v1) 단일 경로로 발송 가능. iOS 는 Firebase 가 APNs 연동을 자동 처리.
+// (Firebase 콘솔에 APNs 인증키 업로드 + GoogleService-Info.plist 필요 — docs/ios-runbook.md)
 export const registerPushForUser = async (userId: string): Promise<void> => {
   if (!isNative() || !userId) return;
   try {
-    const { PushNotifications } = await import("@capacitor/push-notifications");
+    const { FirebaseMessaging } = await import("@capacitor-firebase/messaging");
 
-    let perm = await PushNotifications.checkPermissions();
-    if (perm.receive === "prompt") {
-      perm = await PushNotifications.requestPermissions();
+    let perm = await FirebaseMessaging.checkPermissions();
+    if (perm.receive === "prompt" || perm.receive === "prompt-with-rationale") {
+      perm = await FirebaseMessaging.requestPermissions();
     }
     if (perm.receive !== "granted") return;
 
-    // 토큰 수신 리스너 등록 후 register 호출
-    await PushNotifications.addListener("registration", async (token) => {
-      try {
-        await fetch("/api/push/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            token: token.value,
-            platform: Capacitor.getPlatform(),
-          }),
-        });
-      } catch {
-        // 저장 실패 무시
-      }
+    // 토큰 갱신 리스너 (재발급 시 서버에 재저장)
+    await FirebaseMessaging.addListener("tokenReceived", (event) => {
+      if (event?.token) void saveToken(userId, event.token);
     });
 
-    await PushNotifications.register();
+    // 현재 토큰 즉시 발급 후 저장 (iOS 는 내부적으로 APNs 등록 완료를 대기)
+    const { token } = await FirebaseMessaging.getToken();
+    if (token) await saveToken(userId, token);
   } catch {
     // 미지원/네이티브 sync 전 무시
   }
