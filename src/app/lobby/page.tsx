@@ -320,7 +320,7 @@ const LobbyPage = () => {
       </div>
 
       {/* 가운데 영역: 에러 + 메인 콘텐츠 (상단 정렬 — 위 여백 제거, 하단 고정 아이콘과 겹침 방지) */}
-      <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-start">
+      <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center">
       {/* 에러 메시지 */}
       <AnimatePresence>
         {error && (
@@ -336,14 +336,14 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center landscape:flex-1 landscape:min-h-0">
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center landscape:flex-1 landscape:min-h-0 landscape:max-h-[360px]">
         {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
         {mode === "select" && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1"
+          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-center"
         >
           <div className="bg-panel/40 rounded-2xl p-4 border border-edge mb-3">
             <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5">{t("lobby.rules.title")}</h3>
@@ -444,7 +444,7 @@ const LobbyPage = () => {
                 className="flex flex-col landscape:flex-row gap-3 landscape:items-stretch landscape:flex-1 landscape:min-h-0"
               >
                 {/* 참가비 선택 (좌측, 6) */}
-                <div className="bg-panel/40 border border-edge rounded-2xl p-4 w-full landscape:flex-[6] landscape:min-w-0">
+                <div className="bg-panel/40 border border-edge rounded-2xl p-4 w-full landscape:flex-[6] landscape:min-w-0 landscape:flex landscape:flex-col landscape:justify-center">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-haze text-[11px] tracking-[2px] uppercase font-bold">
                       {t("coins.bet.label")}
