@@ -145,7 +145,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-3 landscape:pb-2 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -186,7 +186,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
-      <div className="w-full max-w-4xl mb-4 landscape:mb-2 flex items-center gap-3">
+      <div className="w-full max-w-4xl mb-4 landscape:mb-2 flex items-center gap-2 min-w-0">
         {/* 좌측: 로고 */}
         <div className="flex-1 flex justify-start min-w-0">
           <Logo size="sm" />
@@ -195,7 +195,7 @@ const LobbyPage = () => {
         {/* 가운데: 내 랭킹 & 점수 */}
         {!rankInfo && rankLoading && (
           <div
-            className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0 animate-pulse"
+            className="flex items-center gap-3 bg-panel/60 rounded-2xl border border-edge px-4 py-2 shrink-0 animate-pulse"
             aria-label={t("lobby.rank.loading")}
           >
             <div className="flex flex-col items-center gap-1.5">
@@ -218,7 +218,7 @@ const LobbyPage = () => {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 bg-panel/60 rounded-2xl border border-edge px-5 py-2 shrink-0"
+            className="flex items-center gap-3 bg-panel/60 rounded-2xl border border-edge px-4 py-2 shrink-0"
           >
             <button
               onClick={() => router.push("/me")}
@@ -282,7 +282,7 @@ const LobbyPage = () => {
         >
           <button
             onClick={() => router.push("/me")}
-            className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors"
+            className="relative flex items-center gap-2 bg-panel/60 rounded-xl border border-edge px-3 py-2 hover:bg-edge transition-colors min-w-0 max-w-[45vw]"
             aria-label={t("lobby.account.myPage")}
             tabIndex={0}
           >
@@ -320,7 +320,7 @@ const LobbyPage = () => {
       </div>
 
       {/* 가운데 영역: 에러 + 메인 콘텐츠 (상단 정렬 — 위 여백 제거, 하단 고정 아이콘과 겹침 방지) */}
-      <div className="flex-1 w-full flex flex-col items-center justify-start">
+      <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-start">
       {/* 에러 메시지 */}
       <AnimatePresence>
         {error && (
@@ -336,7 +336,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center">
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center landscape:flex-1 landscape:min-h-0">
         {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
         {mode === "select" && (
         <motion.div
@@ -441,9 +441,9 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col landscape:flex-row gap-3 landscape:items-start"
+                className="flex flex-col landscape:flex-row gap-3 landscape:items-stretch landscape:flex-1 landscape:min-h-0"
               >
-                {/* 판돈 선택 (좌측, 6) */}
+                {/* 참가비 선택 (좌측, 6) */}
                 <div className="bg-panel/40 border border-edge rounded-2xl p-4 w-full landscape:flex-[6] landscape:min-w-0">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-haze text-[11px] tracking-[2px] uppercase font-bold">
@@ -481,7 +481,7 @@ const LobbyPage = () => {
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
                   style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.create.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
@@ -510,7 +510,7 @@ const LobbyPage = () => {
                     setMode("multi_join");
                     setError("");
                   }}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.join.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
@@ -526,7 +526,7 @@ const LobbyPage = () => {
 
                 <button
                   onClick={handleBrowseRooms}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10"
+                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.browse.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
