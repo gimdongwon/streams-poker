@@ -373,9 +373,9 @@ const LobbyPage = () => {
         {/* 우측: 모드 선택 버튼 */}
         <div
           className={`order-1 landscape:order-2 ${
-            mode === "multi_create"
-              ? "w-full max-w-2xl"
-              : "w-full max-w-md landscape:w-80 landscape:shrink-0"
+            mode === "select"
+              ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
+              : "w-full max-w-2xl"
           }`}
         >
           {mode !== "select" && (
@@ -441,17 +441,17 @@ const LobbyPage = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex flex-col landscape:flex-row gap-3 landscape:items-start"
               >
-                {/* 판돈 선택 (좌측) */}
-                <div className="bg-panel/40 border border-edge rounded-2xl p-3 w-full landscape:w-64 landscape:shrink-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-haze text-[10px] tracking-[2px] uppercase font-bold">
+                {/* 판돈 선택 (좌측, 6) */}
+                <div className="bg-panel/40 border border-edge rounded-2xl p-4 w-full landscape:flex-[6] landscape:min-w-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-haze text-[11px] tracking-[2px] uppercase font-bold">
                       {t("coins.bet.label")}
                     </span>
-                    <span className="text-neon-cyan text-xs font-bold">
+                    <span className="text-neon-cyan text-sm font-bold">
                       🪙 {(user.coins ?? 0).toLocaleString()}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-3 gap-2">
                     {BET_TIERS.map((b) => {
                       const afford = b === 0 || (user.coins ?? 0) >= b;
                       const active = selectedBet === b;
@@ -460,7 +460,7 @@ const LobbyPage = () => {
                           key={b}
                           onClick={() => setSelectedBet(b)}
                           disabled={!afford}
-                          className={`py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                          className={`py-3 rounded-lg text-sm font-bold transition-colors ${
                             active
                               ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/60"
                               : "bg-void border border-edge text-haze hover:text-snow disabled:opacity-40 disabled:cursor-not-allowed"
@@ -473,8 +473,8 @@ const LobbyPage = () => {
                   </div>
                 </div>
 
-                {/* 버튼들 (우측) */}
-                <div className="flex flex-col gap-3 flex-1 w-full min-w-0">
+                {/* 버튼들 (우측, 4) */}
+                <div className="flex flex-col gap-3 w-full landscape:flex-[4] min-w-0">
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
