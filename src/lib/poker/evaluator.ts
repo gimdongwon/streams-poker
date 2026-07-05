@@ -294,13 +294,12 @@ const findNumberCombinations = (
     match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 페어: 인접 2장이 같은 숫자 (조커 포함).
-  // 투페어(3점)로 묶으면 원페어 2개(2+2=4점)보다 손해라, 각각 원페어로 둔다 → 총점 최대.
+  // 페어: 인접 2장이 같은 숫자 (조커 포함). 일단 원페어 후보로 수집.
+  const pairs: ScoredCombination[] = [];
   for (let i = 0; i <= slots.length - 2; i++) {
     const match = checkAdjacentNOfAKind(i, 2);
     if (!match) continue;
-
-    results.push({
+    pairs.push({
       ...COMBINATION_TABLE.find((c) => c.type === "one_pair")!,
       cards: match.cards,
       slotIndices: match.slotIndices,
@@ -308,25 +307,36 @@ const findNumberCombinations = (
     match.cards.forEach((c) => localUsed.add(c.id));
   }
 
-  // 풀하우스 업그레이드: 인접 트리플 + 인접 페어 → 풀하우스(15)가 트리플+페어 합보다 높음
+  // 풀하우스: 인접 트리플 + 페어 1개 → 풀하우스(트리플+페어 합보다 높음). 페어 하나 소모.
   const triples = results.filter((r) => r.type === "triple");
-  const singlePairs = results.filter((r) => r.type === "one_pair");
-
-  if (triples.length > 0 && singlePairs.length > 0) {
+  let remainingPairs = pairs;
+  if (triples.length > 0 && pairs.length > 0) {
     const triple = triples[0];
-    const pairSource = singlePairs[0];
-
+    const pair = pairs[0];
     const fullHouse: ScoredCombination = {
       ...COMBINATION_TABLE.find((c) => c.type === "full_house")!,
-      cards: [...triple.cards, ...pairSource.cards],
-      slotIndices: [...triple.slotIndices, ...pairSource.slotIndices],
+      cards: [...triple.cards, ...pair.cards],
+      slotIndices: [...triple.slotIndices, ...pair.slotIndices],
     };
+    const idx = results.indexOf(triple);
+    if (idx !== -1) results.splice(idx, 1);
+    results.unshift(fullHouse);
+    remainingPairs = pairs.slice(1);
+  }
 
-    const filteredResults = results.filter(
-      (r) => r !== triple && r !== pairSource
-    );
-    filteredResults.unshift(fullHouse);
-    return filteredResults;
+  // 남은 페어는 둘씩 투페어로 병합 (투페어 6 > 원페어 2개 4). 홀수면 마지막 하나는 원페어.
+  for (let i = 0; i + 1 < remainingPairs.length; i += 2) {
+    results.push({
+      ...COMBINATION_TABLE.find((c) => c.type === "two_pair")!,
+      cards: [...remainingPairs[i].cards, ...remainingPairs[i + 1].cards],
+      slotIndices: [
+        ...remainingPairs[i].slotIndices,
+        ...remainingPairs[i + 1].slotIndices,
+      ],
+    });
+  }
+  if (remainingPairs.length % 2 === 1) {
+    results.push(remainingPairs[remainingPairs.length - 1]);
   }
 
   return results;

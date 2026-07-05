@@ -56,33 +56,21 @@ export type ScoredCombination = CombinationInfo & {
   slotIndices: number[];
 };
 
+// 포커 족보 순서(강함=낮은 rank) + 점수 내림차순. score 는 항상 rank 순서와 일치.
+// 포커 규칙: 스트레이트플러시 > 포카드 > 풀하우스 > 플러시 > 스트레이트 > 트리플 > 투페어 > 원페어
+// (투페어는 원페어 2개(2+2=4)보다 높아야 하므로 6점)
 export const COMBINATION_TABLE: CombinationInfo[] = [
-  {
-    type: "royal_straight_flush",
-    name: "로열 스트레이트 플러시",
-    score: 40,
-    rank: 1,
-  },
-  {
-    type: "back_straight_flush",
-    name: "백 스트레이트 플러시",
-    score: 30,
-    rank: 2,
-  },
-  {
-    type: "straight_flush",
-    name: "스트레이트 플러시",
-    score: 25,
-    rank: 3,
-  },
-  { type: "four_of_a_kind", name: "포카드", score: 21, rank: 4 },
-  { type: "mountain", name: "마운틴", score: 14, rank: 5 },
-  { type: "full_house", name: "풀하우스", score: 15, rank: 6 },
-  { type: "back_straight", name: "백스트레이트", score: 12, rank: 7 },
-  { type: "flush", name: "플러시", score: 12, rank: 8 },
-  { type: "straight", name: "스트레이트", score: 12, rank: 9 },
-  { type: "triple", name: "트리플", score: 6, rank: 10 },
-  { type: "two_pair", name: "투페어", score: 3, rank: 11 },
+  { type: "royal_straight_flush", name: "로열 스트레이트 플러시", score: 50, rank: 1 },
+  { type: "back_straight_flush", name: "백 스트레이트 플러시", score: 40, rank: 2 },
+  { type: "straight_flush", name: "스트레이트 플러시", score: 35, rank: 3 },
+  { type: "four_of_a_kind", name: "포카드", score: 30, rank: 4 },
+  { type: "full_house", name: "풀하우스", score: 24, rank: 5 },
+  { type: "flush", name: "플러시", score: 20, rank: 6 },
+  { type: "mountain", name: "마운틴", score: 16, rank: 7 },
+  { type: "straight", name: "스트레이트", score: 14, rank: 8 },
+  { type: "back_straight", name: "백스트레이트", score: 13, rank: 9 },
+  { type: "triple", name: "트리플", score: 10, rank: 10 },
+  { type: "two_pair", name: "투페어", score: 6, rank: 11 },
   { type: "one_pair", name: "원페어", score: 2, rank: 12 },
 ];
 

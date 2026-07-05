@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
+import { COMBINATION_TABLE } from "@/types/game";
 import type { Slot, SlotIndex } from "@/types/game";
 import type { Card, NormalCard, Suit, Rank } from "@/types/card";
 
-// 토큰 표기: 랭크(A 2 3 4 5 6 7 8 9 T J Q K) + 문양(s h d c), 조커는 "*".
-// 예: "Tc" = 클로버 10, "As" = 스페이드 A, "*" = 조커
+// 토큰: 랭크(A 2 3 4 5 6 7 8 9 T J Q K)+문양(s h d c), 조커 "*". 예: "Tc","As","*"
 const RANKMAP: Record<string, Rank> = {
   A: "A", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7",
   "8": "8", "9": "9", T: "10", J: "J", Q: "Q", K: "K",
@@ -18,86 +18,87 @@ const board = (tokens: string[]): Slot[] =>
       const card: Card = { type: "joker", jokerIndex: (i % 2 === 0 ? 1 : 2), id: `joker-${i}` };
       return { index: i as SlotIndex, card };
     }
-    const card: NormalCard = {
-      type: "normal",
-      rank: RANKMAP[tok[0]],
-      suit: SUITMAP[tok[1]],
-      id: `${tok}-${i}`,
-    };
+    const card: NormalCard = { type: "normal", rank: RANKMAP[tok[0]], suit: SUITMAP[tok[1]], id: `${tok}-${i}` };
     return { index: i as SlotIndex, card };
   });
 
-const score = (tokens: string[]): number =>
-  calculateTotalScore(evaluateSlots(board(tokens)));
+const score = (t: string[]): number => calculateTotalScore(evaluateSlots(board(t)));
+const names = (t: string[]): string[] => evaluateSlots(board(t)).map((c) => c.type);
 
-const names = (tokens: string[]): string[] =>
-  evaluateSlots(board(tokens)).map((c) => c.type);
+// ── 배점 표: 포커 순서(강함=낮은 rank)와 점수 내림차순이 일치해야 함 ──
+test("족보 표는 점수 내림차순 + rank 오름차순 정렬", () => {
+  for (let i = 1; i < COMBINATION_TABLE.length; i++) {
+    assert.ok(
+      COMBINATION_TABLE[i - 1].score > COMBINATION_TABLE[i].score,
+      `score 내림차순 위반: ${COMBINATION_TABLE[i - 1].type} > ${COMBINATION_TABLE[i].type}`
+    );
+    assert.equal(COMBINATION_TABLE[i].rank, COMBINATION_TABLE[i - 1].rank + 1);
+  }
+});
+
+const V = Object.fromEntries(COMBINATION_TABLE.map((c) => [c.type, c.score]));
+
+test("포커 룰 배점 관계 — 플러시>스트레이트, 풀하우스>플러시, 포카드>풀하우스, 투페어>원페어2개, 트리플>투페어", () => {
+  assert.ok(V.flush > V.straight);
+  assert.ok(V.full_house > V.flush);
+  assert.ok(V.four_of_a_kind > V.full_house);
+  assert.ok(V.straight_flush > V.four_of_a_kind);
+  assert.ok(V.two_pair > 2 * V.one_pair);
+  assert.ok(V.triple > V.two_pair);
+  assert.ok(V.straight > V.triple);
+});
 
 // ── 스트레이트 위치 최적화 (회귀: 위치에 따라 페어가 깨지던 버그) ──
-test("스트레이트 여러 위치 중 총점 최대 선택 — 5~9로 잡아 4·4 페어 보존", () => {
-  // ranks: 2,5,3,4,4,5,6,7,8,9  → 스트레이트(5~9) + 원페어(4,4) = 14
+test("스트레이트 여러 위치 중 총점 최대 — 5~9로 잡아 4·4 페어 보존", () => {
   const p2 = ["2c", "5d", "3s", "4c", "4h", "5h", "6c", "7d", "8d", "9c"];
-  assert.equal(score(p2), 14);
+  assert.equal(score(p2), V.straight + V.one_pair); // 14 + 2 = 16
   assert.deepEqual(names(p2).sort(), ["one_pair", "straight"].sort());
 });
 
-test("같은 형태 두 보드는 같은 점수(위치 무관)", () => {
+test("같은 형태 두 보드는 같은 점수", () => {
   const a = ["2c", "3s", "4s", "4h", "5h", "5d", "6c", "7d", "8d", "9c"];
   const b = ["2c", "5d", "3s", "4c", "4h", "5h", "6c", "7d", "8d", "9c"];
   assert.equal(score(a), score(b));
-  assert.equal(score(a), 14);
 });
 
-// ── 기본 조합 점수 ──
-test("순수 스트레이트 = 12", () => {
-  assert.equal(score(["5c", "6s", "7h", "8d", "9c", "Ac", "2h", "Kd", "Js", "Qh"]), 12);
+// ── 기본 조합 ──
+test("순수 스트레이트", () => {
+  assert.equal(score(["5c", "6s", "7h", "8d", "9c", "Ac", "2h", "Kd", "Js", "Qh"]), V.straight);
 });
-
-test("스트레이트 플러시 = 25", () => {
-  assert.equal(score(["5c", "6c", "7c", "8c", "9c", "Ah", "2s", "Kd", "Js", "Qh"]), 25);
+test("스트레이트 플러시", () => {
+  assert.equal(score(["5c", "6c", "7c", "8c", "9c", "Ah", "2s", "Kd", "Js", "Qh"]), V.straight_flush);
 });
-
-test("로열 스트레이트 플러시 = 40", () => {
-  assert.equal(score(["Tc", "Jc", "Qc", "Kc", "Ac", "2h", "4s", "6d", "8s", "9h"]), 40);
+test("로열 스트레이트 플러시", () => {
+  assert.equal(score(["Tc", "Jc", "Qc", "Kc", "Ac", "2h", "4s", "6d", "8s", "9h"]), V.royal_straight_flush);
 });
-
-test("포카드(인접 4장) = 21", () => {
-  assert.equal(score(["7c", "7s", "7h", "7d", "2c", "4h", "9s", "Jd", "Kc", "3s"]), 21);
+test("포카드", () => {
+  assert.equal(score(["7c", "7s", "7h", "7d", "2c", "4h", "9s", "Jd", "Kc", "3s"]), V.four_of_a_kind);
 });
-
-test("풀하우스(인접 트리플+인접 페어) = 15", () => {
-  assert.equal(score(["7c", "7s", "7h", "9c", "9s", "2d", "4h", "Jc", "Ks", "3d"]), 15);
+test("풀하우스(인접 트리플+페어)", () => {
+  assert.equal(score(["7c", "7s", "7h", "9c", "9s", "2d", "4h", "Jc", "Ks", "3d"]), V.full_house);
 });
-
-test("원페어 = 2", () => {
-  assert.equal(score(["5c", "5s", "2h", "8d", "Tc", "3h", "9s", "Jd", "Kc", "7s"]), 2);
+test("원페어", () => {
+  assert.equal(score(["5c", "5s", "2h", "8d", "Tc", "3h", "9s", "Jd", "Kc", "7s"]), V.one_pair);
 });
-
-test("페어 2개는 원페어 2개로 = 4 (투페어로 묶지 않음)", () => {
-  const r = score(["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"]);
-  assert.equal(r, 4);
-  assert.deepEqual(names(["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"]), ["one_pair", "one_pair"]);
+test("페어 2개 → 투페어로 병합", () => {
+  const t = ["3c", "3s", "8h", "8d", "2c", "5h", "9s", "Jd", "Kc", "6s"];
+  assert.equal(score(t), V.two_pair);
+  assert.deepEqual(names(t), ["two_pair"]);
 });
-
-test("페어 4개(실측 보드) = 8", () => {
-  // A A 7 2 2 / 10 8 8 J J
-  assert.equal(score(["Ad", "Ah", "7h", "2c", "2s", "Tc", "8s", "8c", "Jh", "Jc"]), 8);
+test("페어 4개 → 투페어 2개", () => {
+  assert.equal(score(["Ad", "Ah", "7h", "2c", "2s", "Tc", "8s", "8c", "Jh", "Jc"]), V.two_pair * 2);
 });
-
-test("페어 3개 = 6", () => {
-  // A A _ 2 2 / 7 10 _ J J 처럼 페어 3개만 남는 케이스
-  assert.equal(score(["Ad", "Ah", "5s", "2h", "2c", "7s", "Tc", "4d", "Jh", "Jc"]), 6);
+test("페어 3개 → 투페어 + 원페어", () => {
+  assert.equal(score(["Ad", "Ah", "5s", "2h", "2c", "7s", "Tc", "4d", "Jh", "Jc"]), V.two_pair + V.one_pair);
 });
-
 test("조합 없음 = 0", () => {
   assert.equal(score(["2c", "7s", "3h", "9d", "5c", "Js", "Kh", "4d", "Qc", "8s"]), 0);
 });
 
 // ── 조커 ──
-test("조커가 스트레이트 플러시 완성 (5,6,*,8,9 클로버) = 25", () => {
-  assert.equal(score(["5c", "6c", "*", "8c", "9c", "Ah", "2s", "Kd", "Js", "Qh"]), 25);
+test("조커가 스트레이트 플러시 완성 (5,6,*,8,9 클로버)", () => {
+  assert.equal(score(["5c", "6c", "*", "8c", "9c", "Ah", "2s", "Kd", "Js", "Qh"]), V.straight_flush);
 });
-
-test("조커가 포카드 완성 (7,7,*,7 인접) = 21", () => {
-  assert.equal(score(["7c", "7s", "*", "7h", "2c", "4h", "9s", "Jd", "Kc", "3s"]), 21);
+test("조커가 포카드 완성 (7,7,*,7 인접)", () => {
+  assert.equal(score(["7c", "7s", "*", "7h", "2c", "4h", "9s", "Jd", "Kc", "3s"]), V.four_of_a_kind);
 });
