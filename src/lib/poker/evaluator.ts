@@ -371,53 +371,32 @@ const sumScore = (combos: ScoredCombination[]): number =>
 
 // ─── 주어진 스트레이트 후보로 전체 평가 수행 ───
 
-const evaluateWithStraightCandidates = (
+// 하나의 스트레이트(또는 없음)를 기준으로 나머지(플러시/숫자 조합)를 최적 배치해 결과 산출.
+const buildFromStraight = (
   slots: Slot[],
-  candidateStraights: ScoredCombination[]
+  straight: ScoredCombination | null
 ): ScoredCombination[] => {
   const baseUsed = new Set<string>();
   const baseCombos: ScoredCombination[] = [];
-
-  // 스트레이트 플러시 우선
-  const straightFlushes = candidateStraights.filter(
-    (c) =>
-      c.type === "royal_straight_flush" ||
-      c.type === "back_straight_flush" ||
-      c.type === "straight_flush"
-  );
-
   let hasStraightFlush = false;
 
-  if (straightFlushes.length > 0) {
-    const best = straightFlushes.sort((a, b) => a.rank - b.rank)[0];
-    baseCombos.push(best);
-    best.cards.forEach((c) => baseUsed.add(c.id));
-    hasStraightFlush = true;
-  } else {
-    const plainStraights = candidateStraights.filter(
-      (c) =>
-        c.type === "mountain" ||
-        c.type === "back_straight" ||
-        c.type === "straight"
-    );
-    if (plainStraights.length > 0) {
-      const best = plainStraights.sort((a, b) => a.rank - b.rank)[0];
-      baseCombos.push(best);
-      best.cards.forEach((c) => baseUsed.add(c.id));
-    }
+  if (straight) {
+    baseCombos.push(straight);
+    straight.cards.forEach((c) => baseUsed.add(c.id));
+    hasStraightFlush =
+      straight.type === "royal_straight_flush" ||
+      straight.type === "back_straight_flush" ||
+      straight.type === "straight_flush";
   }
 
   if (hasStraightFlush) {
-    const numberCombos = findNumberCombinations(slots, baseUsed);
-    return [...baseCombos, ...numberCombos];
+    return [...baseCombos, ...findNumberCombinations(slots, baseUsed)];
   }
 
   // 플러시 vs 숫자 조합 최적화 (두 순서 모두 시도)
-  // 옵션 A: 플러시 먼저 → 숫자 조합
   const usedA = new Set(baseUsed);
   const flushA = findFlushes(slots, usedA);
   const combosA: ScoredCombination[] = [];
-
   if (flushA.length > 0) {
     combosA.push(flushA[0]);
     flushA[0].cards.forEach((c) => usedA.add(c.id));
@@ -425,21 +404,36 @@ const evaluateWithStraightCandidates = (
   combosA.push(...findNumberCombinations(slots, usedA));
   const scoreA = sumScore(combosA);
 
-  // 옵션 B: 숫자 조합 먼저 → 플러시
   const usedB = new Set(baseUsed);
   const numberB = findNumberCombinations(slots, usedB);
   const combosB: ScoredCombination[] = [...numberB];
   numberB.forEach((c) => c.cards.forEach((card) => usedB.add(card.id)));
-
   const flushB = findFlushes(slots, usedB);
-  if (flushB.length > 0) {
-    combosB.push(flushB[0]);
-  }
+  if (flushB.length > 0) combosB.push(flushB[0]);
   const scoreB = sumScore(combosB);
 
-  const bestOption = scoreA >= scoreB ? combosA : combosB;
+  return [...baseCombos, ...(scoreA >= scoreB ? combosA : combosB)];
+};
 
-  return [...baseCombos, ...bestOption];
+const evaluateWithStraightCandidates = (
+  slots: Slot[],
+  candidateStraights: ScoredCombination[]
+): ScoredCombination[] => {
+  // 후보 스트레이트(여러 위치/종류)를 각각 기준으로 시도 + 스트레이트 미사용까지 비교해
+  // 총점이 가장 높은 조합 집합을 채택한다. (동일 형태라도 위치에 따라 남는 페어 등이 달라짐)
+  const options: (ScoredCombination | null)[] = [...candidateStraights, null];
+
+  let bestResult: ScoredCombination[] = [];
+  let bestScore = -1;
+  for (const st of options) {
+    const res = buildFromStraight(slots, st);
+    const sc = sumScore(res);
+    if (sc > bestScore) {
+      bestScore = sc;
+      bestResult = res;
+    }
+  }
+  return bestResult;
 };
 
 // ─── 메인 평가 함수 ───
