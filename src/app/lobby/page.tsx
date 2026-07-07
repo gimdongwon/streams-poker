@@ -14,7 +14,7 @@ import { TierProgress } from "@/components/common/TierProgress";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
-import { showRewardedAd } from "@/lib/ads";
+// import { showRewardedAd } from "@/lib/ads"; // 임시 광고 테스트 버튼용 (아래 주석 참고)
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -688,7 +688,7 @@ const LobbyPage = () => {
           right: "max(1rem, env(safe-area-inset-right))",
         }}
       >
-        {/* 임시: AdMob 리워드 광고 테스트 버튼 (확인 후 제거 예정) */}
+        {/* 임시: AdMob 리워드 광고 테스트 버튼 (필요 시 위 import와 함께 주석 해제)
         <button
           onClick={async () => {
             const outcome = await showRewardedAd({ test: true });
@@ -698,6 +698,7 @@ const LobbyPage = () => {
         >
           🎬 광고 테스트
         </button>
+        */}
         <DailyRewardButton />
       </div>
     </div>
