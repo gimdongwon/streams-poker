@@ -135,14 +135,14 @@ npx cap open ios         # Xcode 열기
 ### 8.1 리워드 광고 (일일 보상)
 - 코드: `src/lib/ads.ts` (초기화 + 리워드 노출), `DailyRewardButton`에서 보상 전 광고 노출, `CapacitorBootstrap`에서 초기화 + ATT 요청.
 - **광고 단위 ID (실제)** 는 `src/lib/ads.ts` 에 반영 완료 ✅
-  - iOS 리워드: `ca-app-pub-9943215492404656/2315068499`
-  - Android 리워드: `ca-app-pub-9943215492404656/7371954051`
+  - iOS 리워드: `ca-app-pub-1157070050571953/2495101707`
+  - Android 리워드: `ca-app-pub-1157070050571953/2437472942`
 - **앱 ID (~)** — 네이티브에 설정:
-  - Android: `AndroidManifest.xml` 에 반영 완료 ✅ (`ca-app-pub-9943215492404656~3219132226`)
+  - Android: `AndroidManifest.xml` 에 반영 완료 ✅ (`ca-app-pub-1157070050571953~1315962960`)
   - iOS: `ios/App/App/Info.plist` 에 아래 추가 (Mac에서 `cap add ios` 후):
     ```xml
     <key>GADApplicationIdentifier</key>
-    <string>ca-app-pub-9943215492404656~4280932456</string>
+    <string>ca-app-pub-1157070050571953~6220769890</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>맞춤 광고를 제공하기 위해 사용자 활동을 추적합니다.</string>
     <!-- SKAdNetworkItems 는 AdMob 문서의 최신 목록을 붙여넣기:
