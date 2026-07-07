@@ -8,8 +8,9 @@ export const GET = async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") ?? "20", 10);
+    const sort = searchParams.get("sort") === "coins" ? "coins" : "score";
 
-    const data = await fetchUserRankings(limit);
+    const data = await fetchUserRankings(limit, sort);
     return NextResponse.json(data);
   } catch (err) {
     console.error("GET /api/leaderboard error:", err);

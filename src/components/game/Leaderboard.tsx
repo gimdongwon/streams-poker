@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { UserRankingEntry } from "@/types/leaderboard";
+import type { UserRankingEntry, LeaderboardSort } from "@/types/leaderboard";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { useT } from "@/lib/i18n/useT";
@@ -23,12 +23,13 @@ export const Leaderboard = ({
   const [entries, setEntries] = useState<UserRankingEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [sort, setSort] = useState<LeaderboardSort>("score");
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);
     setHasError(false);
     try {
-      const res = await fetchWithTimeout("/api/leaderboard?limit=10");
+      const res = await fetchWithTimeout(`/api/leaderboard?limit=10&sort=${sort}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data: UserRankingEntry[] = await res.json();
       setEntries(data);
@@ -37,7 +38,7 @@ export const Leaderboard = ({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [sort]);
 
   useEffect(() => {
     handleFetch();
@@ -75,14 +76,32 @@ export const Leaderboard = ({
         <h3 className="text-sm font-bold text-snow flex items-center gap-2">
           <span>🏆</span> {t("leaderboard.title")}
         </h3>
-        <button
-          onClick={handleFetch}
-          className="text-haze hover:text-snow text-xs transition-colors px-2 py-1 rounded-lg hover:bg-edge"
-          aria-label={t("common.refresh")}
-          tabIndex={0}
-        >
-          {t("common.refresh")}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <div className="flex rounded-lg border border-edge overflow-hidden text-[10px] font-medium">
+            {(["score", "coins"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSort(s)}
+                className={`px-2 py-1 transition-colors ${
+                  sort === s
+                    ? "bg-neon-cyan text-void font-bold"
+                    : "text-haze hover:bg-edge"
+                }`}
+                aria-pressed={sort === s}
+              >
+                {t(`leaderboard.sort.${s}`)}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleFetch}
+            className="text-haze hover:text-snow text-xs transition-colors px-2 py-1 rounded-lg hover:bg-edge"
+            aria-label={t("common.refresh")}
+            tabIndex={0}
+          >
+            {t("common.refresh")}
+          </button>
+        </div>
       </div>
 
       {entries.length === 0 ? (
@@ -92,10 +111,11 @@ export const Leaderboard = ({
       ) : (
         <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
           {/* 헤더 */}
-          <div className="grid grid-cols-[2.5rem_1fr_5rem_3.5rem] gap-2 px-3 py-1.5 text-haze text-[10px] tracking-[1px] uppercase font-medium">
+          <div className="grid grid-cols-[2rem_1fr_4rem_4rem_2.5rem] gap-2 px-3 py-1.5 text-haze text-[10px] tracking-[1px] uppercase font-medium">
             <span>#</span>
             <span>{t("leaderboard.col.nickname")}</span>
-            <span className="text-right">{t("leaderboard.col.totalScore")}</span>
+            <span className={`text-right ${sort === "score" ? "text-neon-cyan" : ""}`}>{t("leaderboard.col.totalScore")}</span>
+            <span className={`text-right ${sort === "coins" ? "text-neon-cyan" : ""}`}>{t("leaderboard.col.coins")}</span>
             <span className="text-right">{t("leaderboard.col.games")}</span>
           </div>
 
@@ -112,7 +132,7 @@ export const Leaderboard = ({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.03 }}
-                  className={`grid grid-cols-[2.5rem_1fr_5rem_3.5rem] gap-2 px-3 py-2.5 rounded-lg items-center transition-colors ${
+                  className={`grid grid-cols-[2rem_1fr_4rem_4rem_2.5rem] gap-2 px-3 py-2.5 rounded-lg items-center transition-colors ${
                     isHighlighted
                       ? "bg-neon-cyan/15 border border-neon-cyan/40"
                       : isTop3
@@ -159,10 +179,18 @@ export const Leaderboard = ({
 
                   <span
                     className={`text-right font-bold text-sm ${
-                      isTop3 ? "text-yellow-400" : "text-snow"
+                      sort === "score" && isTop3 ? "text-yellow-400" : "text-snow"
                     }`}
                   >
                     {entry.total_score}
+                  </span>
+
+                  <span
+                    className={`text-right font-bold text-sm ${
+                      sort === "coins" && isTop3 ? "text-yellow-400" : "text-neon-cyan"
+                    }`}
+                  >
+                    {entry.coins.toLocaleString()}
                   </span>
 
                   <span className="text-right text-haze text-xs">
