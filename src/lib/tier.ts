@@ -14,10 +14,10 @@ export type Tier = {
 // 누적 점수 기준. 한 판 최고 ~50점이라, 상위 티어는 상당한 플레이가 필요하도록 상향.
 export const TIERS: Tier[] = [
   { key: "bronze", label: "Bronze", min: 0, color: "#cd7f32" },
-  { key: "silver", label: "Silver", min: 500, color: "#c0c0c0" },
-  { key: "gold", label: "Gold", min: 2000, color: "#f5c518" },
-  { key: "platinum", label: "Platinum", min: 5000, color: "#5fe3c6" },
-  { key: "diamond", label: "Diamond", min: 12000, color: "#6ec6ff" },
+  { key: "silver", label: "Silver", min: 300, color: "#c0c0c0" },
+  { key: "gold", label: "Gold", min: 900, color: "#f5c518" },
+  { key: "platinum", label: "Platinum", min: 2100, color: "#5fe3c6" },
+  { key: "diamond", label: "Diamond", min: 4500, color: "#6ec6ff" },
 ];
 
 // 누적 점수에 해당하는 (가장 높은 충족) 티어 반환.
