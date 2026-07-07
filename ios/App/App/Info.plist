@@ -46,7 +46,7 @@
 	<true/>
 	<!-- AdMob: iOS 앱 ID -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-9943215492404656~4280932456</string>
+	<string>ca-app-pub-1157070050571953~6220769890</string>
 	<!-- ATT: 추적 권한 요청 문구 (맞춤 광고용) -->
 	<key>NSUserTrackingUsageDescription</key>
 	<string>맞춤형 광고를 제공하기 위해 기기의 광고 식별자 사용에 동의를 요청합니다.</string>

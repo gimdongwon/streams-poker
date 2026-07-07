@@ -4,8 +4,8 @@ import { Capacitor } from "@capacitor/core";
 
 // AdMob 리워드 광고 단위 ID (실제). 앱 ID(~)는 네이티브(Info.plist/AndroidManifest)에 설정.
 const REWARDED_AD_ID = {
-  ios: "ca-app-pub-9943215492404656/2315068499",
-  android: "ca-app-pub-9943215492404656/7371954051",
+  ios: "ca-app-pub-1157070050571953/2495101707",
+  android: "ca-app-pub-1157070050571953/2437472942",
 };
 
 let initialized = false;
