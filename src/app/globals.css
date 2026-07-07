@@ -39,3 +39,19 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* 노치·둥근 모서리(세이프 에어리어) 회피 패딩. 기본 0.75rem, 인셋이 더 크면 인셋 사용.
+   전체화면 가로모드(게임/결과)에서 카드가 화면 가장자리에 잘리는 문제 방지.
+   viewport-fit=cover 와 함께 동작. */
+.safe-pad {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+}
+
+/* 좌우만 세이프 에어리어 적용 (상·하 패딩은 기존 유틸 유지) */
+.safe-pad-x {
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}

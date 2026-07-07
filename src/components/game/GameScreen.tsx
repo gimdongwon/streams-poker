@@ -202,7 +202,7 @@ export const GameScreen = ({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] p-3">
+    <div className="flex flex-col items-center justify-center min-h-[100dvh] safe-pad">
       <div className="flex items-center justify-between w-full max-w-3xl py-1 mb-2">
         <div className="flex items-center gap-2">
           <Logo size="sm" />

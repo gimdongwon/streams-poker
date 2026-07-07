@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GlobalHandRankings } from "@/components/common/GlobalHandRankings";
@@ -23,6 +23,13 @@ const SITE_URL = "https://www.tentens.kr";
 const OG_TITLE = "TENTENS · 같은 카드, 다른 전략";
 const OG_DESCRIPTION =
   "10장의 카드를 배치해 최고 점수에 도전하는 실시간 카드 게임";
+
+// viewport-fit=cover → env(safe-area-inset-*) 활성화 (노치·둥근 모서리 회피용)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

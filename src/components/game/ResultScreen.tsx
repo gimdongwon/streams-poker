@@ -173,7 +173,7 @@ export const ResultScreen = ({
   );
 
   return (
-    <div className="relative h-[100dvh] w-full flex flex-col p-3 overflow-hidden">
+    <div className="relative h-[100dvh] w-full flex flex-col safe-pad overflow-hidden">
       {/* header */}
       <div className="flex items-center justify-between mb-2 shrink-0">
         <div className="flex items-center gap-2">

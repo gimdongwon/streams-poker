@@ -159,7 +159,7 @@ const LobbyPage = () => {
   if (!hasHydrated || !isLoggedIn || !user) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto">
+    <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -680,7 +680,13 @@ const LobbyPage = () => {
       </div>
 
       {/* 우측 하단 고정: 일일 보상 받기 (추후 AdMob 리워드 광고 연결) */}
-      <div className="fixed bottom-4 right-4 z-40">
+      <div
+        className="fixed z-40"
+        style={{
+          bottom: "max(1rem, env(safe-area-inset-bottom))",
+          right: "max(1rem, env(safe-area-inset-right))",
+        }}
+      >
         <DailyRewardButton />
       </div>
     </div>
