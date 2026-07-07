@@ -691,7 +691,7 @@ const LobbyPage = () => {
         {/* 임시: AdMob 리워드 광고 테스트 버튼 (확인 후 제거 예정) */}
         <button
           onClick={async () => {
-            const outcome = await showRewardedAd();
+            const outcome = await showRewardedAd({ test: true });
             window.alert(`광고 결과: ${outcome}`);
           }}
           className="py-2.5 px-4 rounded-2xl text-xs font-extrabold bg-panel border border-edge text-snow active:scale-95 transition-all shadow-lg shadow-black/40"
