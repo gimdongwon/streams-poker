@@ -55,3 +55,14 @@ body {
   padding-left: max(0.75rem, env(safe-area-inset-left));
   padding-right: max(0.75rem, env(safe-area-inset-right));
 }
+
+/* iOS WKWebView에서 확실히 스크롤되는 전체화면 컨테이너.
+   min-height + 바디 스크롤은 웹뷰(가로 고정)에서 동작하지 않아, 뷰포트에 고정하고
+   컨테이너 내부에서 세로 스크롤을 만든다. */
+.scroll-screen {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}

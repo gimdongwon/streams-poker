@@ -92,7 +92,7 @@ const MyPage = () => {
   })();
 
   return (
-    <div className="h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-y-auto safe-pad-x">
+    <div className="scroll-screen bg-void flex flex-col items-center p-3 pb-16 safe-pad-x">
       <div className="w-full max-w-lg">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-4">

@@ -24,8 +24,9 @@ const config: CapacitorConfig = {
   ios: {
     // 원격 로드 전/노치 영역 배경 (다크 테마와 맞춤)
     backgroundColor: "#0b0b12",
-    // 웹뷰 자체 바운스 스크롤 비활성 — 앱 내부에서만 스크롤(앱다운 느낌, 4.2 대비)
-    scrollEnabled: false,
+    // 스크롤 허용. (false 로 두면 마이페이지·개인정보처리방침 등 긴 페이지가
+    //  스크롤되지 않는다. 게임/결과 화면은 고정 높이라 어차피 스크롤/바운스가 없음.)
+    scrollEnabled: true,
   },
   plugins: {
     SplashScreen: {
