@@ -14,6 +14,7 @@ import { TierProgress } from "@/components/common/TierProgress";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
+import { showRewardedAd } from "@/lib/ads";
 import { useT } from "@/lib/i18n/useT";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -681,12 +682,22 @@ const LobbyPage = () => {
 
       {/* 우측 하단 고정: 일일 보상 받기 (추후 AdMob 리워드 광고 연결) */}
       <div
-        className="fixed z-40"
+        className="fixed z-40 flex items-center gap-2"
         style={{
           bottom: "max(1rem, env(safe-area-inset-bottom))",
           right: "max(1rem, env(safe-area-inset-right))",
         }}
       >
+        {/* 임시: AdMob 리워드 광고 테스트 버튼 (확인 후 제거 예정) */}
+        <button
+          onClick={async () => {
+            const outcome = await showRewardedAd();
+            window.alert(`광고 결과: ${outcome}`);
+          }}
+          className="py-2.5 px-4 rounded-2xl text-xs font-extrabold bg-panel border border-edge text-snow active:scale-95 transition-all shadow-lg shadow-black/40"
+        >
+          🎬 광고 테스트
+        </button>
         <DailyRewardButton />
       </div>
     </div>
