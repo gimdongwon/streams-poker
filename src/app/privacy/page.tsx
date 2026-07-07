@@ -20,7 +20,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 
 const PrivacyPage = () => {
   return (
-    <main className="min-h-[100dvh] bg-void text-snow">
+    <main className="h-[100dvh] overflow-y-auto bg-void text-snow safe-pad-x">
       <div className="mx-auto w-full max-w-2xl px-5 py-10">
         <Link href="/lobby" className="text-haze hover:text-snow text-xs">
           ← 돌아가기
