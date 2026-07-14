@@ -93,7 +93,8 @@ const deleteToken = async (token: string): Promise<void> => {
 // FCM 에러 응답이 "토큰 자체가 무효"임을 뜻하면 true (삭제 대상)
 const isInvalidTokenError = (status: number, body: string): boolean => {
   if (status === 404) return true; // UNREGISTERED
-  return /UNREGISTERED|INVALID_ARGUMENT|SENDER_ID_MISMATCH|registration token/i.test(
+  // THIRD_PARTY_AUTH_ERROR: 대개 다른 팀/환경으로 발급된 stale 토큰(재빌드 전 옛 토큰) → 정리
+  return /UNREGISTERED|INVALID_ARGUMENT|SENDER_ID_MISMATCH|THIRD_PARTY_AUTH_ERROR|registration token/i.test(
     body
   );
 };
