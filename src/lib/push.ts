@@ -80,6 +80,24 @@ const getUserTokens = async (userId: string): Promise<string[]> => {
   }
 };
 
+// 무효/만료된 토큰을 테이블에서 제거 (다음 발송부터 제외 → 자동 정리)
+const deleteToken = async (token: string): Promise<void> => {
+  try {
+    await supabase.from("push_tokens").delete().eq("token", token);
+    console.log(`[Push] 무효 토큰 삭제: ...${token.slice(-12)}`);
+  } catch {
+    // 무시
+  }
+};
+
+// FCM 에러 응답이 "토큰 자체가 무효"임을 뜻하면 true (삭제 대상)
+const isInvalidTokenError = (status: number, body: string): boolean => {
+  if (status === 404) return true; // UNREGISTERED
+  return /UNREGISTERED|INVALID_ARGUMENT|SENDER_ID_MISMATCH|registration token/i.test(
+    body
+  );
+};
+
 // 특정 유저의 모든 기기로 푸시 발송. 실패는 조용히 무시(fire-and-forget 권장).
 export const sendPushToUser = async (
   userId: string,
@@ -132,7 +150,10 @@ export const sendPushToUser = async (
       }).then(async (r) => {
         if (!r.ok) {
           const body = await r.text();
-          console.log(`[Push] FCM 실패 HTTP ${r.status}: ${body.slice(0, 300)}`);
+          console.log(
+            `[Push] FCM 실패 HTTP ${r.status} (토큰 ...${token.slice(-12)}): ${body.slice(0, 500)}`
+          );
+          if (isInvalidTokenError(r.status, body)) await deleteToken(token);
         } else {
           console.log("[Push] FCM 발송 성공");
         }
