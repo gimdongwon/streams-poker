@@ -16,6 +16,7 @@ import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
 // import { showRewardedAd } from "@/lib/ads"; // 임시 광고 테스트 버튼용 (아래 주석 참고)
 import { useT } from "@/lib/i18n/useT";
+import { UpgradeAccountModal } from "@/components/auth/UpgradeAccountModal";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
@@ -37,6 +38,17 @@ const LobbyPage = () => {
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
   const [selectedBet, setSelectedBet] = useState(0);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  // 멀티 진입: 게스트면 승격 모달을, 정식 계정이면 멀티 화면으로.
+  const enterMultiplayer = () => {
+    setError("");
+    if (user?.is_guest) {
+      setShowUpgrade(true);
+    } else {
+      setMode("multi_create");
+    }
+  };
 
   // 로비 진입 시 진행 중이던 게임 상태를 정리한다.
   // (뒤로가기 등으로 handleBackToLobby 를 거치지 않고 로비에 온 경우,
@@ -74,11 +86,8 @@ const LobbyPage = () => {
     };
   }, [user?.id]);
 
-  useEffect(() => {
-    if (hasHydrated && !isLoggedIn) {
-      router.replace("/login");
-    }
-  }, [hasHydrated, isLoggedIn, router]);
+  // 입구 로그인 벽 제거: 세션은 SessionBootstrap(layout)이 게스트로 자동 확보한다.
+  // 익명 우선 전략 — 멀티 입구에서만 정식 계정을 요구한다.
 
   useEffect(() => {
     if (user?.nickname) {
@@ -161,6 +170,16 @@ const LobbyPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
+      {/* 멀티 입구 승격 모달 (게스트 → 정식 계정) */}
+      <UpgradeAccountModal
+        open={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        onUpgraded={() => {
+          setShowUpgrade(false);
+          setMode("multi_create");
+        }}
+      />
+
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -429,10 +448,7 @@ const LobbyPage = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setMode("multi_create");
-                    setError("");
-                  }}
+                  onClick={enterMultiplayer}
                   className="w-full py-3 px-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.mode.multi.aria")}
                 >
@@ -699,7 +715,8 @@ const LobbyPage = () => {
           🎬 광고 테스트
         </button>
         */}
-        <DailyRewardButton />
+        {/* 일일 보상은 정식 계정만 (게스트 어뷰징 방지) */}
+        {!user.is_guest && <DailyRewardButton />}
       </div>
     </div>
   );

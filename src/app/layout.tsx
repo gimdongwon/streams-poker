@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { GlobalHandRankings } from "@/components/common/GlobalHandRankings";
 import { OrientationGate } from "@/components/common/OrientationGate";
 import { CapacitorBootstrap } from "@/components/common/CapacitorBootstrap";
+import { SessionBootstrap } from "@/components/common/SessionBootstrap";
 import "./globals.css";
 
 const GA_TRACKING_ID = "G-TFPP8C8KDJ";
@@ -101,6 +102,7 @@ export default function RootLayout({
           />
         </noscript>
         {children}
+        <SessionBootstrap />
         <CapacitorBootstrap />
         <OrientationGate />
         <GlobalHandRankings />

@@ -14,6 +14,14 @@ type AuthStore = {
     nickname: string,
     password: string
   ) => Promise<string | null>;
+  // 세션이 없으면 익명 게스트 세션을 만든다(앱 부팅 시 호출).
+  ensureSession: () => Promise<void>;
+  // 게스트 → 정식 계정 승격 (같은 id 유지, 전적 승계).
+  upgrade: (
+    username: string,
+    nickname: string,
+    password: string
+  ) => Promise<string | null>;
   logout: () => void;
   setCoins: (coins: number) => void;
   refreshCoins: () => Promise<boolean>; // 반환: 오늘 일일보상 수령 가능 여부
@@ -64,6 +72,39 @@ export const useAuthStore = create<AuthStore>()(
           const data = await res.json();
 
           if (!res.ok) return data.error ?? "회원가입에 실패했습니다";
+
+          set({ user: data.user, isLoggedIn: true, forcedOut: false });
+          return null;
+        } catch {
+          return "서버 연결에 실패했습니다";
+        }
+      },
+
+      ensureSession: async () => {
+        if (get().user) return; // 이미 세션 있음(게스트/정식 무관)
+        try {
+          const res = await fetch("/api/auth/guest", { method: "POST" });
+          const data = await res.json();
+          if (!res.ok) return;
+          set({ user: data.user, isLoggedIn: true, forcedOut: false });
+        } catch {
+          // 오프라인 등 — 무시 (다음 진입 시 재시도)
+        }
+      },
+
+      upgrade: async (username, nickname, password) => {
+        const { user } = get();
+        if (!user) return "세션이 없습니다";
+        try {
+          const res = await fetch("/api/auth/upgrade", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id, username, nickname, password }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) return data.error ?? "승격에 실패했습니다";
 
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
           return null;
