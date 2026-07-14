@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
 import { useAuthStore } from "@/stores/authStore";
+import { isSocialEnabled } from "@/lib/socialAuth";
 
 // 멀티 입구 승격 모달. 게스트가 실시간 대전에 진입할 때 처음으로 계정을 요구한다.
 // 같은 users.id 를 유지한 채 승격하므로 싱글에서 쌓은 전적/코인이 그대로 이어진다.
@@ -19,6 +21,9 @@ export function UpgradeAccountModal({
 }) {
   const router = useRouter();
   const upgrade = useAuthStore((s) => s.upgrade);
+  const socialUpgrade = useAuthStore((s) => s.socialUpgrade);
+  const social = isSocialEnabled();
+  const platform = Capacitor.getPlatform();
   const [username, setUsername] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +34,19 @@ export function UpgradeAccountModal({
     if (busy) return;
     setError(null);
     onClose();
+  };
+
+  const handleSocial = async (provider: "apple" | "google") => {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
+    const err = await socialUpgrade(provider);
+    if (err) {
+      setError(err);
+      setBusy(false);
+      return;
+    }
+    onUpgraded();
   };
 
   const handleUpgrade = async () => {
@@ -72,6 +90,34 @@ export function UpgradeAccountModal({
             <p className="text-haze text-xs leading-relaxed mb-4">
               계정을 만들면 지금까지의 기록이 안전하게 저장되고, 다른 사람과 실시간으로 대전할 수 있어요.
             </p>
+
+            {social && (
+              <div className="mb-3 flex flex-col gap-2">
+                {platform === "ios" && (
+                  <button
+                    onClick={() => handleSocial("apple")}
+                    disabled={busy}
+                    className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    Apple로 계속하기
+                  </button>
+                )}
+                {platform === "android" && (
+                  <button
+                    onClick={() => handleSocial("google")}
+                    disabled={busy}
+                    className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    Google로 계속하기
+                  </button>
+                )}
+                <div className="flex items-center gap-2 my-1">
+                  <div className="flex-1 h-px bg-edge" />
+                  <span className="text-haze text-[10px]">또는 아이디로</span>
+                  <div className="flex-1 h-px bg-edge" />
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-2">
               <input

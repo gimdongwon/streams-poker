@@ -22,6 +22,8 @@ type AuthStore = {
     nickname: string,
     password: string
   ) => Promise<string | null>;
+  // 게스트 → 네이티브 소셜(Apple/Google) 승격. 같은 id 유지 or 기존 계정 로그인(충돌).
+  socialUpgrade: (provider: "apple" | "google") => Promise<string | null>;
   logout: () => void;
   setCoins: (coins: number) => void;
   refreshCoins: () => Promise<boolean>; // 반환: 오늘 일일보상 수령 가능 여부
@@ -110,6 +112,26 @@ export const useAuthStore = create<AuthStore>()(
           return null;
         } catch {
           return "서버 연결에 실패했습니다";
+        }
+      },
+
+      socialUpgrade: async (provider) => {
+        const { user } = get();
+        try {
+          const { socialLogin } = await import("@/lib/socialAuth");
+          const { idToken, name } = await socialLogin(provider);
+          if (!idToken) return "소셜 로그인 토큰을 받지 못했습니다";
+          const res = await fetch("/api/auth/social", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ provider, idToken, currentUserId: user?.id, name }),
+          });
+          const data = await res.json();
+          if (!res.ok) return data.error ?? "소셜 로그인에 실패했습니다";
+          set({ user: data.user, isLoggedIn: true, forcedOut: false });
+          return null;
+        } catch {
+          return "소셜 로그인이 취소되었거나 실패했습니다";
         }
       },
 
