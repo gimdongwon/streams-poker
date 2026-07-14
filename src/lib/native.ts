@@ -30,6 +30,9 @@ export const hapticSuccess = async (): Promise<void> => {
 // 가로모드 고정 (랜드스케이프 우선 게임)
 export const lockLandscape = async (): Promise<void> => {
   if (!isNative()) return;
+  // Android: 매니페스트 screenOrientation="sensorLandscape" 가 양쪽 가로(180° 회전 포함)를
+  // 처리한다. 플러그인 lock('landscape')는 한쪽으로만 고정돼 회전이 안 되므로 안드로이드에선 생략.
+  if (Capacitor.getPlatform() === "android") return;
   try {
     const { ScreenOrientation } = await import("@capacitor/screen-orientation");
     await ScreenOrientation.lock({ orientation: "landscape" });
