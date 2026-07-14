@@ -18,8 +18,19 @@ const base64url = (input: Buffer | string): string =>
 
 // 서비스 계정으로 FCM 전송용 OAuth2 access token 발급 (JWT grant)
 const getAccessToken = async (): Promise<string | null> => {
-  const clientEmail = process.env.FCM_CLIENT_EMAIL;
-  const privateKey = process.env.FCM_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const clientEmail = process.env.FCM_CLIENT_EMAIL?.trim().replace(/^"|"$/g, "");
+  // 환경변수 값이 큰따옴표로 감싸져 있거나 \n 이스케이프된 경우 모두 정규화
+  let privateKey = process.env.FCM_PRIVATE_KEY;
+  if (privateKey) {
+    privateKey = privateKey.trim();
+    if (
+      (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+      (privateKey.startsWith("'") && privateKey.endsWith("'"))
+    ) {
+      privateKey = privateKey.slice(1, -1);
+    }
+    privateKey = privateKey.replace(/\\n/g, "\n");
+  }
   if (!clientEmail || !privateKey) return null;
 
   try {
