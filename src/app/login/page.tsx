@@ -38,7 +38,7 @@ const LoginPage = () => {
   if (!hasHydrated || isLoggedIn) return null;
 
   return (
-    <div className="min-h-[100dvh] bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-auto">
+    <div className="fixed inset-0 bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-y-auto overscroll-none">
       <Logo showSubtitle className="mb-6 landscape:mb-3" />
 
       <AnimatePresence>
