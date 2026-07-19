@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/authStore";
@@ -11,7 +11,17 @@ import { useT } from "@/lib/i18n/useT";
 const LoginPage = () => {
   const t = useT();
   const router = useRouter();
-  const { isLoggedIn, forcedOut, clearForcedOut, hasHydrated } = useAuthStore();
+  const { isLoggedIn, forcedOut, clearForcedOut, hasHydrated, ensureSession } =
+    useAuthStore();
+  const [busy, setBusy] = useState(false);
+
+  const startGuest = async () => {
+    if (busy) return;
+    setBusy(true);
+    await ensureSession();
+    if (useAuthStore.getState().user) router.replace("/lobby");
+    else setBusy(false); // 생성 실패(오프라인 등) → 재시도 가능
+  };
 
   useEffect(() => {
     if (hasHydrated && isLoggedIn) {
@@ -50,6 +60,14 @@ const LoginPage = () => {
       </AnimatePresence>
 
       <AuthForm mode="login" />
+
+      <button
+        onClick={startGuest}
+        disabled={busy}
+        className="w-full max-w-sm mt-4 py-3 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+      >
+        {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
+      </button>
     </div>
   );
 };

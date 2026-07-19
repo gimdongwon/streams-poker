@@ -105,7 +105,12 @@ const MyPage = () => {
             ← {t("me.back")}
           </Link>
           <h1 className="text-snow font-bold text-sm">{t("me.title")}</h1>
-          <span className="w-16" />
+          <button
+            onClick={handleLogout}
+            className="text-haze hover:text-snow text-sm transition-colors px-2 py-1 rounded-lg hover:bg-edge"
+          >
+            {t("me.account.logout")}
+          </button>
         </div>
 
         {/* 프로필 */}
@@ -236,12 +241,6 @@ const MyPage = () => {
                   로그인 / 계정 만들기
                 </button>
               )}
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-3 text-haze hover:text-snow hover:bg-edge text-sm transition-colors"
-              >
-                {t("me.account.logout")}
-              </button>
               <Link
                 href="/privacy"
                 className="block px-4 py-3 text-haze hover:text-snow hover:bg-edge text-sm transition-colors"
