@@ -18,6 +18,7 @@ import { CoinBalance } from "@/components/common/CoinBalance";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { EditNicknameModal } from "@/components/auth/EditNicknameModal";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
+import { UpgradeAccountModal } from "@/components/auth/UpgradeAccountModal";
 import type { UserRankInfo } from "@/types/leaderboard";
 
 const Section = ({
@@ -52,6 +53,7 @@ const MyPage = () => {
   const [showTierInfo, setShowTierInfo] = useState(false);
   const [showEditNickname, setShowEditNickname] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     if (hasHydrated && !isLoggedIn) router.replace("/login");
@@ -226,6 +228,14 @@ const MyPage = () => {
         <div className="mb-2">
           <Section title={t("me.section.account")}>
             <div className="bg-panel/60 border border-edge rounded-2xl divide-y divide-edge overflow-hidden">
+              {user.is_guest && (
+                <button
+                  onClick={() => setShowUpgrade(true)}
+                  className="w-full text-left px-4 py-3 text-neon-cyan hover:bg-edge text-sm font-medium transition-colors"
+                >
+                  로그인 / 계정 만들기
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-3 text-haze hover:text-snow hover:bg-edge text-sm transition-colors"
@@ -264,6 +274,11 @@ const MyPage = () => {
       <DeleteAccountModal
         open={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
+      />
+      <UpgradeAccountModal
+        open={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        onUpgraded={() => setShowUpgrade(false)}
       />
     </div>
   );
