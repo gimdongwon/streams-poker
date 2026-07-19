@@ -17,12 +17,17 @@ let initialized = false;
 const ensureInit = async (): Promise<void> => {
   if (initialized) return;
   const { SocialLogin } = await import("@capgo/capacitor-social-login");
-  await SocialLogin.initialize({
-    google: process.env.NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID
-      ? { webClientId: process.env.NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID }
-      : undefined,
-    apple: {},
-  });
+  // 플랫폼별로 해당 provider만 초기화한다.
+  // (안드로이드에서 apple 을 초기화하면 redirectUrl 을 요구해 실패한다.)
+  const init = SocialLogin.initialize as (cfg: unknown) => Promise<void>;
+  const platform = Capacitor.getPlatform();
+  if (platform === "android") {
+    await init({
+      google: { webClientId: process.env.NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID },
+    });
+  } else if (platform === "ios") {
+    await init({ apple: {} });
+  }
   initialized = true;
 };
 
