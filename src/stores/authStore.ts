@@ -130,8 +130,11 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return data.error ?? "소셜 로그인에 실패했습니다";
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
           return null;
-        } catch {
-          return "소셜 로그인이 취소되었거나 실패했습니다";
+        } catch (e) {
+          // ponytail: 디버깅용 실제 에러 표면화. 원인 확인 후 일반 메시지로 되돌릴 것.
+          console.error("socialUpgrade error:", e);
+          const msg = e instanceof Error ? e.message : String(e);
+          return `소셜 로그인 실패: ${msg}`;
         }
       },
 
