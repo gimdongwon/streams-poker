@@ -7,6 +7,7 @@ import { Capacitor } from "@capacitor/core";
 import { useAuthStore } from "@/stores/authStore";
 import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
+import { AppleIcon } from "@/components/auth/AppleIcon";
 
 // 멀티 입구 승격 모달. 게스트가 실시간 대전에 진입할 때 처음으로 계정을 요구한다.
 // 같은 users.id 를 유지한 채 승격하므로 싱글에서 쌓은 전적/코인이 그대로 이어진다.
@@ -98,8 +99,9 @@ export function UpgradeAccountModal({
                   <button
                     onClick={() => handleSocial("apple")}
                     disabled={busy}
-                    className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                    className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
+                    <AppleIcon />
                     Apple로 계속하기
                   </button>
                 )}

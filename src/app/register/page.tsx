@@ -8,6 +8,7 @@ import { AuthForm } from "@/components/auth/AuthForm";
 import { Logo } from "@/components/common/Logo";
 import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
+import { AppleIcon } from "@/components/auth/AppleIcon";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -50,8 +51,9 @@ const RegisterPage = () => {
             <button
               onClick={() => handleSocial("apple")}
               disabled={busy}
-              className="w-full py-3 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
             >
+              <AppleIcon />
               Apple로 계속하기
             </button>
           )}
