@@ -37,10 +37,9 @@ export const socialLogin = async (
   await ensureInit();
   const { SocialLogin } = await import("@capgo/capacitor-social-login");
 
-  const options =
-    provider === "google"
-      ? { scopes: ["email", "profile"] }
-      : { scopes: ["email", "name"] };
+  // Google 은 scopes 를 넘기면 네이티브 MainActivity 수정을 요구한다(플러그인 제약).
+  // 기본 로그인은 ID토큰에 email/이름이 포함되므로 scopes 없이 진행.
+  const options = provider === "google" ? {} : { scopes: ["email", "name"] };
 
   // 플러그인 login 시그니처(discriminated union)를 우회해 호출 후 방어적으로 파싱.
   const login = SocialLogin.login as (arg: unknown) => Promise<unknown>;
