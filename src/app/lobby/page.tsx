@@ -415,7 +415,7 @@ const LobbyPage = () => {
           {mode !== "select" && (
             <button
               onClick={handleBack}
-              className="mb-3 inline-flex items-center gap-1 text-haze hover:text-snow text-sm transition-colors active:scale-95"
+              className="mb-3 inline-flex items-center gap-1 text-haze hover:text-snow text-sm transition-colors"
               aria-label={t("lobby.common.back")}
             >
               {t("lobby.common.back")}

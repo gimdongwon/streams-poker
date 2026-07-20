@@ -94,7 +94,7 @@ const MyPage = () => {
   })();
 
   return (
-    <div className="scroll-screen bg-void flex flex-col items-center p-3 pb-16 safe-pad-x">
+    <div className="scroll-screen bg-void flex flex-col items-center pb-16 safe-pad-x">
       <div className="w-full max-w-lg">
         {/* 헤더 (스크롤해도 상단 고정) */}
         <div className="sticky top-0 z-20 flex items-center justify-between mb-4 py-2.5 bg-void/90 backdrop-blur-sm border-b border-edge/60">

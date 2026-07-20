@@ -27,7 +27,7 @@ export const HandRankingsButton = () => {
 
   return (
     <>
-      <div className="fixed bottom-4 left-4 z-40 group">
+      <div className="fixed bottom-4 left-[max(0.75rem,env(safe-area-inset-left))] z-40 group">
         <button
           onClick={() => setIsOpen(true)}
           className="w-11 h-11 rounded-full bg-panel border border-edge hover:bg-edge hover:border-neon-cyan/50 flex items-center justify-center transition-all shadow-lg shadow-black/30 hover:scale-110 active:scale-95"

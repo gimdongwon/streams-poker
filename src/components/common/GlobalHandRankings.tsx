@@ -16,7 +16,7 @@ export const GlobalHandRankings = () => {
   return (
     <>
       {/* 개인정보처리방침 (족보 버튼 오른쪽) */}
-      <div className="fixed bottom-4 left-[4.5rem] z-40 group">
+      <div className="fixed bottom-4 left-[calc(max(0.75rem,env(safe-area-inset-left))_+_3.5rem)] z-40 group">
         <Link
           href="/privacy"
           aria-label={t("hands.privacy")}
