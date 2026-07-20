@@ -65,7 +65,7 @@ const LoginPage = () => {
         <button
           onClick={startGuest}
           disabled={busy}
-          className="w-full mt-4 py-3 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+          className="w-full mt-3 py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
         >
           {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
         </button>

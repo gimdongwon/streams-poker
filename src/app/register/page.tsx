@@ -52,7 +52,7 @@ const RegisterPage = () => {
             <button
               onClick={() => handleSocial("apple")}
               disabled={busy}
-              className="w-full py-3 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <AppleIcon />
               Apple로 계속하기
@@ -62,7 +62,7 @@ const RegisterPage = () => {
             <button
               onClick={() => handleSocial("google")}
               disabled={busy}
-              className="w-full py-3 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <GoogleIcon />
               Google로 계속하기
