@@ -40,13 +40,14 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-y-auto overscroll-none">
-      <Logo showSubtitle className="mb-6 landscape:mb-3" />
+    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-4 landscape:gap-10 p-3 overflow-y-auto overscroll-none">
+      <Logo showSubtitle />
 
-      <AuthForm mode="signup" />
+      <div className="w-full max-w-sm flex flex-col">
+        <AuthForm mode="signup" />
 
-      {social && (
-        <div className="w-full max-w-sm mt-4 flex flex-col gap-2">
+        {social && (
+          <div className="w-full mt-4 flex flex-col gap-2">
           {platform === "ios" && (
             <button
               onClick={() => handleSocial("apple")}
@@ -68,8 +69,9 @@ const RegisterPage = () => {
             </button>
           )}
           {error && <p className="text-red-400 text-xs text-center">{error}</p>}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

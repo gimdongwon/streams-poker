@@ -38,36 +38,38 @@ const LoginPage = () => {
   if (!hasHydrated || isLoggedIn) return null;
 
   return (
-    <div className="fixed inset-0 bg-void flex flex-col items-center justify-center p-3 landscape:py-2 overflow-y-auto overscroll-none">
-      <Logo showSubtitle className="mb-6 landscape:mb-3" />
+    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-4 landscape:gap-10 p-3 overflow-y-auto overscroll-none">
+      <Logo showSubtitle />
 
-      <AnimatePresence>
-        {forcedOut && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="w-full max-w-sm mb-4 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center"
-          >
-            <p className="text-red-400 text-sm font-medium">
-              {t("misc.login.forcedOut")}
-            </p>
-            <p className="text-red-400/60 text-xs mt-1">
-              {t("misc.login.forcedOut.retry")}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="w-full max-w-sm flex flex-col">
+        <AnimatePresence>
+          {forcedOut && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="w-full mb-4 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center"
+            >
+              <p className="text-red-400 text-sm font-medium">
+                {t("misc.login.forcedOut")}
+              </p>
+              <p className="text-red-400/60 text-xs mt-1">
+                {t("misc.login.forcedOut.retry")}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <AuthForm mode="login" />
+        <AuthForm mode="login" />
 
-      <button
-        onClick={startGuest}
-        disabled={busy}
-        className="w-full max-w-sm mt-4 py-3 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
-      >
-        {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
-      </button>
+        <button
+          onClick={startGuest}
+          disabled={busy}
+          className="w-full mt-4 py-3 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+        >
+          {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
+        </button>
+      </div>
     </div>
   );
 };
