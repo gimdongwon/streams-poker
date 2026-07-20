@@ -28,6 +28,9 @@ const OG_DESCRIPTION =
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // iOS 인풋 포커스 시 자동 확대(그리고 키보드 내려도 확대 잔존) 방지. 가로 고정 게임이라 핀치줌 불필요.
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
