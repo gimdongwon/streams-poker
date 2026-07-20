@@ -40,38 +40,40 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-4 landscape:gap-10 p-3 overflow-y-auto overscroll-none">
-      <Logo showSubtitle />
-
-      <div className="w-full max-w-sm flex flex-col">
-        <AuthForm mode="signup" />
+    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-6 landscape:gap-10 p-4 overflow-y-auto overscroll-none">
+      {/* 왼쪽: 브랜딩 + 소셜 로그인 (가로에선 폼 옆, 세로에선 폼 위) */}
+      <div className="w-full max-w-xs flex flex-col items-center gap-5">
+        <Logo showSubtitle />
 
         {social && (
-          <div className="w-full mt-4 flex flex-col gap-2">
-          {platform === "ios" && (
-            <button
-              onClick={() => handleSocial("apple")}
-              disabled={busy}
-              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <AppleIcon />
-              Apple로 계속하기
-            </button>
-          )}
-          {platform === "android" && (
-            <button
-              onClick={() => handleSocial("google")}
-              disabled={busy}
-              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <GoogleIcon />
-              Google로 계속하기
-            </button>
-          )}
-          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <div className="w-full flex flex-col gap-2">
+            {platform === "ios" && (
+              <button
+                onClick={() => handleSocial("apple")}
+                disabled={busy}
+                className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <AppleIcon />
+                Apple로 계속하기
+              </button>
+            )}
+            {platform === "android" && (
+              <button
+                onClick={() => handleSocial("google")}
+                disabled={busy}
+                className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <GoogleIcon />
+                Google로 계속하기
+              </button>
+            )}
+            {error && <p className="text-red-400 text-xs text-center">{error}</p>}
           </div>
         )}
       </div>
+
+      {/* 오른쪽: 회원가입 폼 */}
+      <AuthForm mode="signup" />
     </div>
   );
 };

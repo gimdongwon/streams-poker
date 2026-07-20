@@ -38,9 +38,21 @@ const LoginPage = () => {
   if (!hasHydrated || isLoggedIn) return null;
 
   return (
-    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-4 landscape:gap-10 p-3 overflow-y-auto overscroll-none">
-      <Logo showSubtitle />
+    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-6 landscape:gap-10 p-4 overflow-y-auto overscroll-none">
+      {/* 왼쪽: 브랜딩 + 게스트 진입 (가로에선 폼 옆, 세로에선 폼 위) */}
+      <div className="w-full max-w-xs flex flex-col items-center gap-5">
+        <Logo showSubtitle />
 
+        <button
+          onClick={startGuest}
+          disabled={busy}
+          className="w-full py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+        >
+          {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
+        </button>
+      </div>
+
+      {/* 오른쪽: 로그인 폼 */}
       <div className="w-full max-w-sm flex flex-col">
         <AnimatePresence>
           {forcedOut && (
@@ -61,14 +73,6 @@ const LoginPage = () => {
         </AnimatePresence>
 
         <AuthForm mode="login" />
-
-        <button
-          onClick={startGuest}
-          disabled={busy}
-          className="w-full mt-3 py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
-        >
-          {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
-        </button>
       </div>
     </div>
   );
