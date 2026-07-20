@@ -44,6 +44,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<!-- 가로 전용 전체화면 게임 → iPad 멀티태스킹 미지원 선언(가로만 허용, 업로드 에러 90474 해결) -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<!-- AdMob: iOS 앱 ID -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-1157070050571953~6220769890</string>
