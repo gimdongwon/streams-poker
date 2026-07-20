@@ -56,12 +56,12 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-sm"
     >
-      <div className="bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-3">
-        <h2 className="text-base font-bold text-snow text-center mb-3">
+      <div className="bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-3.5 [@media(min-height:415px)]:p-5">
+        <h2 className="text-base font-bold text-snow text-center mb-3 [@media(min-height:415px)]:mb-4">
           {mode === "login" ? t("auth.login.title") : t("auth.signup.title")}
         </h2>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2 [@media(min-height:415px)]:space-y-3">
           <div>
             <label
               htmlFor="auth-username"
@@ -77,7 +77,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               onKeyDown={handleKeyDown}
               placeholder={t("auth.field.username.placeholder")}
               maxLength={20}
-              className="w-full px-3 py-2 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
+              className="w-full px-3 py-2 [@media(min-height:415px)]:py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
           </div>
 
@@ -103,7 +103,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
                   onKeyDown={handleKeyDown}
                   placeholder={t("auth.field.nickname.placeholder")}
                   maxLength={12}
-                  className="w-full px-3 py-2 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
+                  className="w-full px-3 py-2 [@media(min-height:415px)]:py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
                 />
               </motion.div>
             )}
@@ -123,7 +123,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("auth.field.password.placeholder")}
-              className="w-full px-3 py-2 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
+              className="w-full px-3 py-2 [@media(min-height:415px)]:py-2.5 bg-void border border-edge rounded-xl text-snow text-sm placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors"
             />
           </div>
         </div>
@@ -145,7 +145,7 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           onClick={handleSubmit}
           disabled={isLoading}
           style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-          className="w-full mt-3 py-2.5 text-void font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="w-full mt-3 [@media(min-height:415px)]:mt-4 py-2.5 text-void font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           aria-label={
             mode === "login" ? t("auth.action.login") : t("auth.action.signup")
           }
