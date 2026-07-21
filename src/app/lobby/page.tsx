@@ -220,7 +220,7 @@ const LobbyPage = () => {
       </AnimatePresence>
 
       {/* 상단 헤더: 로고 + 내 랭킹/점수 + 유저 정보 */}
-      <div className="w-full max-w-4xl mb-4 landscape:mb-2 flex items-center gap-2 min-w-0">
+      <div className="w-full max-w-4xl mb-4 landscape:mb-2 [@media(max-height:430px)]:mb-1 flex items-center gap-2 min-w-0">
         {/* 좌측: 로고 */}
         <div className="flex-1 flex justify-start min-w-0">
           <Logo size="sm" />
@@ -252,7 +252,7 @@ const LobbyPage = () => {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 bg-panel/60 rounded-2xl border border-edge px-4 py-2 shrink-0"
+            className="flex items-center gap-3 bg-panel/60 rounded-2xl border border-edge px-4 py-2 [@media(max-height:430px)]:py-1 shrink-0"
           >
             <button
               onClick={() => router.push("/me")}
@@ -266,7 +266,7 @@ const LobbyPage = () => {
               <TierProgress
                 totalScore={rankInfo.totalScore}
                 bare
-                className="w-14 mt-0.5"
+                className="w-14 mt-0.5 [@media(max-height:430px)]:hidden"
               />
             </button>
             <div className="w-px h-7 bg-edge" />
@@ -379,9 +379,9 @@ const LobbyPage = () => {
           transition={{ delay: 0.2 }}
           className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-center"
         >
-          <div className="bg-panel/40 rounded-2xl p-4 border border-edge mb-3">
-            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5">{t("lobby.rules.title")}</h3>
-            <ul className="text-haze text-xs space-y-1.5">
+          <div className="bg-panel/40 rounded-2xl p-4 [@media(max-height:430px)]:p-2.5 border border-edge mb-3 [@media(max-height:430px)]:mb-2">
+            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5 [@media(max-height:430px)]:mb-1.5">{t("lobby.rules.title")}</h3>
+            <ul className="text-haze text-xs space-y-1.5 [@media(max-height:430px)]:space-y-1">
               <li>{t("lobby.rules.item1")}</li>
               <li>{t("lobby.rules.item2")}</li>
               <li>{t("lobby.rules.item3")}</li>
@@ -392,7 +392,7 @@ const LobbyPage = () => {
 
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="w-full py-3 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
+            className="w-full py-3 [@media(max-height:430px)]:py-2 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
             aria-label={t("lobby.leaderboard.view")}
             tabIndex={0}
           >
