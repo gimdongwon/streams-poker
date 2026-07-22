@@ -4,9 +4,8 @@
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
         <item name="windowSplashScreenBackground">@color/brandDark</item>
-        <!-- 중앙 아이콘: 여백 포함 X 로고 (기본 앱 아이콘보다 작게 보이도록) -->
+        <!-- 중앙 아이콘: X + TENTENS 락업 (텍스트가 정중앙 X 아래 오도록) -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:windowSplashScreenBrandingImage">@drawable/splash_branding</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>
