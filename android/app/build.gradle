@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+// 서명 설정: android/keystore.properties (gitignore됨) 에서 읽는다.
+// 파일이 없으면 서명 없이 빌드(개발용). 내용 예시:
+//   storeFile=/Users/me/tentens-upload.jks
+//   storePassword=...
+//   keyAlias=...
+//   keyPassword=...
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file("keystore.properties")
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     namespace = "kr.tentens.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +28,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystorePropsFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystorePropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
