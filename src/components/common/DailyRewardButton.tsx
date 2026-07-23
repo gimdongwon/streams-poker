@@ -38,7 +38,8 @@ export const DailyRewardButton = ({
     // 네이티브: 리워드 광고 노출 후 보상. 광고 미탑재/실패("unavailable")여도 보상은 진행.
     await showRewardedAd();
     const result = await claimDaily();
-    if (result?.claimed) setCanClaim(false);
+    // claimed=false 는 "오늘 이미 수령"(다른 기기 포함) → 받기 버튼으로 되돌리지 않는다.
+    if (result) setCanClaim(false);
     setClaiming(false);
   }, [claiming, canClaim, claimDaily]);
 
