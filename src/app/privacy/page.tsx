@@ -132,15 +132,6 @@ const PrivacyPage = () => {
             공지를 통해 고지합니다.
           </p>
         </Section>
-
-        <div className="mt-10">
-          <Link
-            href="/lobby"
-            className="inline-block text-haze hover:text-snow text-xs border border-edge rounded-lg px-4 py-2 hover:bg-edge transition-colors"
-          >
-            ← 돌아가기
-          </Link>
-        </div>
       </div>
     </main>
   );

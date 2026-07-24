@@ -9,8 +9,10 @@ import { Logo } from "@/components/common/Logo";
 import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { AppleIcon } from "@/components/auth/AppleIcon";
+import { useT } from "@/lib/i18n/useT";
 
 const RegisterPage = () => {
+  const t = useT();
   const router = useRouter();
   const { isLoggedIn, hasHydrated, socialUpgrade } = useAuthStore();
   const [busy, setBusy] = useState(false);
@@ -54,7 +56,7 @@ const RegisterPage = () => {
                 className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <AppleIcon />
-                Apple로 계속하기
+                {t("auth.social.apple")}
               </button>
             )}
             {platform === "android" && (
@@ -64,7 +66,7 @@ const RegisterPage = () => {
                 className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <GoogleIcon />
-                Google로 계속하기
+                {t("auth.social.google")}
               </button>
             )}
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}

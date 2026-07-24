@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { AppleIcon } from "@/components/auth/AppleIcon";
+import { useT } from "@/lib/i18n/useT";
 
 // 멀티 입구 승격 모달. 게스트가 실시간 대전에 진입할 때 처음으로 계정을 요구한다.
 // 같은 users.id 를 유지한 채 승격하므로 싱글에서 쌓은 전적/코인이 그대로 이어진다.
@@ -21,6 +22,7 @@ export function UpgradeAccountModal({
   onClose: () => void;
   onUpgraded: () => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const upgrade = useAuthStore((s) => s.upgrade);
   const socialUpgrade = useAuthStore((s) => s.socialUpgrade);
@@ -55,7 +57,7 @@ export function UpgradeAccountModal({
     if (busy) return;
     setError(null);
     if (!username.trim() || !nickname.trim() || !password) {
-      setError("모든 항목을 입력해주세요");
+      setError(t("auth.upgrade.allRequired"));
       return;
     }
     setBusy(true);
@@ -79,7 +81,7 @@ export function UpgradeAccountModal({
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label="실시간 대전 시작하기"
+          aria-label={t("auth.upgrade.title")}
         >
           <motion.div
             className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-5 shadow-xl"
@@ -88,9 +90,9 @@ export function UpgradeAccountModal({
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-snow font-bold text-base mb-1">실시간 대전 시작하기</h2>
+            <h2 className="text-snow font-bold text-base mb-1">{t("auth.upgrade.title")}</h2>
             <p className="text-haze text-xs leading-relaxed mb-4">
-              계정을 만들면 지금까지의 기록이 안전하게 저장되고, 다른 사람과 실시간으로 대전할 수 있어요.
+              {t("auth.upgrade.desc")}
             </p>
 
             {social && (
@@ -102,7 +104,7 @@ export function UpgradeAccountModal({
                     className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <AppleIcon />
-                    Apple로 계속하기
+                    {t("auth.social.apple")}
                   </button>
                 )}
                 {platform === "android" && (
@@ -112,12 +114,12 @@ export function UpgradeAccountModal({
                     className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <GoogleIcon />
-                    Google로 계속하기
+                    {t("auth.social.google")}
                   </button>
                 )}
                 <div className="flex items-center gap-2 my-1">
                   <div className="flex-1 h-px bg-edge" />
-                  <span className="text-haze text-[10px]">또는 아이디로</span>
+                  <span className="text-haze text-[10px]">{t("auth.upgrade.orId")}</span>
                   <div className="flex-1 h-px bg-edge" />
                 </div>
               </div>
@@ -127,30 +129,30 @@ export function UpgradeAccountModal({
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="아이디 (3~20자)"
+                placeholder={t("auth.upgrade.username.placeholder")}
                 autoCapitalize="none"
                 autoCorrect="off"
                 className="w-full bg-void border border-edge rounded-xl px-3 py-2.5 text-snow text-sm placeholder:text-haze/60 focus:outline-none focus:border-haze"
                 disabled={busy}
-                aria-label="아이디"
+                aria-label={t("auth.field.username")}
               />
               <input
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="닉네임 (1~12자)"
+                placeholder={t("auth.upgrade.nickname.placeholder")}
                 className="w-full bg-void border border-edge rounded-xl px-3 py-2.5 text-snow text-sm placeholder:text-haze/60 focus:outline-none focus:border-haze"
                 disabled={busy}
-                aria-label="닉네임"
+                aria-label={t("auth.field.nickname")}
               />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleUpgrade()}
-                placeholder="비밀번호 (4자 이상)"
+                placeholder={t("auth.upgrade.password.placeholder")}
                 className="w-full bg-void border border-edge rounded-xl px-3 py-2.5 text-snow text-sm placeholder:text-haze/60 focus:outline-none focus:border-haze"
                 disabled={busy}
-                aria-label="비밀번호"
+                aria-label={t("auth.field.password")}
               />
             </div>
 
@@ -161,7 +163,7 @@ export function UpgradeAccountModal({
               disabled={busy}
               className="w-full mt-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-cyan to-neon-magenta text-void font-bold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {busy ? "처리 중…" : "시작하기"}
+              {busy ? t("auth.action.processing") : t("auth.upgrade.start")}
             </button>
 
             <button
@@ -169,7 +171,7 @@ export function UpgradeAccountModal({
               disabled={busy}
               className="w-full mt-2 py-2 text-haze hover:text-snow text-xs transition-colors disabled:opacity-50"
             >
-              이미 계정이 있나요? 로그인
+              {t("auth.nav.hasAccount")}
             </button>
           </motion.div>
         </motion.div>
