@@ -22,8 +22,6 @@ import type { FriendRequest } from "@/lib/friends";
 
 type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 
-const BET_TIERS = [0, 100, 500, 1000, 5000, 10000] as const;
-
 const LobbyPage = () => {
   const t = useT();
   const router = useRouter();
@@ -37,7 +35,6 @@ const LobbyPage = () => {
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
-  const [selectedBet, setSelectedBet] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   // 멀티 진입: 게스트면 승격 모달을, 정식 계정이면 멀티 화면으로.
@@ -139,7 +136,7 @@ const LobbyPage = () => {
     const nickname = user?.nickname ?? "Player";
     initSocketListeners();
     // 소켓 연결 + 방 생성 + 로딩 플래그는 store.createRoom 이 처리한다.
-    createRoom(nickname, selectedBet);
+    createRoom(nickname);
   };
 
   const handleJoinRoom = () => {
@@ -472,42 +469,9 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col landscape:flex-row gap-3 landscape:items-stretch landscape:flex-1 landscape:min-h-0"
+                className="flex flex-col gap-3 landscape:flex-1 landscape:min-h-0 w-full landscape:max-w-xl landscape:mx-auto justify-center"
               >
-                {/* 참가비 선택 (좌측, 6) */}
-                <div className="bg-panel/40 border border-edge rounded-2xl p-4 w-full landscape:flex-[6] landscape:min-w-0 landscape:flex landscape:flex-col landscape:justify-center">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-haze text-[11px] tracking-[2px] uppercase font-bold">
-                      {t("coins.bet.label")}
-                    </span>
-                    <span className="text-neon-cyan text-sm font-bold">
-                      🪙 {(user.coins ?? 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 landscape:flex-1 landscape:auto-rows-fr">
-                    {BET_TIERS.map((b) => {
-                      const afford = b === 0 || (user.coins ?? 0) >= b;
-                      const active = selectedBet === b;
-                      return (
-                        <button
-                          key={b}
-                          onClick={() => setSelectedBet(b)}
-                          disabled={!afford}
-                          className={`py-3 rounded-lg text-sm font-bold transition-colors flex items-center justify-center ${
-                            active
-                              ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/60"
-                              : "bg-void border border-edge text-haze hover:text-snow disabled:opacity-40 disabled:cursor-not-allowed"
-                          }`}
-                        >
-                          {b === 0 ? t("coins.bet.free") : b.toLocaleString()}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 버튼들 (우측, 4) */}
-                <div className="flex flex-col gap-3 w-full landscape:flex-[4] min-w-0">
+                <div className="flex flex-col gap-3 w-full min-w-0">
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
@@ -528,9 +492,7 @@ const LobbyPage = () => {
                         {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
                       </div>
                       <div className="text-xs font-normal opacity-80">
-                        {selectedBet > 0
-                          ? t("coins.bet.room", { n: selectedBet.toLocaleString() })
-                          : t("coins.bet.freeRoom")}
+                        {t("coins.reward.roomHint")}
                       </div>
                     </div>
                   </div>
@@ -622,17 +584,6 @@ const LobbyPage = () => {
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className="text-haze text-[10px] font-mono tracking-wider truncate">
                                 {room.code}
-                              </span>
-                              <span
-                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                  room.bet > 0
-                                    ? "text-neon-cyan bg-neon-cyan/10"
-                                    : "text-haze bg-edge"
-                                }`}
-                              >
-                                {room.bet > 0
-                                  ? `🪙 ${room.bet.toLocaleString()}`
-                                  : t("coins.bet.free")}
                               </span>
                             </div>
                           </div>

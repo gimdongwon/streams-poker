@@ -45,3 +45,4 @@ next-env.d.ts
 
 # IDE (JetBrains / Android Studio)
 .idea/
+.claude/

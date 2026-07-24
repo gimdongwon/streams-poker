@@ -47,15 +47,12 @@ export type Room = {
   roundTimer: ReturnType<typeof setTimeout> | null;
   // 현재 라운드가 서버 기준으로 끝나는 시각(ms epoch). 재접속 시 남은 시간 계산용.
   roundEndsAt: number;
-  // 판돈(코인). 0 = 무료 방. 게임 시작 시 전원 차감, 종료 시 1등에게 몰아줌.
-  bet: number;
-  pot: number;
 };
 
-// 허용 판돈 (0 = 무료)
-export const ALLOWED_BETS = [0, 100, 500, 1000, 5000, 10000] as const;
+// 멀티플레이 순위별 고정 보상 (시스템 지급 — 참가비/베팅 없음).
+// 유저는 코인을 잃지 않는다. 1등 100, 2등 50, 그 외 참가 보상 10.
+export const RANK_REWARDS: Record<number, number> = { 1: 100, 2: 50 };
+export const PARTICIPATION_REWARD = 10;
 
-export const normalizeBet = (bet: unknown): number =>
-  typeof bet === "number" && (ALLOWED_BETS as readonly number[]).includes(bet)
-    ? bet
-    : 0;
+export const rewardForRank = (rank: number): number =>
+  RANK_REWARDS[rank] ?? PARTICIPATION_REWARD;

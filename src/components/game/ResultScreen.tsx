@@ -27,7 +27,6 @@ type ResultScreenProps = {
   onPlayAgain?: () => void;
 };
 
-const CYAN = "#2de2e6";
 const SCORE_GLOW = "0 0 22px rgba(45,226,230,0.55)";
 
 const ordinal = (n: number) =>
@@ -253,18 +252,11 @@ export const ResultScreen = ({
                   <span className="font-extrabold">{t("unit.points", { n: myResult.score })}</span>
                 </div>
               )}
-              {myResult && (myResult.prize ?? 0) > 0 && (
+              {myResult && (myResult.reward ?? 0) > 0 && (
                 <div className="mt-1.5 text-sm font-extrabold text-neon-cyan">
-                  🪙 {t("coins.prize.won", { n: (myResult.prize ?? 0).toLocaleString() })}
+                  🪙 {t("coins.reward.won", { n: (myResult.reward ?? 0).toLocaleString() })}
                 </div>
               )}
-              {myResult &&
-                (myResult.prize ?? 0) === 0 &&
-                (myResult.coinDelta ?? 0) < 0 && (
-                  <div className="mt-1.5 text-xs font-bold text-haze">
-                    🪙 {t("coins.prize.paid", { n: Math.abs(myResult.coinDelta ?? 0).toLocaleString() })}
-                  </div>
-                )}
               {winner && (
                 <>
                   <div className="mt-3 text-[10px] tracking-[1px] text-haze">{t("result.winner")}</div>
