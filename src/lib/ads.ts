@@ -33,14 +33,31 @@ let initialized = false;
 export const initAdMob = async (): Promise<void> => {
   if (!Capacitor.isNativePlatform() || initialized) return;
   try {
-    const { AdMob } = await import("@capacitor-community/admob");
+    const { AdMob, AdmobConsentStatus } = await import("@capacitor-community/admob");
     await AdMob.initialize();
-    // iOS ATT + UMP 동의 요청 (광고 개인화/추적 동의)
+
+    // iOS ATT (추적 허용 요청). 미지원/거절은 무시.
     try {
       await AdMob.requestTrackingAuthorization();
     } catch {
-      // 미지원/거절 무시
+      // ignore
     }
+
+    // Google UMP(CMP) 동의 — EEA/영국/스위스 유저에게만 동의 폼이 뜬다.
+    // 그 외 지역은 status=NOT_REQUIRED 라 아무것도 표시되지 않는다.
+    // 동의 흐름 실패가 광고/게임을 막으면 안 되므로 별도 try.
+    try {
+      const consentInfo = await AdMob.requestConsentInfo();
+      if (
+        consentInfo.isConsentFormAvailable &&
+        consentInfo.status === AdmobConsentStatus.REQUIRED
+      ) {
+        await AdMob.showConsentForm();
+      }
+    } catch (e) {
+      console.warn("[AdMob] 동의(UMP) 흐름 실패 — 무시하고 진행:", e);
+    }
+
     initialized = true;
   } catch (e) {
     console.error("[AdMob] initialize 실패:", e);
