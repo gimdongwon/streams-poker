@@ -203,6 +203,25 @@ const LobbyPage = () => {
               className="relative z-10 w-full max-w-md"
             >
               <Leaderboard highlightNickname={user.nickname} highlightUserId={user.id} />
+              {/* 게스트 안내: 임시 계정은 랭킹에 기록되지 않음 → 가입 유도 */}
+              {user.is_guest && (
+                <div className="mt-2 bg-panel border border-neon-cyan/30 rounded-xl p-3 flex flex-col gap-2">
+                  <p className="text-haze text-xs leading-relaxed text-center">
+                    {t("leaderboard.guest.notice")}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowLeaderboard(false);
+                      setShowUpgrade(true);
+                    }}
+                    style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                    className="w-full py-2.5 rounded-xl text-void text-xs font-extrabold transition-all active:scale-95 hover:scale-[1.01]"
+                    aria-label={t("leaderboard.guest.cta")}
+                  >
+                    {t("leaderboard.guest.cta")}
+                  </button>
+                </div>
+              )}
               <button
                 onClick={() => setShowLeaderboard(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"

@@ -13,6 +13,8 @@ export const leaderboard: Namespace = {
     "leaderboard.best": "최고 {n}점",
     "leaderboard.sort.score": "점수순",
     "leaderboard.sort.coins": "코인순",
+    "leaderboard.guest.notice": "임시 계정은 랭킹에 기록되지 않아요. 계정을 만들면 지금까지의 기록이 그대로 랭킹에 올라갑니다.",
+    "leaderboard.guest.cta": "가입하고 랭킹 도전하기",
   },
   en: {
     "leaderboard.title": "Overall Ranking",
@@ -25,5 +27,7 @@ export const leaderboard: Namespace = {
     "leaderboard.best": "Best {n}",
     "leaderboard.sort.score": "By score",
     "leaderboard.sort.coins": "By coins",
+    "leaderboard.guest.notice": "Guest accounts don't appear on the ranking. Create an account and your progress carries over to the board.",
+    "leaderboard.guest.cta": "Sign up & join the ranking",
   },
 };
