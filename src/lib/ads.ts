@@ -114,6 +114,9 @@ export const showInterstitialAd = async (
 // 싱글 게임 N판 완료마다 + 최소 간격을 지켜 전면 광고 1회.
 // 카운터는 localStorage 에 보관(브라우저에선 no-op이라 영향 없음).
 
+// 전면 광고 활성 스위치. AdMob 콘솔에서 전면 광고 단위 생성 → INTERSTITIAL_AD_ID 채운 뒤 true 로.
+const INTERSTITIAL_ENABLED = false;
+
 const AD_GAMES_KEY = "tens-ad-game-count";
 const AD_LAST_SHOWN_KEY = "tens-ad-last-shown";
 const GAMES_PER_AD = 4; // 4판마다 1회
@@ -124,6 +127,7 @@ const MIN_AD_INTERVAL_MS = 3 * 60 * 1000; // 최소 3분 간격
 export const maybeShowInterstitialAfterGame = async (
   opts?: { test?: boolean }
 ): Promise<void> => {
+  if (!INTERSTITIAL_ENABLED) return; // 광고 단위 발급 전까지 완전 비활성
   if (!Capacitor.isNativePlatform() || typeof window === "undefined") return;
   try {
     const count = (parseInt(window.localStorage.getItem(AD_GAMES_KEY) ?? "0", 10) || 0) + 1;
