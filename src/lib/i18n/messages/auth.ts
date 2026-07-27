@@ -50,6 +50,7 @@ export const auth: Namespace = {
     "auth.upgrade.password.placeholder": "비밀번호 (4자 이상)",
     "auth.upgrade.allRequired": "모든 항목을 입력해주세요",
     "auth.upgrade.start": "시작하기",
+    "auth.guest.start": "회원가입 없이 임시로 시작하기",
   },
   en: {
     "auth.login.title": "Log In",
@@ -100,5 +101,6 @@ export const auth: Namespace = {
     "auth.upgrade.password.placeholder": "Password (4+ characters)",
     "auth.upgrade.allRequired": "Please fill in all fields",
     "auth.upgrade.start": "Get Started",
+    "auth.guest.start": "Play now — no sign-up needed",
   },
 };

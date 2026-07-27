@@ -3,17 +3,39 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { Logo } from "@/components/common/Logo";
+import { isSocialEnabled } from "@/lib/socialAuth";
+import { GoogleIcon } from "@/components/auth/GoogleIcon";
+import { AppleIcon } from "@/components/auth/AppleIcon";
 import { useT } from "@/lib/i18n/useT";
 
 const LoginPage = () => {
   const t = useT();
   const router = useRouter();
-  const { isLoggedIn, forcedOut, clearForcedOut, hasHydrated, ensureSession } =
+  const { isLoggedIn, forcedOut, clearForcedOut, hasHydrated, ensureSession, socialUpgrade } =
     useAuthStore();
   const [busy, setBusy] = useState(false);
+  const [socialError, setSocialError] = useState<string | null>(null);
+  const social = isSocialEnabled();
+  const platform = Capacitor.getPlatform();
+
+  // 소셜 로그인: 기존 연동 계정이 있으면 로그인, 없으면 새 계정 생성.
+  // (게스트 세션이 있으면 같은 users.id 로 승격 — /api/auth/social 이 처리)
+  const handleSocial = async (provider: "apple" | "google") => {
+    if (busy) return;
+    setSocialError(null);
+    setBusy(true);
+    const err = await socialUpgrade(provider);
+    if (err) {
+      setSocialError(err);
+      setBusy(false);
+      return;
+    }
+    router.replace("/lobby");
+  };
 
   const startGuest = async () => {
     if (busy) return;
@@ -43,13 +65,39 @@ const LoginPage = () => {
       <div className="w-full max-w-xs flex flex-col items-center gap-5">
         <Logo showSubtitle />
 
-        <button
-          onClick={startGuest}
-          disabled={busy}
-          className="w-full py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
-        >
-          {busy ? "시작하는 중…" : "회원가입 없이 임시로 시작하기"}
-        </button>
+        <div className="w-full flex flex-col gap-2">
+          {social && platform === "ios" && (
+            <button
+              onClick={() => handleSocial("apple")}
+              disabled={busy}
+              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <AppleIcon />
+              {t("auth.social.apple")}
+            </button>
+          )}
+          {social && platform === "android" && (
+            <button
+              onClick={() => handleSocial("google")}
+              disabled={busy}
+              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <GoogleIcon />
+              {t("auth.social.google")}
+            </button>
+          )}
+          {socialError && (
+            <p className="text-red-400 text-xs text-center">{socialError}</p>
+          )}
+
+          <button
+            onClick={startGuest}
+            disabled={busy}
+            className="w-full py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+          >
+            {busy ? t("auth.action.processing") : t("auth.guest.start")}
+          </button>
+        </div>
       </div>
 
       {/* 오른쪽: 로그인 폼 */}
