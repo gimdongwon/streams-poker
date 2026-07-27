@@ -9,9 +9,9 @@ const REWARDED_AD_ID = {
 };
 
 // AdMob 전면 광고 단위 ID (실제, pub-1157070050571953).
-// TODO: AdMob 콘솔에서 전면 광고 단위 생성 후 여기에 채우기. 빈 값이면 실광고는 건너뛴다.
+// TODO(android): AdMob 콘솔에서 Android 전면 광고 단위 생성 후 채우기. 빈 값이면 실광고는 건너뛴다.
 const INTERSTITIAL_AD_ID = {
-  ios: "",
+  ios: "ca-app-pub-1157070050571953/5559579867",
   android: "",
 };
 
