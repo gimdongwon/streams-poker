@@ -153,8 +153,9 @@ const RoomPage = () => {
         </div>
 
         {/* 순위별 고정 보상 안내 (참가비 없음) */}
-        <div className="mt-2 flex items-center justify-center gap-2 text-xs">
+        <div className="mt-2 flex flex-col items-center gap-0.5 text-xs">
           <span className="text-haze">{t("coins.reward.roomHint")}</span>
+          <span className="text-neon-cyan font-medium">{t("coins.reward.detail")}</span>
         </div>
       </motion.div>
 

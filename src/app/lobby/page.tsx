@@ -511,7 +511,7 @@ const LobbyPage = () => {
                         {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
                       </div>
                       <div className="text-xs font-normal opacity-80">
-                        {t("coins.reward.roomHint")}
+                        {t("coins.reward.detail")}
                       </div>
                     </div>
                   </div>
