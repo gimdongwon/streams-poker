@@ -137,7 +137,9 @@ const INTERSTITIAL_ENABLED = true;
 const AD_GAMES_KEY = "tens-ad-game-count";
 const AD_LAST_SHOWN_KEY = "tens-ad-last-shown";
 const GAMES_PER_AD = 3; // 3판마다 1회
-const MIN_AD_INTERVAL_MS = 3 * 60 * 1000; // 최소 3분 간격
+// 한 판이 1분 미만이라 빈도 제한은 "판수"가 담당한다.
+// 시간 간격은 비정상 연타(광고 정책 리스크)만 막는 최소 안전장치.
+const MIN_AD_INTERVAL_MS = 60 * 1000; // 최소 60초 간격
 
 // 게임 1판 완료를 기록하고, 조건이 차면 전면 광고를 띄운다.
 // 광고를 못 띄워도(미설정/실패) 흐름은 그대로 진행되며, 그 경우 카운터는 유지해 다음 기회에 다시 시도한다.

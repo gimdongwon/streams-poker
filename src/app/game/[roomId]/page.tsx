@@ -61,15 +61,16 @@ const GamePage = () => {
   }, [isSingle, status, phase, roomCode, resetGame, router]);
 
   const handleBackToLobby = useCallback(async () => {
-    // 싱글 게임을 "끝까지" 마치고 나가는 경우에만 판수를 세고,
+    // 게임(싱글/멀티)을 "끝까지" 마치고 로비로 나가는 경우에만 판수를 세고,
     // N판마다 전면 광고 1회 (결과 확인 후 자연 휴지기 — 광고 실패 시 그대로 진행).
-    if (isSingle && phase === "game_over") {
+    // 멀티 "다시하기"는 다른 플레이어가 기다리므로 광고를 넣지 않는다.
+    if (phase === "game_over") {
       await maybeShowInterstitialAfterGame();
     }
     resetGame();
     resetRoom();
     router.push("/lobby");
-  }, [isSingle, phase, resetGame, resetRoom, router]);
+  }, [phase, resetGame, resetRoom, router]);
 
   const handlePlayAgain = useCallback(() => {
     playAgain();
