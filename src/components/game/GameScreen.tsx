@@ -6,6 +6,7 @@ import { useGameStore } from "@/stores/gameStore";
 import { useRoomStore } from "@/stores/roomStore";
 import type { SlotIndex } from "@/types/game";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
+import { maybeShowInterstitialAfterGame } from "@/lib/ads";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
 import { Timer } from "./Timer";
@@ -181,7 +182,9 @@ export const GameScreen = ({
 
   const isWaitingForOthers = phase === "round_end" && mode === "multi";
 
-  const handleSinglePlayAgain = () => {
+  const handleSinglePlayAgain = async () => {
+    // 싱글 "한번 더"도 판수에 포함 — N판마다 전면 광고 후 다음 판 시작.
+    await maybeShowInterstitialAfterGame();
     hasSavedRef.current = false;
     resetGame();
   };
