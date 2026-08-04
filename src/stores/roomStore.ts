@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Player, PlayerResult, ResultCombo, RoomStatus } from "@/types/room";
 import type { Card } from "@/types/card";
 import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
+import { logRoomCreate, logRoomJoin } from "@/lib/analytics";
 import { useAuthStore } from "@/stores/authStore";
 import { useGameStore } from "@/stores/gameStore";
 
@@ -121,6 +122,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   createRoom: (nickname: string) => {
     set({ isCreatingRoom: true });
+    logRoomCreate();
     const socket = connectSocket();
     const emit = () => socket.emit("room:create", { nickname });
     if (socket.connected) {
@@ -131,6 +133,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   },
 
   joinRoom: (code: string, nickname: string) => {
+    logRoomJoin();
     const socket = connectSocket();
     socket.emit("room:join", { code, nickname });
   },

@@ -1,5 +1,6 @@
 // AdMob (Capacitor 네이티브 전용). 브라우저에서는 no-op.
 import { Capacitor } from "@capacitor/core";
+import { logAdShown } from "@/lib/analytics";
 
 // AdMob 리워드 광고 단위 ID (실제, 새 계정 pub-1157070050571953).
 // 앱 ID(~)는 네이티브(Info.plist/AndroidManifest)에 설정.
@@ -89,6 +90,7 @@ export const showRewardedAd = async (
     await AdMob.prepareRewardVideoAd({ adId, isTesting: !!opts?.test });
     const reward = await AdMob.showRewardVideoAd();
     console.log("[AdMob] show 완료:", reward);
+    logAdShown("rewarded");
     return reward ? "rewarded" : "dismissed";
   } catch (e) {
     console.error("[AdMob] 리워드 광고 실패:", e);
@@ -120,6 +122,7 @@ export const showInterstitialAd = async (
     await AdMob.prepareInterstitial({ adId, isTesting: !!opts?.test });
     await AdMob.showInterstitial();
     console.log("[AdMob] interstitial show 완료");
+    logAdShown("interstitial");
     return "shown";
   } catch (e) {
     console.error("[AdMob] 전면 광고 실패:", e);

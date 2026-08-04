@@ -7,6 +7,7 @@ import { useRoomStore } from "@/stores/roomStore";
 import type { SlotIndex } from "@/types/game";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
+import { logGameComplete } from "@/lib/analytics";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
 import { Timer } from "./Timer";
@@ -138,10 +139,12 @@ export const GameScreen = ({
     }
   }, [phase, handleEvaluate]);
 
-  // Play a result sound once when the game ends.
+  // Play a result sound once when the game ends. (게임 완료 이벤트도 여기서 1회 기록)
   useEffect(() => {
     if (phase !== "game_over" || resultSoundPlayedRef.current) return;
     resultSoundPlayedRef.current = true;
+
+    logGameComplete(mode, score);
 
     if (mode === "single") {
       playSound("win");
@@ -149,7 +152,7 @@ export const GameScreen = ({
       const myResult = playerResults.find((r) => r.isMe);
       playSound(myResult && myResult.rank === 1 ? "win" : "reveal");
     }
-  }, [phase, mode, playerResults]);
+  }, [phase, mode, playerResults, score]);
 
   const handlePlace = useCallback(
     (index: SlotIndex) => {

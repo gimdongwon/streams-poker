@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { logLogin, logDailyRewardClaim } from "@/lib/analytics";
 import { persist } from "zustand/middleware";
 import type { User } from "@/types/auth";
 
@@ -57,6 +58,7 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return data.error ?? "로그인에 실패했습니다";
 
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
+          logLogin("username");
           return null;
         } catch {
           return "서버 연결에 실패했습니다";
@@ -129,6 +131,7 @@ export const useAuthStore = create<AuthStore>()(
           const data = await res.json();
           if (!res.ok) return data.error ?? "소셜 로그인에 실패했습니다";
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
+          logLogin(provider);
           return null;
         } catch (e) {
           // ponytail: 디버깅용 실제 에러 표면화. 원인 확인 후 일반 메시지로 되돌릴 것.
@@ -174,6 +177,7 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return null;
           const data: { claimed: boolean; coins: number } = await res.json();
           set({ user: { ...user, coins: data.coins } });
+          if (data.claimed) logDailyRewardClaim();
           return data;
         } catch {
           return null;
