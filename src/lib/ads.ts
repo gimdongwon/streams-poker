@@ -37,16 +37,9 @@ export const initAdMob = async (): Promise<void> => {
     const { AdMob, AdmobConsentStatus } = await import("@capacitor-community/admob");
     await AdMob.initialize();
 
-    // iOS ATT (추적 허용 요청). 미지원/거절은 무시.
-    try {
-      await AdMob.requestTrackingAuthorization();
-    } catch {
-      // ignore
-    }
-
-    // Google UMP(CMP) 동의 — EEA/영국/스위스 유저에게만 동의 폼이 뜬다.
-    // 그 외 지역은 status=NOT_REQUIRED 라 아무것도 표시되지 않는다.
-    // 동의 흐름 실패가 광고/게임을 막으면 안 되므로 별도 try.
+    // 순서 중요 (Apple 5.1.1(iv)): GDPR(UMP) 동의 폼을 "먼저", ATT를 "나중에".
+    // ATT 거부 후 GDPR 폼이 뜨면 "거부했는데 또 묻는다"로 간주되어 리젝된다.
+    // GDPR 폼은 EEA/영국/스위스에서만 뜨고 그 외 지역은 NOT_REQUIRED라 표시되지 않는다.
     try {
       const consentInfo = await AdMob.requestConsentInfo();
       if (
@@ -57,6 +50,13 @@ export const initAdMob = async (): Promise<void> => {
       }
     } catch (e) {
       console.warn("[AdMob] 동의(UMP) 흐름 실패 — 무시하고 진행:", e);
+    }
+
+    // iOS ATT (추적 허용 요청) — 항상 동의 폼 이후에. 미지원/거절은 무시.
+    try {
+      await AdMob.requestTrackingAuthorization();
+    } catch {
+      // ignore
     }
 
     initialized = true;
