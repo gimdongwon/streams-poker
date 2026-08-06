@@ -20,6 +20,7 @@ import { MuteButton } from "@/components/common/MuteButton";
 import { playSound } from "@/lib/sound";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { useT } from "@/lib/i18n/useT";
+import { Spinner } from "@/components/common/Spinner";
 
 type GameScreenProps = {
   mode: "single" | "multi";
@@ -192,6 +193,16 @@ export const GameScreen = ({
     hasSavedRef.current = false;
     resetGame();
   };
+
+  // 멀티: 내 제출은 끝났지만 서버 결과(game:results)가 아직 안 온 상태 → 집계 대기 스피너.
+  if (phase === "game_over" && mode === "multi" && playerResults.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-void flex flex-col items-center justify-center gap-3">
+        <Spinner size="md" />
+        <span className="text-haze text-sm">{t("result.waitingResults")}</span>
+      </div>
+    );
+  }
 
   if (phase === "game_over") {
     return (

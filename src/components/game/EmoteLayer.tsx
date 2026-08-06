@@ -44,15 +44,15 @@ export const EmoteLayer = () => {
         </AnimatePresence>
       </div>
 
-      {/* 이모트 버튼 + 피커 — 좌하단 */}
-      <div className="fixed bottom-3 left-3 z-40 safe-pad">
+      {/* 이모트 버튼 + 피커 — 우하단 */}
+      <div className="fixed bottom-3 right-3 z-40 safe-pad">
         <AnimatePresence>
           {open && (
             <motion.div
               initial={{ opacity: 0, y: 8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
-              className="absolute bottom-12 left-0 bg-panel border border-edge rounded-2xl p-2 shadow-xl shadow-black/50 grid grid-cols-2 gap-1 w-56"
+              className="absolute bottom-12 right-0 bg-panel border border-edge rounded-2xl p-2 shadow-xl shadow-black/50 grid grid-cols-2 gap-1 w-56"
             >
               {EMOTES.map((e) => (
                 <button

@@ -21,12 +21,18 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 const PrivacyPage = () => {
   return (
     <main className="scroll-screen bg-void text-snow safe-pad-x">
-      <div className="mx-auto w-full max-w-2xl px-5 py-10">
-        <Link href="/lobby" className="text-haze hover:text-snow text-xs">
-          ← 돌아가기
-        </Link>
+      {/* 고정 헤더: 스크롤해도 상단에 유지 */}
+      <header className="sticky top-0 z-10 bg-void/95 backdrop-blur-sm border-b border-edge">
+        <div className="mx-auto w-full max-w-2xl px-5 py-3 flex items-center gap-3">
+          <Link href="/lobby" className="text-haze hover:text-snow text-xs shrink-0">
+            ← 돌아가기
+          </Link>
+          <span className="text-snow text-sm font-bold">개인정보처리방침</span>
+        </div>
+      </header>
 
-        <h1 className="text-2xl font-extrabold mt-4">개인정보처리방침</h1>
+      <div className="mx-auto w-full max-w-2xl px-5 py-8">
+        <h1 className="text-2xl font-extrabold">개인정보처리방침</h1>
         <p className="text-haze text-xs mt-2">시행일: {EFFECTIVE_DATE}</p>
 
         <p className="text-haze text-sm leading-7 mt-5">

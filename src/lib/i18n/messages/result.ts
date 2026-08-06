@@ -25,6 +25,7 @@ export const result: Namespace = {
     "result.lobby": "로비",
     "result.playAgain": "한번 더",
     "result.backToRoom": "대기방으로",
+    "result.waitingResults": "결과 집계 중…",
     "result.backToLobby": "로비로 돌아가기",
   },
   en: {
@@ -50,6 +51,7 @@ export const result: Namespace = {
     "result.lobby": "Lobby",
     "result.playAgain": "Play again",
     "result.backToRoom": "Back to room",
+    "result.waitingResults": "Tallying results…",
     "result.backToLobby": "Back to lobby",
   },
 };
