@@ -11,6 +11,7 @@ import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { AppleIcon } from "@/components/auth/AppleIcon";
 import { useT } from "@/lib/i18n/useT";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 
 const LoginPage = () => {
   const t = useT();
@@ -57,7 +58,8 @@ const LoginPage = () => {
     };
   }, [forcedOut, clearForcedOut]);
 
-  if (!hasHydrated || isLoggedIn) return null;
+  // 세션 확인 중이거나 로그인 직후 /lobby 전환 중 — 빈 화면 대신 로딩 표시.
+  if (!hasHydrated || isLoggedIn) return <FullScreenLoading />;
 
   return (
     <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-6 landscape:gap-10 p-4 overflow-y-auto overscroll-none">

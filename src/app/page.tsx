@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 
 // 진입 리다이렉트: 세션(정식/게스트) 있으면 /lobby, 없으면 /login.
 const Home = () => {
@@ -14,7 +15,7 @@ const Home = () => {
     router.replace(isLoggedIn ? "/lobby" : "/login");
   }, [hasHydrated, isLoggedIn, router]);
 
-  return null;
+  return <FullScreenLoading />;
 };
 
 export default Home;

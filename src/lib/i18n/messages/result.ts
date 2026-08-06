@@ -24,6 +24,7 @@ export const result: Namespace = {
     "result.tapHint": "플레이어를 누르면 보드를 볼 수 있어요",
     "result.lobby": "로비",
     "result.playAgain": "한번 더",
+    "result.backToRoom": "대기방으로",
     "result.backToLobby": "로비로 돌아가기",
   },
   en: {
@@ -48,6 +49,7 @@ export const result: Namespace = {
     "result.tapHint": "Tap a player to view their board",
     "result.lobby": "Lobby",
     "result.playAgain": "Play again",
+    "result.backToRoom": "Back to room",
     "result.backToLobby": "Back to lobby",
   },
 };

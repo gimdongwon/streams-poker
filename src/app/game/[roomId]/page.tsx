@@ -8,6 +8,7 @@ import { useRoomStore } from "@/stores/roomStore";
 import { useAuthStore } from "@/stores/authStore";
 import { connectSocket } from "@/lib/socket";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 
 // 새로고침 후 진행 중이던 방으로 재접속해야 하는지 확인.
 const hasActiveRoomIntent = (code: string): boolean => {
@@ -76,7 +77,7 @@ const GamePage = () => {
     playAgain();
   }, [playAgain]);
 
-  if (!hasHydrated || !isLoggedIn) return null;
+  if (!hasHydrated || !isLoggedIn) return <FullScreenLoading />;
 
   return (
     <main className="min-h-screen bg-void">

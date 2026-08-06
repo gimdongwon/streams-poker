@@ -9,6 +9,7 @@ import { useT } from "@/lib/i18n/useT";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 import { TierBadge } from "@/components/common/TierBadge";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { TierProgress } from "@/components/common/TierProgress";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
@@ -85,7 +86,7 @@ const MyPage = () => {
     router.replace("/login");
   };
 
-  if (!hasHydrated || !isLoggedIn || !user) return null;
+  if (!hasHydrated || !isLoggedIn || !user) return <FullScreenLoading />;
 
   const bestComboLabel = (() => {
     if (!rankInfo?.bestCombo) return t("me.stats.none");

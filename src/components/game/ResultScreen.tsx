@@ -167,7 +167,12 @@ export const ResultScreen = ({
       ) : (
         <PrimaryButton label={t("result.backToLobby")} onClick={onBackToLobby} />
       )}
-      {onPlayAgain && <PrimaryButton label={t("result.playAgain")} onClick={onPlayAgain} />}
+      {onPlayAgain && (
+        <PrimaryButton
+          label={mode === "multi" ? t("result.backToRoom") : t("result.playAgain")}
+          onClick={onPlayAgain}
+        />
+      )}
     </div>
   );
 

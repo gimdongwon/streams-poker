@@ -10,6 +10,7 @@ import { isSocialEnabled } from "@/lib/socialAuth";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { AppleIcon } from "@/components/auth/AppleIcon";
 import { useT } from "@/lib/i18n/useT";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 
 const RegisterPage = () => {
   const t = useT();
@@ -26,7 +27,7 @@ const RegisterPage = () => {
     }
   }, [hasHydrated, isLoggedIn, router]);
 
-  if (!hasHydrated || isLoggedIn) return null;
+  if (!hasHydrated || isLoggedIn) return <FullScreenLoading />;
 
   const handleSocial = async (provider: "apple" | "google") => {
     if (busy) return;

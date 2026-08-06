@@ -74,7 +74,7 @@ export function UpgradeAccountModal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-void/70"
+          className="fixed inset-0 z-50 flex items-center justify-center px-8 py-6 bg-void/70 overflow-y-auto overscroll-contain safe-pad"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -84,7 +84,7 @@ export function UpgradeAccountModal({
           aria-label={t("auth.upgrade.title")}
         >
           <motion.div
-            className="w-full max-w-sm bg-panel border border-edge rounded-2xl p-5 shadow-xl"
+            className="w-full max-w-sm my-auto max-h-[85dvh] overflow-y-auto bg-panel border border-edge rounded-2xl p-6 shadow-xl"
             initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}

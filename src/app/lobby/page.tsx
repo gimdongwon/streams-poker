@@ -17,6 +17,7 @@ import { registerPushForUser } from "@/lib/native";
 // import { showRewardedAd } from "@/lib/ads"; // 임시 광고 테스트 버튼용 (아래 주석 참고)
 import { useT } from "@/lib/i18n/useT";
 import { UpgradeAccountModal } from "@/components/auth/UpgradeAccountModal";
+import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
@@ -163,7 +164,7 @@ const LobbyPage = () => {
     }
   };
 
-  if (!hasHydrated || !isLoggedIn || !user) return null;
+  if (!hasHydrated || !isLoggedIn || !user) return <FullScreenLoading />;
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
