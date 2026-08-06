@@ -3,7 +3,8 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const leaderboard: Namespace = {
   ko: {
-    "leaderboard.title": "누적 랭킹",
+    "leaderboard.title": "랭킹보드",
+    "leaderboard.myRank": "내 순위",
     "leaderboard.col.nickname": "닉네임",
     "leaderboard.col.totalScore": "누적점수",
     "leaderboard.col.coins": "코인",
@@ -17,7 +18,8 @@ export const leaderboard: Namespace = {
     "leaderboard.guest.cta": "가입하고 랭킹 도전하기",
   },
   en: {
-    "leaderboard.title": "Overall Ranking",
+    "leaderboard.title": "Ranking Board",
+    "leaderboard.myRank": "My rank",
     "leaderboard.col.nickname": "Nickname",
     "leaderboard.col.totalScore": "Total",
     "leaderboard.col.coins": "Coins",

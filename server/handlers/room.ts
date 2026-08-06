@@ -1,5 +1,6 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { Player, Room } from "../types";
+import { MAX_PLAYERS } from "../types";
 import {
   rooms,
   ROOM_CLEANUP_GRACE_MS,
@@ -211,7 +212,7 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
         code: r.code,
         hostNickname: (r.players.find((p) => p.isHost) ?? r.players[0]).nickname,
         playerCount: r.players.length,
-        maxPlayers: 10,
+        maxPlayers: MAX_PLAYERS,
       }));
     socket.emit("room:listed", { rooms: list });
   });
@@ -262,7 +263,7 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       }
     }
 
-    if (room.players.length >= 10) {
+    if (room.players.length >= MAX_PLAYERS) {
       socket.emit("room:error", { message: "방이 가득 찼습니다" });
       return;
     }

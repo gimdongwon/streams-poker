@@ -3,7 +3,7 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const lobby: Namespace = {
   ko: {
-    "lobby.leaderboard.close": "리더보드 닫기",
+    "lobby.leaderboard.close": "랭킹보드 닫기",
     "lobby.friends.close": "친구 닫기",
     "lobby.modal.close": "닫기",
     "lobby.rank.loading": "랭킹 정보 불러오는 중",
@@ -27,7 +27,7 @@ export const lobby: Namespace = {
     "lobby.rules.item3": "• 슬롯 순서가 스트레이트 판정에 영향을 줍니다",
     "lobby.rules.item4": "• 조커는 와일드카드로 최적 조합에 자동 배정됩니다",
     "lobby.rules.item5": "• 가장 높은 총점의 플레이어가 승리합니다",
-    "lobby.leaderboard.view": "리더보드 보기",
+    "lobby.leaderboard.view": "랭킹보드 보기",
     "lobby.mode.single.aria": "싱글 플레이 시작",
     "lobby.mode.single.title": "싱글 플레이",
     "lobby.mode.single.desc": "혼자서 최고 점수에 도전",

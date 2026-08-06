@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { UserRankingEntry, LeaderboardSort } from "@/types/leaderboard";
+import type { UserRankingEntry, LeaderboardSort, UserRankInfo } from "@/types/leaderboard";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { useAuthStore } from "@/stores/authStore";
 import { TierBadge } from "@/components/common/TierBadge";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
@@ -20,10 +21,31 @@ export const Leaderboard = ({
   highlightUserId,
 }: LeaderboardProps) => {
   const t = useT();
+  const user = useAuthStore((s) => s.user);
   const [entries, setEntries] = useState<UserRankingEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [sort, setSort] = useState<LeaderboardSort>("score");
+  const [myRank, setMyRank] = useState<UserRankInfo | null>(null);
+
+  // 내 순위 (10위 밖이어도 표시하기 위해 별도 조회). 게스트는 랭킹 미포함이라 스킵.
+  useEffect(() => {
+    if (!highlightUserId || user?.is_guest) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchWithTimeout(`/api/leaderboard/rank?userId=${highlightUserId}`);
+        if (!res.ok) return;
+        const data: UserRankInfo = await res.json();
+        if (!cancelled) setMyRank(data);
+      } catch {
+        // 내 순위 조회 실패는 무시 (상위 목록은 그대로 표시)
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightUserId, user?.is_guest]);
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);
@@ -200,6 +222,42 @@ export const Leaderboard = ({
               );
             })}
           </AnimatePresence>
+
+          {/* 내 순위 (10위 밖일 때만, 점수순 정렬에서만 — 순위 API가 누적점수 기준) */}
+          {sort === "score" &&
+            myRank?.rank != null &&
+            user &&
+            !entries.some((e) => e.user_id === highlightUserId) && (
+              <>
+                <div className="text-center text-haze text-[10px] tracking-[2px] py-0.5">
+                  ⋯
+                </div>
+                <div className="grid grid-cols-[2rem_1fr_4rem_4rem_2.5rem] gap-2 px-3 py-2.5 rounded-lg items-center bg-neon-cyan/15 border border-neon-cyan/40">
+                  <span className="text-haze text-xs font-mono">{myRank.rank}</span>
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium truncate block text-neon-cyan">
+                      {user.nickname}
+                      <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
+                        {t("common.me")}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1.5 text-haze text-[10px]">
+                      <TierBadge totalScore={myRank.totalScore} size="sm" showLabel={false} />
+                      <span>{t("leaderboard.best", { n: myRank.bestScore })}</span>
+                    </span>
+                  </div>
+                  <span className="text-right font-bold text-sm text-snow">
+                    {myRank.totalScore}
+                  </span>
+                  <span className="text-right font-bold text-sm text-neon-cyan">
+                    {(user.coins ?? 0).toLocaleString()}
+                  </span>
+                  <span className="text-right text-haze text-xs">
+                    {t("unit.games", { n: myRank.gamesPlayed })}
+                  </span>
+                </div>
+              </>
+            )}
         </div>
       )}
     </div>

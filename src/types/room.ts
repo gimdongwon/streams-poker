@@ -43,5 +43,5 @@ export type Room = {
   hostId: string;
 };
 
-export const MAX_PLAYERS = 10;
+export const MAX_PLAYERS = 15;
 export const ROOM_CODE_LENGTH = 6;

@@ -64,6 +64,9 @@ export type Room = {
   roundEndsAt: number;
 };
 
+// 방 최대 정원 — 클라이언트(src/types/room.ts MAX_PLAYERS)와 일치해야 한다.
+export const MAX_PLAYERS = 15;
+
 // 멀티플레이 순위별 고정 보상 (시스템 지급 — 참가비/베팅 없음).
 // 유저는 코인을 잃지 않는다. 1등 100, 2등 50, 그 외 참가 보상 10.
 export const RANK_REWARDS: Record<number, number> = { 1: 100, 2: 50 };

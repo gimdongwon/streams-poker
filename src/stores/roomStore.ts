@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Player, PlayerResult, ResultCombo, RoomStatus } from "@/types/room";
+import { MAX_PLAYERS } from "@/types/room";
 import type { Card } from "@/types/card";
 import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
 import { logRoomCreate, logRoomJoin } from "@/lib/analytics";
@@ -473,7 +474,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   joinLocalRoom: (code: string) => {
     const { players } = get();
-    if (players.length >= 10) return false;
+    if (players.length >= MAX_PLAYERS) return false;
     set({
       roomCode: code,
       players: [...players, { id: "local_guest", nickname: get().nickname || "Player 2", status: "waiting", isHost: false }],
