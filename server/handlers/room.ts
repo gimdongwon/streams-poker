@@ -310,8 +310,11 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
   });
 
   // -- Room: Leave --
+  // 명시적 나가기(버튼): 게임 중이어도 좌석을 즉시 제거해 남은 플레이어가
+  // 유령 좌석을 기다리지 않게 한다. 재접속 유예(handleLeave)는 disconnect 전용.
   socket.on("room:leave", ({ code }: { code: string }) => {
-    handleLeave(io, socket, code);
+    socket.leave(code);
+    removePlayerNow(io, code, socket.id);
   });
 
   // -- Room: Rejoin (재접속 후 좌석 재바인딩 + 현재 게임 상태 재동기화) --

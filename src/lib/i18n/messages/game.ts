@@ -4,6 +4,12 @@ import type { Namespace } from "./common";
 export const game: Namespace = {
   ko: {
     "game.mode.single": "싱글",
+    "game.quit": "게임 나가기",
+    "game.quit.title": "게임을 나갈까요?",
+    "game.quit.desc.single": "진행 중인 판은 저장되지 않아요.",
+    "game.quit.desc.multi": "지금 나가면 이번 판 기록과 보상을 받을 수 없어요.",
+    "game.quit.cancel": "계속하기",
+    "game.quit.confirm": "나가기",
     "game.mode.multi": "멀티",
     "game.status.placed": "배치 완료!",
     "game.status.placedCount": "{n}/{total} 배치 완료",
@@ -27,6 +33,12 @@ export const game: Namespace = {
   },
   en: {
     "game.mode.single": "Single",
+    "game.quit": "Leave game",
+    "game.quit.title": "Leave the game?",
+    "game.quit.desc.single": "This round won't be saved.",
+    "game.quit.desc.multi": "If you leave now, you won't get this game's score or rewards.",
+    "game.quit.cancel": "Keep playing",
+    "game.quit.confirm": "Leave",
     "game.mode.multi": "Multi",
     "game.status.placed": "Placed!",
     "game.status.placedCount": "{n}/{total} placed",

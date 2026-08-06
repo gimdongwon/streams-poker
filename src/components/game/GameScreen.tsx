@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/stores/gameStore";
 import { useRoomStore } from "@/stores/roomStore";
@@ -186,6 +186,7 @@ export const GameScreen = ({
   }, [handleKeyDown]);
 
   const isWaitingForOthers = phase === "round_end" && mode === "multi";
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const handleSinglePlayAgain = async () => {
     // 싱글 "한번 더"도 판수에 포함 — N판마다 전면 광고 후 다음 판 시작.
@@ -233,8 +234,58 @@ export const GameScreen = ({
         <div className="flex items-center gap-1">
           <RoundInfo currentRound={currentRound} />
           <MuteButton />
+          <button
+            onClick={() => setShowQuitConfirm(true)}
+            aria-label={t("game.quit")}
+            className="w-7 h-7 rounded-lg border border-edge bg-panel/60 text-haze hover:text-snow hover:bg-edge transition flex items-center justify-center text-sm leading-none active:scale-95"
+          >
+            ✕
+          </button>
         </div>
       </div>
+
+      {/* 게임 나가기 확인 모달 */}
+      <AnimatePresence>
+        {showQuitConfirm && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-8 py-6 bg-void/70"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowQuitConfirm(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("game.quit.title")}
+          >
+            <motion.div
+              className="w-full max-w-xs bg-panel border border-edge rounded-2xl p-6 shadow-xl"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-snow font-bold text-base mb-1.5">{t("game.quit.title")}</h2>
+              <p className="text-haze text-xs leading-relaxed mb-4">
+                {mode === "multi" ? t("game.quit.desc.multi") : t("game.quit.desc.single")}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowQuitConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm font-medium transition"
+                >
+                  {t("game.quit.cancel")}
+                </button>
+                <button
+                  onClick={onBackToLobby}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-sm font-bold transition"
+                >
+                  {t("game.quit.confirm")}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex flex-col landscape:flex-row items-center landscape:items-center landscape:justify-between gap-4 w-full max-w-3xl">
         {/* 왼쪽: 현재 카드 / 대기 상태 */}
