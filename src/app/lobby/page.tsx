@@ -185,7 +185,7 @@ const LobbyPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 overscroll-contain"
+            className="fixed inset-0 z-50 flex items-center justify-center px-8 py-6 overflow-y-auto overscroll-contain safe-pad"
           >
             <div
               className="absolute inset-0 bg-black/70 backdrop-blur-sm"
@@ -201,7 +201,7 @@ const LobbyPage = () => {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="relative z-10 w-full max-w-md"
+              className="relative z-10 w-full max-w-md my-auto max-h-[85dvh] overflow-y-auto"
             >
               <Leaderboard highlightNickname={user.nickname} highlightUserId={user.id} />
               {/* 게스트 안내: 임시 계정은 랭킹에 기록되지 않음 → 가입 유도 */}

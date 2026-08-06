@@ -71,8 +71,8 @@ export const Leaderboard = ({
   }
 
   return (
-    <div className="w-full bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="w-full bg-panel/60 backdrop-blur-sm rounded-2xl border border-edge p-5">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-snow flex items-center gap-2">
           <span>🏆</span> {t("leaderboard.title")}
         </h3>
