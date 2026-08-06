@@ -6,6 +6,7 @@ import { rooms, userSockets } from "./state";
 import { registerAuthHandlers } from "./handlers/auth";
 import { registerRoomHandlers, handleLeave } from "./handlers/room";
 import { registerGameHandlers } from "./handlers/game";
+import { registerChatHandlers } from "./handlers/chat";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "0.0.0.0";
@@ -28,6 +29,7 @@ app.prepare().then(() => {
     registerAuthHandlers(io, socket);
     registerRoomHandlers(io, socket);
     registerGameHandlers(io, socket);
+    registerChatHandlers(io, socket);
 
     // -- Disconnect --
     socket.on("disconnect", () => {

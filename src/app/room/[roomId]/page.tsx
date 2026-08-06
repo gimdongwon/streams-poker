@@ -9,6 +9,7 @@ import { connectSocket, getSocket } from "@/lib/socket";
 import { Logo } from "@/components/common/Logo";
 import { Spinner } from "@/components/common/Spinner";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
+import { EmoteLayer } from "@/components/game/EmoteLayer";
 import type { Player } from "@/types/room";
 import { MAX_PLAYERS } from "@/types/room";
 import { useT } from "@/lib/i18n/useT";
@@ -122,6 +123,7 @@ const RoomPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center landscape:justify-start portrait:justify-center p-3 landscape:py-2 overflow-auto">
+      <EmoteLayer />
       <Logo size="sm" className="mb-2 landscape:mb-1" />
 
       <motion.div

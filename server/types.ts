@@ -8,7 +8,22 @@ export type Player = {
   userId?: string;
   // True while the player's socket is gone but inside the reconnect grace window.
   disconnected?: boolean;
+  // 퀵챗(이모트) 스팸 방지용 마지막 전송 시각(ms).
+  lastEmoteAt?: number;
 };
+
+// 퀵챗 이모트 ID 목록 — 클라이언트(src/lib/emotes.ts)와 반드시 일치해야 한다.
+// 자유 입력이 아닌 사전 정의 문구만 허용 (UGC 아님 → 신고/필터링 의무 없음).
+export const EMOTE_IDS = [
+  "hello",
+  "nice",
+  "wow",
+  "cheer",
+  "close",
+  "hurry",
+  "gg",
+  "fire",
+] as const;
 
 export type CardData = {
   type: "normal" | "joker";

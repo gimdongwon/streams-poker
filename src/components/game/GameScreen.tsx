@@ -8,6 +8,7 @@ import type { SlotIndex } from "@/types/game";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
 import { logGameComplete } from "@/lib/analytics";
+import { EmoteLayer } from "./EmoteLayer";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
 import { Timer } from "./Timer";
@@ -209,6 +210,8 @@ export const GameScreen = ({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] safe-pad">
+      {/* 퀵챗 — 멀티에서만 (싱글은 상대가 없음) */}
+      {mode === "multi" && <EmoteLayer />}
       <div className="flex items-center justify-between w-full max-w-3xl py-1 mb-2">
         <div className="flex items-center gap-2">
           <Logo size="sm" />

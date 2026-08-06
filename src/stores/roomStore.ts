@@ -18,6 +18,14 @@ export type PublicRoom = {
   maxPlayers: number;
 };
 
+// 화면에 떠 있는 퀵챗 말풍선 (2.6초 후 자동 제거).
+export type ActiveEmote = {
+  key: string;
+  playerId: string;
+  nickname: string;
+  emoteId: string;
+};
+
 type RoomStore = {
   roomCode: string | null;
   players: Player[];
@@ -31,8 +39,10 @@ type RoomStore = {
   roomList: PublicRoom[];
   isCreatingRoom: boolean;
   isLoadingRoomList: boolean;
+  activeEmotes: ActiveEmote[];
 
   setNickname: (nickname: string) => void;
+  sendEmote: (emoteId: string) => void;
 
   // Socket-based actions
   createRoom: (nickname: string) => void;
@@ -113,8 +123,17 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   roomList: [],
   isCreatingRoom: false,
   isLoadingRoomList: false,
+  activeEmotes: [],
 
   setNickname: (nickname: string) => set({ nickname }),
+
+  // 퀵챗 이모트 전송 (사전 정의 id만 — 서버에서도 재검증).
+  sendEmote: (emoteId: string) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    const socket = getSocket();
+    socket.emit("chat:emote", { code: roomCode, emoteId });
+  },
 
   clearError: () => set({ error: null }),
 
@@ -245,6 +264,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:results");
     socket.off("game:resync");
     socket.off("room:listed");
+    socket.off("chat:emote");
 
     socket.on("connect", () => {
       set({ isConnected: true });
@@ -400,6 +420,26 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.on("room:listed", ({ rooms }: { rooms: PublicRoom[] }) => {
       set({ roomList: rooms, isLoadingRoomList: false });
     });
+
+    // 퀵챗 이모트 수신 → 말풍선 표시 후 2.6초 뒤 자동 제거.
+    socket.on(
+      "chat:emote",
+      ({ playerId, nickname, emoteId }: { playerId: string; nickname: string; emoteId: string }) => {
+        const key = `${playerId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        set((s) => ({
+          // 같은 플레이어의 이전 말풍선은 교체 (겹침 방지), 최대 4개 유지.
+          activeEmotes: [
+            ...s.activeEmotes.filter((e) => e.playerId !== playerId).slice(-3),
+            { key, playerId, nickname, emoteId },
+          ],
+        }));
+        setTimeout(() => {
+          set((s) => ({
+            activeEmotes: s.activeEmotes.filter((e) => e.key !== key),
+          }));
+        }, 2600);
+      }
+    );
   },
 
   cleanupSocketListeners: () => {
@@ -416,6 +456,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     socket.off("game:results");
     socket.off("game:resync");
     socket.off("room:listed");
+    socket.off("chat:emote");
   },
 
   // --- Local-only (single mode & backward compat) ---
