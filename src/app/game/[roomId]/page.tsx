@@ -9,6 +9,9 @@ import { useAuthStore } from "@/stores/authStore";
 import { connectSocket } from "@/lib/socket";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import type { Card } from "@/types/card";
+import { useState } from "react";
 
 // 새로고침 후 진행 중이던 방으로 재접속해야 하는지 확인.
 const hasActiveRoomIntent = (code: string): boolean => {
@@ -28,6 +31,8 @@ const GamePage = () => {
   const router = useRouter();
   const roomId = params.roomId as string;
   const isSingle = roomId === "single";
+  const isDaily = roomId === "daily";
+  const [dailyDeck, setDailyDeck] = useState<Card[] | null>(null);
   const { phase, resetGame } = useGameStore();
   const { status, roomCode, resetRoom, playAgain, initSocketListeners, cleanupSocketListeners } = useRoomStore();
   const { user, isLoggedIn, hasHydrated } = useAuthStore();
@@ -38,8 +43,35 @@ const GamePage = () => {
     }
   }, [hasHydrated, isLoggedIn, router]);
 
+  // 데일리: 시작 API 로 도전권 소진 + 오늘의 덱 수신. 이미 도전했으면 로비로.
   useEffect(() => {
-    if (isSingle || !hasHydrated || !isLoggedIn) return;
+    if (!isDaily || !hasHydrated || !isLoggedIn || !user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchWithTimeout("/api/daily/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        if (res.status === 409) {
+          if (!cancelled) router.replace("/lobby");
+          return;
+        }
+        if (!res.ok) throw new Error("daily start failed");
+        const data: { deck: Card[] } = await res.json();
+        if (!cancelled) setDailyDeck(data.deck);
+      } catch {
+        if (!cancelled) router.replace("/lobby");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isDaily, hasHydrated, isLoggedIn, user?.id, router]);
+
+  useEffect(() => {
+    if (isSingle || isDaily || !hasHydrated || !isLoggedIn) return;
 
     initSocketListeners();
 
@@ -52,14 +84,14 @@ const GamePage = () => {
     return () => {
       cleanupSocketListeners();
     };
-  }, [isSingle, hasHydrated, isLoggedIn, roomId, roomCode, initSocketListeners, cleanupSocketListeners]);
+  }, [isSingle, isDaily, hasHydrated, isLoggedIn, roomId, roomCode, initSocketListeners, cleanupSocketListeners]);
 
   useEffect(() => {
-    if (!isSingle && status === "waiting" && phase === "game_over" && roomCode) {
+    if (!isSingle && !isDaily && status === "waiting" && phase === "game_over" && roomCode) {
       resetGame();
       router.push(`/room/${roomCode}`);
     }
-  }, [isSingle, status, phase, roomCode, resetGame, router]);
+  }, [isSingle, isDaily, status, phase, roomCode, resetGame, router]);
 
   const handleBackToLobby = useCallback(async () => {
     // 게임(싱글/멀티)을 "끝까지" 마치고 로비로 나가는 경우에만 판수를 세고,
@@ -79,14 +111,18 @@ const GamePage = () => {
 
   if (!hasHydrated || !isLoggedIn) return <FullScreenLoading />;
 
+  // 데일리: 덱 수신 전 로딩
+  if (isDaily && !dailyDeck) return <FullScreenLoading />;
+
   return (
     <main className="min-h-screen bg-void">
       <GameScreen
-        mode={isSingle ? "single" : "multi"}
+        mode={isDaily ? "daily" : isSingle ? "single" : "multi"}
         playerName={user?.nickname ?? "Player"}
         playerId={user?.id ?? ""}
+        externalDeck={dailyDeck}
         onBackToLobby={handleBackToLobby}
-        onPlayAgain={isSingle ? undefined : handlePlayAgain}
+        onPlayAgain={isSingle || isDaily ? undefined : handlePlayAgain}
       />
     </main>
   );

@@ -16,6 +16,12 @@ type LeaderboardProps = {
 
 const MEDAL = ["🥇", "🥈", "🥉"] as const;
 
+type DailyEntry = { rank: number; user_id: string; nickname: string; score: number };
+type DailyBoard = {
+  entries: DailyEntry[];
+  my: { played: boolean; submitted: boolean; score: number | null; rank: number | null; total: number | null } | null;
+};
+
 export const Leaderboard = ({
   highlightNickname,
   highlightUserId,
@@ -27,6 +33,28 @@ export const Leaderboard = ({
   const [hasError, setHasError] = useState(false);
   const [sort, setSort] = useState<LeaderboardSort>("score");
   const [myRank, setMyRank] = useState<UserRankInfo | null>(null);
+  const [tab, setTab] = useState<"all" | "daily">("all");
+  const [dailyBoard, setDailyBoard] = useState<DailyBoard | null>(null);
+
+  // 오늘의 덱 랭킹 (탭 진입 시 1회 로드)
+  useEffect(() => {
+    if (tab !== "daily" || dailyBoard) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = highlightUserId ? `?userId=${highlightUserId}` : "";
+        const res = await fetchWithTimeout(`/api/daily/leaderboard${q}`);
+        if (!res.ok) return;
+        const data: DailyBoard = await res.json();
+        if (!cancelled) setDailyBoard(data);
+      } catch {
+        // ignore — 탭에 빈 상태 표시
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, dailyBoard, highlightUserId]);
 
   // 내 순위 (10위 밖이어도 표시하기 위해 별도 조회). 게스트는 랭킹 미포함이라 스킵.
   useEffect(() => {
@@ -99,24 +127,43 @@ export const Leaderboard = ({
           <span>🏆</span> {t("leaderboard.title")}
         </h3>
         <div className="flex items-center gap-1.5">
+          {/* 누적 / 오늘 탭 */}
           <div className="flex rounded-lg border border-edge overflow-hidden text-[10px] font-medium">
-            {(["score", "coins"] as const).map((s) => (
+            {(["all", "daily"] as const).map((tb) => (
               <button
-                key={s}
-                onClick={() => setSort(s)}
+                key={tb}
+                onClick={() => setTab(tb)}
                 className={`px-2 py-1 transition-colors ${
-                  sort === s
-                    ? "bg-neon-cyan text-void font-bold"
+                  tab === tb
+                    ? "bg-neon-magenta text-void font-bold"
                     : "text-haze hover:bg-edge"
                 }`}
-                aria-pressed={sort === s}
+                aria-pressed={tab === tb}
               >
-                {t(`leaderboard.sort.${s}`)}
+                {t(`leaderboard.tab.${tb}`)}
               </button>
             ))}
           </div>
+          {tab === "all" && (
+            <div className="flex rounded-lg border border-edge overflow-hidden text-[10px] font-medium">
+              {(["score", "coins"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSort(s)}
+                  className={`px-2 py-1 transition-colors ${
+                    sort === s
+                      ? "bg-neon-cyan text-void font-bold"
+                      : "text-haze hover:bg-edge"
+                  }`}
+                  aria-pressed={sort === s}
+                >
+                  {t(`leaderboard.sort.${s}`)}
+                </button>
+              ))}
+            </div>
+          )}
           <button
-            onClick={handleFetch}
+            onClick={tab === "all" ? handleFetch : () => setDailyBoard(null)}
             className="text-haze hover:text-snow text-xs transition-colors px-2 py-1 rounded-lg hover:bg-edge"
             aria-label={t("common.refresh")}
             tabIndex={0}
@@ -126,7 +173,73 @@ export const Leaderboard = ({
         </div>
       </div>
 
-      {entries.length === 0 ? (
+      {tab === "daily" ? (
+        !dailyBoard || dailyBoard.entries.length === 0 ? (
+          <p className="text-haze text-center text-sm py-8">{t("daily.empty")}</p>
+        ) : (
+          <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
+            {dailyBoard.entries.map((e) => {
+              const isMe = e.user_id === highlightUserId;
+              return (
+                <div
+                  key={e.user_id}
+                  className={`grid grid-cols-[2rem_1fr_4.5rem] gap-2 px-3 py-2.5 rounded-lg items-center ${
+                    isMe
+                      ? "bg-neon-cyan/15 border border-neon-cyan/40"
+                      : e.rank <= 3
+                      ? "bg-edge/50"
+                      : ""
+                  }`}
+                >
+                  <span className="text-sm">
+                    {e.rank <= 3 ? (
+                      MEDAL[e.rank - 1]
+                    ) : (
+                      <span className="text-haze text-xs font-mono">{e.rank}</span>
+                    )}
+                  </span>
+                  <span
+                    className={`text-sm font-medium truncate ${
+                      isMe ? "text-neon-cyan" : "text-snow"
+                    }`}
+                  >
+                    {e.nickname}
+                    {isMe && (
+                      <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
+                        {t("common.me")}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-right font-bold text-sm text-snow">
+                    {e.score}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* 내 순위 (10위 밖) */}
+            {dailyBoard.my?.submitted &&
+              dailyBoard.my.rank != null &&
+              !dailyBoard.entries.some((e) => e.user_id === highlightUserId) && (
+                <>
+                  <div className="text-center text-haze text-[10px] tracking-[2px] py-0.5">⋯</div>
+                  <div className="grid grid-cols-[2rem_1fr_4.5rem] gap-2 px-3 py-2.5 rounded-lg items-center bg-neon-cyan/15 border border-neon-cyan/40">
+                    <span className="text-haze text-xs font-mono">{dailyBoard.my.rank}</span>
+                    <span className="text-sm font-medium truncate text-neon-cyan">
+                      {user?.nickname}
+                      <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
+                        {t("common.me")}
+                      </span>
+                    </span>
+                    <span className="text-right font-bold text-sm text-snow">
+                      {dailyBoard.my.score}
+                    </span>
+                  </div>
+                </>
+              )}
+          </div>
+        )
+      ) : entries.length === 0 ? (
         <p className="text-haze text-center text-sm py-8">
           {t("leaderboard.empty")}
         </p>

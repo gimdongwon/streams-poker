@@ -21,7 +21,7 @@ export const logEvent = async (
 
 // --- 주요 이벤트 헬퍼 (이름 오타 방지용) ---
 
-export const logGameComplete = (mode: "single" | "multi", score?: number) =>
+export const logGameComplete = (mode: "single" | "multi" | "daily", score?: number) =>
   logEvent("game_complete", score != null ? { mode, score } : { mode });
 
 export const logRoomCreate = () => logEvent("room_create");

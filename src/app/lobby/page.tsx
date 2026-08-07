@@ -37,6 +37,32 @@ const LobbyPage = () => {
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [dailyStatus, setDailyStatus] = useState<{
+    played: boolean;
+    submitted: boolean;
+    score: number | null;
+    rank: number | null;
+  } | null>(null);
+
+  // 오늘의 덱 도전 상태 (버튼 표시용). 실패 시 무시 — 버튼은 기본 상태로 동작.
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchWithTimeout(`/api/daily/leaderboard?userId=${user.id}`);
+        if (!res.ok) return;
+        const data: { my: { played: boolean; submitted: boolean; score: number | null; rank: number | null } | null } =
+          await res.json();
+        if (!cancelled && data.my) setDailyStatus(data.my);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   // 멀티 진입: 게스트면 승격 모달을, 정식 계정이면 멀티 화면으로.
   const enterMultiplayer = () => {
@@ -130,6 +156,11 @@ const LobbyPage = () => {
 
   const handleSinglePlay = () => {
     router.push("/game/single");
+  };
+
+  const handleDailyPlay = () => {
+    if (dailyStatus?.submitted) return;
+    router.push("/game/daily");
   };
 
   const handleCreateRoom = () => {
@@ -448,6 +479,40 @@ const LobbyPage = () => {
                 transition={{ duration: 0.12 }}
                 className="flex flex-col gap-3 landscape:flex-1"
               >
+                {/* 오늘의 덱 — 미도전이면 강조, 도전 완료면 결과 표시 */}
+                <button
+                  onClick={handleDailyPlay}
+                  disabled={dailyStatus?.submitted === true}
+                  style={
+                    dailyStatus && !dailyStatus.played
+                      ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
+                      : undefined
+                  }
+                  className={`w-full py-3 px-4 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
+                    dailyStatus && !dailyStatus.played
+                      ? "text-void hover:scale-[1.02]"
+                      : "bg-panel border border-yellow-400/50 text-snow disabled:cursor-default"
+                  }`}
+                  aria-label={t("daily.aria")}
+                >
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl w-10 text-center shrink-0">🃏</span>
+                    <div className="text-left">
+                      <div className={`text-base ${dailyStatus && !dailyStatus.played ? "" : "text-yellow-400"}`}>
+                        {t("daily.title")}
+                      </div>
+                      <div className={`text-xs font-normal ${dailyStatus && !dailyStatus.played ? "opacity-80" : "text-haze"}`}>
+                        {dailyStatus?.submitted
+                          ? t("daily.done", {
+                              score: dailyStatus.score ?? 0,
+                              rank: dailyStatus.rank ?? "-",
+                            })
+                          : t("daily.desc")}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
                 <button
                   onClick={handleSinglePlay}
                   className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"

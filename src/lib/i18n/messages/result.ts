@@ -26,6 +26,9 @@ export const result: Namespace = {
     "result.playAgain": "한번 더",
     "result.backToRoom": "대기방으로",
     "result.waitingResults": "결과 집계 중…",
+    "result.mode.daily": "오늘의 덱",
+    "result.daily.rank": "오늘 {rank}위 / {total}명",
+    "result.share.daily": "TENTENS 오늘의 덱 {n}점 — {rank}위/{total}명 🃏 같은 덱으로 도전해보세요! https://tentens.kr",
     "result.backToLobby": "로비로 돌아가기",
   },
   en: {
@@ -52,6 +55,9 @@ export const result: Namespace = {
     "result.playAgain": "Play again",
     "result.backToRoom": "Back to room",
     "result.waitingResults": "Tallying results…",
+    "result.mode.daily": "Daily Deck",
+    "result.daily.rank": "Today #{rank} / {total}",
+    "result.share.daily": "TENTENS Daily Deck {n} pts — #{rank}/{total} 🃏 Try the same deck! https://tentens.kr",
     "result.backToLobby": "Back to lobby",
   },
 };

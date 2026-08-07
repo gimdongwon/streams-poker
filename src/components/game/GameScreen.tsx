@@ -19,13 +19,18 @@ import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { playSound } from "@/lib/sound";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { useAuthStore } from "@/stores/authStore";
+import type { Card } from "@/types/card";
+import { type DailyResultInfo } from "./ResultScreen";
 import { useT } from "@/lib/i18n/useT";
 import { Spinner } from "@/components/common/Spinner";
 
 type GameScreenProps = {
-  mode: "single" | "multi";
+  mode: "single" | "multi" | "daily";
   playerName: string;
   playerId: string;
+  // daily: API에서 받은 오늘의 덱 (10장)
+  externalDeck?: Card[] | null;
   onBackToLobby: () => void;
   onPlayAgain?: () => void;
 };
@@ -34,6 +39,7 @@ export const GameScreen = ({
   mode,
   playerName,
   playerId,
+  externalDeck,
   onBackToLobby,
   onPlayAgain,
 }: GameScreenProps) => {
@@ -73,16 +79,18 @@ export const GameScreen = ({
 
     if (mode === "multi" && multiDeck && multiDeck.length > 0) {
       startGameWithDeck(multiDeck);
+    } else if (mode === "daily" && externalDeck && externalDeck.length > 0) {
+      startGameWithDeck(externalDeck);
     } else if (mode === "single") {
       startGame();
     }
-  }, [phase, mode, multiDeck, startGame, startGameWithDeck]);
+  }, [phase, mode, multiDeck, externalDeck, startGame, startGameWithDeck]);
 
   // Round progression: single auto-advance, multi emit placed
   useEffect(() => {
     if (phase !== "round_end") return;
 
-    if (mode === "single") {
+    if (mode !== "multi") {
       const timeout = setTimeout(() => nextRound(), 500);
       return () => clearTimeout(timeout);
     }
@@ -120,6 +128,28 @@ export const GameScreen = ({
     [mode, playerName, playerId, slots]
   );
 
+  // 데일리: 제출 후 오늘 순위/보상 정보 (ResultScreen 표시용)
+  const [dailyInfo, setDailyInfo] = useState<DailyResultInfo | null>(null);
+
+  const handleSubmitDaily = useCallback(async () => {
+    if (hasSavedRef.current || !playerId) return;
+    hasSavedRef.current = true;
+    try {
+      const res = await fetchWithTimeout("/api/daily/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: playerId, slots: slots.map((s) => s.card) }),
+      });
+      if (!res.ok) throw new Error("daily submit failed");
+      const data: { rank: number; total: number; reward: number } = await res.json();
+      setDailyInfo({ rank: data.rank, total: data.total, reward: data.reward });
+      // 참여 보상 반영
+      useAuthStore.getState().refreshCoins();
+    } catch {
+      hasSavedRef.current = false;
+    }
+  }, [playerId, slots]);
+
   const handleEvaluate = useCallback(() => {
     // 로컬 결과 표시용 계산 (본인 결과 화면). 방 순위·리더보드 점수는 서버가 재계산한다.
     const results = evaluateSlots(slots);
@@ -131,9 +161,14 @@ export const GameScreen = ({
       submitResult(slots.map((s) => s.card));
     }
 
-    // 싱글·멀티 모두 글로벌 리더보드에 기록 (서버가 점수 재계산)
-    handleSubmitScore();
-  }, [slots, setCombinations, setScore, mode, submitResult, handleSubmitScore]);
+    if (mode === "daily") {
+      // 데일리: 오늘의 랭킹에만 기록 (누적 랭킹과 별개)
+      handleSubmitDaily();
+    } else {
+      // 싱글·멀티: 글로벌 리더보드에 기록 (서버가 점수 재계산)
+      handleSubmitScore();
+    }
+  }, [slots, setCombinations, setScore, mode, submitResult, handleSubmitScore, handleSubmitDaily]);
 
   useEffect(() => {
     if (phase === "game_over") {
@@ -148,7 +183,7 @@ export const GameScreen = ({
 
     logGameComplete(mode, score);
 
-    if (mode === "single") {
+    if (mode !== "multi") {
       playSound("win");
     } else {
       const myResult = playerResults.find((r) => r.isMe);
@@ -214,8 +249,15 @@ export const GameScreen = ({
         combinations={combinations}
         totalScore={score}
         playerResults={playerResults}
+        dailyInfo={dailyInfo}
         onBackToLobby={onBackToLobby}
-        onPlayAgain={mode === "multi" ? onPlayAgain : handleSinglePlayAgain}
+        onPlayAgain={
+          mode === "multi"
+            ? onPlayAgain
+            : mode === "daily"
+            ? undefined // 오늘의 덱은 하루 한 번 — 다시하기 없음
+            : handleSinglePlayAgain
+        }
       />
     );
   }
@@ -228,7 +270,11 @@ export const GameScreen = ({
         <div className="flex items-center gap-2">
           <Logo size="sm" />
           <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded">
-            {mode === "single" ? t("game.mode.single") : t("game.mode.multi")}
+            {mode === "multi"
+              ? t("game.mode.multi")
+              : mode === "daily"
+              ? t("game.mode.daily")
+              : t("game.mode.single")}
           </span>
         </div>
         <div className="flex items-center gap-1">
@@ -266,7 +312,11 @@ export const GameScreen = ({
             >
               <h2 className="text-snow font-bold text-base mb-1.5">{t("game.quit.title")}</h2>
               <p className="text-haze text-xs leading-relaxed mb-4">
-                {mode === "multi" ? t("game.quit.desc.multi") : t("game.quit.desc.single")}
+                {mode === "multi"
+                  ? t("game.quit.desc.multi")
+                  : mode === "daily"
+                  ? t("game.quit.desc.daily")
+                  : t("game.quit.desc.single")}
               </p>
               <div className="flex gap-2">
                 <button

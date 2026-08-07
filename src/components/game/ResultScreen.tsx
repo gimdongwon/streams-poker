@@ -14,15 +14,23 @@ import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey } from "@/lib/i18n/combo";
 
+export type DailyResultInfo = {
+  rank: number;
+  total: number;
+  reward: number;
+};
+
 type ResultScreenProps = {
-  mode: "single" | "multi";
+  mode: "single" | "multi" | "daily";
   playerName: string;
-  // single (own board, from gameStore)
+  // single/daily (own board, from gameStore)
   slots: SlotType[];
   combinations: ScoredCombination[];
   totalScore: number;
   // multi
   playerResults: PlayerResult[];
+  // daily (제출 후 순위 정보 — 제출 중이면 null)
+  dailyInfo?: DailyResultInfo | null;
   onBackToLobby: () => void;
   onPlayAgain?: () => void;
 };
@@ -93,6 +101,7 @@ export const ResultScreen = ({
   combinations,
   totalScore,
   playerResults,
+  dailyInfo,
   onBackToLobby,
   onPlayAgain,
 }: ResultScreenProps) => {
@@ -111,7 +120,15 @@ export const ResultScreen = ({
 
   const handleShare = async () => {
     const text =
-      mode === "single"
+      mode === "daily"
+        ? dailyInfo
+          ? t("result.share.daily", {
+              n: totalScore,
+              rank: dailyInfo.rank,
+              total: dailyInfo.total,
+            })
+          : t("result.share.single", { n: totalScore })
+        : mode === "single"
         ? t("result.share.single", { n: totalScore })
         : t("result.share.multi", {
             rank: myResult ? ordinal(myResult.rank) : "",
@@ -139,26 +156,26 @@ export const ResultScreen = ({
 
   // board + breakdown source depends on mode / selected player
   const boardSlots: SlotType[] =
-    mode === "single" ? slots : slotsFromCards(selected?.slots ?? []);
+    mode !== "multi" ? slots : slotsFromCards(selected?.slots ?? []);
   const boardCombos: BoardCombo[] =
-    mode === "single" ? combinations : selected?.combinations ?? [];
+    mode !== "multi" ? combinations : selected?.combinations ?? [];
   const breakdownRows: BreakdownRow[] =
-    mode === "single"
+    mode !== "multi"
       ? combinations.map((c) => ({ type: c.type, name: c.name, score: c.score }))
       : (selected?.combinations ?? []).map((c: ResultCombo) => ({
           type: c.type,
           name: c.name,
           score: c.score,
         }));
-  const boardTotal = mode === "single" ? totalScore : selected?.score ?? 0;
+  const boardTotal = mode !== "multi" ? totalScore : selected?.score ?? 0;
   const hasBoard = boardSlots.some((s) => s.card !== null);
 
   const winner = mode === "multi" ? playerResults[0] ?? null : null;
 
   // 싱글은 순위 컬럼이 없어 공간이 넓다 → 카드를 키우고 넓게 펼쳐 화면을 채운다.
   // 멀티는 우측 순위판이 있어 콤팩트하게 유지.
-  const boardSize = mode === "single" ? "md" : "sm";
-  const boardWrapClass = mode === "single" ? "max-w-[42rem]" : "max-w-[19rem]";
+  const boardSize = mode !== "multi" ? "md" : "sm";
+  const boardWrapClass = mode !== "multi" ? "max-w-[42rem]" : "max-w-[19rem]";
 
   const actions = (
     <div className="flex justify-end gap-3 shrink-0 pt-2">
@@ -183,7 +200,7 @@ export const ResultScreen = ({
         <div className="flex items-center gap-2">
           <Logo size="sm" />
           <span className="text-haze text-[10px] bg-panel px-1.5 py-0.5 rounded">
-            {mode === "single" ? t("result.mode.single") : t("result.mode.multi")}
+            {mode === "multi" ? t("result.mode.multi") : mode === "daily" ? t("result.mode.daily") : t("result.mode.single")}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -220,7 +237,7 @@ export const ResultScreen = ({
           animate={{ opacity: 1, y: 0 }}
           className="landscape:w-[30%] flex flex-col items-center text-center landscape:justify-center shrink-0"
         >
-          {mode === "single" ? (
+          {mode !== "multi" ? (
             <>
               <span className="text-haze text-[10px] tracking-[2px]">{t("result.yourScore")}</span>
               <div className="flex items-baseline gap-1.5">
@@ -239,6 +256,14 @@ export const ResultScreen = ({
               {combinations.length > 0 && (
                 <div className="mt-2.5 text-[11px] text-haze">
                   {t("result.best", { name: t(comboKey(combinations[0].type)) })}
+                </div>
+              )}
+              {mode === "daily" && dailyInfo && (
+                <div className="mt-2 text-sm font-extrabold text-neon-cyan">
+                  🏆 {t("result.daily.rank", { rank: dailyInfo.rank, total: dailyInfo.total })}
+                  <span className="block text-xs font-bold text-haze mt-0.5">
+                    🪙 +{dailyInfo.reward}
+                  </span>
                 </div>
               )}
             </>

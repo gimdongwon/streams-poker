@@ -13,6 +13,7 @@ import { misc } from "./misc";
 import { me } from "./me";
 import { coins } from "./coins";
 import { emotes } from "./emotes";
+import { daily } from "./daily";
 
 const NAMESPACES: Namespace[] = [
   common,
@@ -29,6 +30,7 @@ const NAMESPACES: Namespace[] = [
   me,
   coins,
   emotes,
+  daily,
 ];
 
 const mergeLocale = (locale: Locale): Dict =>
