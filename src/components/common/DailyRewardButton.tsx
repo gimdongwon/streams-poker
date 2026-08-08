@@ -21,11 +21,18 @@ export const DailyRewardButton = ({
 
   const [canClaim, setCanClaim] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [nextReward, setNextReward] = useState<number | null>(null);
+  const [nextStreak, setNextStreak] = useState<number | null>(null);
 
   useEffect(() => {
     let alive = true;
-    refreshCoins().then((claimable) => {
-      if (alive) setCanClaim(claimable);
+    refreshCoins().then((state) => {
+      if (!alive || !state) return;
+      setCanClaim(state.canClaimDaily);
+      setStreak(state.streak);
+      setNextReward(state.nextReward);
+      setNextStreak(state.nextStreak);
     });
     return () => {
       alive = false;
@@ -39,7 +46,10 @@ export const DailyRewardButton = ({
     await showRewardedAd();
     const result = await claimDaily();
     // claimed=false 는 "오늘 이미 수령"(다른 기기 포함) → 받기 버튼으로 되돌리지 않는다.
-    if (result) setCanClaim(false);
+    if (result) {
+      setCanClaim(false);
+      if (result.streak != null) setStreak(result.streak);
+    }
     setClaiming(false);
   }, [claiming, canClaim, claimDaily]);
 
@@ -65,11 +75,21 @@ export const DailyRewardButton = ({
         <>
           <span className="text-base leading-none">🪙</span>
           <span>
-            {t("coins.daily.claim")} ({t("coins.daily.reward")})
+            {t("coins.daily.claim")} (+{nextReward ?? 100})
           </span>
+          {nextStreak != null && nextStreak >= 2 && (
+            <span className="text-[10px] opacity-90">
+              {t("coins.streak", { n: nextStreak })}
+            </span>
+          )}
         </>
       ) : (
-        t("coins.daily.claimed")
+        <>
+          {t("coins.daily.claimed")}
+          {streak >= 2 && (
+            <span className="text-[10px]">{t("coins.streak", { n: streak })}</span>
+          )}
+        </>
       )}
     </button>
   );

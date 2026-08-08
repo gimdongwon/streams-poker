@@ -27,8 +27,18 @@ type AuthStore = {
   socialUpgrade: (provider: "apple" | "google") => Promise<string | null>;
   logout: () => void;
   setCoins: (coins: number) => void;
-  refreshCoins: () => Promise<boolean>; // 반환: 오늘 일일보상 수령 가능 여부
-  claimDaily: () => Promise<{ claimed: boolean; coins: number } | null>;
+  refreshCoins: () => Promise<{
+    canClaimDaily: boolean;
+    streak: number;
+    nextReward: number | null;
+    nextStreak: number | null;
+  } | null>;
+  claimDaily: () => Promise<{
+    claimed: boolean;
+    coins: number;
+    reward?: number;
+    streak?: number;
+  } | null>;
   updateNickname: (nickname: string) => Promise<string | null>;
   deleteAccount: (password: string) => Promise<string | null>;
   clearForcedOut: () => void;
@@ -152,16 +162,26 @@ export const useAuthStore = create<AuthStore>()(
 
       refreshCoins: async () => {
         const { user } = get();
-        if (!user) return false;
+        if (!user) return null;
         try {
           const res = await fetch(`/api/coins?userId=${user.id}`);
-          if (!res.ok) return false;
-          const data: { coins: number; canClaimDaily: boolean } =
-            await res.json();
+          if (!res.ok) return null;
+          const data: {
+            coins: number;
+            canClaimDaily: boolean;
+            streak?: number;
+            nextReward?: number | null;
+            nextStreak?: number | null;
+          } = await res.json();
           set({ user: { ...user, coins: data.coins } });
-          return data.canClaimDaily;
+          return {
+            canClaimDaily: data.canClaimDaily,
+            streak: data.streak ?? 0,
+            nextReward: data.nextReward ?? null,
+            nextStreak: data.nextStreak ?? null,
+          };
         } catch {
-          return false;
+          return null;
         }
       },
 

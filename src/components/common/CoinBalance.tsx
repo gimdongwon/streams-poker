@@ -24,11 +24,16 @@ export const CoinBalance = ({
 
   const [canClaim, setCanClaim] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [nextReward, setNextReward] = useState<number | null>(null);
 
   useEffect(() => {
     let alive = true;
-    refreshCoins().then((claimable) => {
-      if (alive) setCanClaim(claimable);
+    refreshCoins().then((state) => {
+      if (!alive || !state) return;
+      setCanClaim(state.canClaimDaily);
+      setStreak(state.streak);
+      setNextReward(state.nextReward);
     });
     return () => {
       alive = false;
@@ -41,7 +46,10 @@ export const CoinBalance = ({
     // 네이티브: 리워드 광고 노출 후 보상. 광고 실패("unavailable")여도 보상은 진행.
     await showRewardedAd();
     const result = await claimDaily();
-    if (result?.claimed) setCanClaim(false);
+    if (result?.claimed) {
+      setCanClaim(false);
+      if (result.streak != null) setStreak(result.streak);
+    }
     setClaiming(false);
   }, [claiming, claimDaily]);
 
@@ -57,6 +65,16 @@ export const CoinBalance = ({
         </span>
       </span>
 
+      {/* 연속 출석 표시 (2일 이상) */}
+      {streak >= 2 && (
+        <span
+          className="inline-flex items-center bg-panel/60 border border-edge rounded-xl px-2 py-1.5 text-[10px] text-haze font-bold shrink-0"
+          aria-label={t("coins.streak", { n: streak })}
+        >
+          {t("coins.streak", { n: streak })}
+        </span>
+      )}
+
       {showDaily && canClaim && (
         <button
           onClick={handleClaim}
@@ -69,7 +87,7 @@ export const CoinBalance = ({
             <Spinner size="sm" colorClassName="border-void" />
           ) : (
             <>
-              <span>{t("coins.daily.reward")}</span>
+              <span>+{nextReward ?? 100}</span>
               <span>{t("coins.daily.claim")}</span>
             </>
           )}
