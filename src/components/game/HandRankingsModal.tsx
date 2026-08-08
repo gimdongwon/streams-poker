@@ -79,7 +79,7 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3"
+      className="fixed inset-0 z-50 flex items-center justify-center px-8 py-6 overflow-y-auto overscroll-contain safe-pad"
     >
       {/* 백드롭 */}
       <div
@@ -98,10 +98,10 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
-        className="relative z-10 w-full max-w-sm bg-panel border border-edge rounded-2xl shadow-2xl overflow-hidden"
+        className="relative z-10 w-full max-w-sm my-auto max-h-[85dvh] bg-panel border border-edge rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-edge">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-edge shrink-0">
           <h2 className="text-sm font-bold text-snow flex items-center gap-2">
             <span className="text-neon-cyan">♠</span>
             {t("hands.title")}
@@ -115,7 +115,7 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
           </button>
         </div>
 
-        <div className="p-3 max-h-[60vh] overflow-y-auto space-y-1.5">
+        <div className="p-5 overflow-y-auto space-y-2 min-h-0">
           {COMBINATION_TABLE.map((combo) => (
             <div
               key={combo.type}
@@ -143,7 +143,7 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
           ))}
         </div>
 
-        <div className="px-3 py-2.5 border-t border-edge bg-void/40">
+        <div className="px-5 py-3.5 border-t border-edge bg-void/40 shrink-0">
           <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-1.5">{t("hands.rules.title")}</h3>
           <ul className="text-haze text-[10px] space-y-0.5">
             <li>• {t("hands.rules.oneCardOneCombo")}</li>

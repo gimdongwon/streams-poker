@@ -477,7 +477,7 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col gap-3 landscape:flex-1"
+                className="flex flex-col gap-4 landscape:flex-1"
               >
                 {/* 오늘의 덱 — 미도전이면 강조, 도전 완료면 결과 표시 */}
                 <button
@@ -488,7 +488,7 @@ const LobbyPage = () => {
                       ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
                       : undefined
                   }
-                  className={`w-full py-3 px-4 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
+                  className={`w-full py-4 px-5 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
                     dailyStatus && !dailyStatus.played
                       ? "text-void hover:scale-[1.02]"
                       : "bg-panel border border-yellow-400/50 text-snow disabled:cursor-default"
@@ -515,7 +515,7 @@ const LobbyPage = () => {
 
                 <button
                   onClick={handleSinglePlay}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
+                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.mode.single.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
@@ -531,7 +531,7 @@ const LobbyPage = () => {
 
                 <button
                   onClick={enterMultiplayer}
-                  className="w-full py-3 px-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
+                  className="w-full py-4 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
                   aria-label={t("lobby.mode.multi.aria")}
                 >
                   <div className="flex items-center justify-start gap-2.5">
