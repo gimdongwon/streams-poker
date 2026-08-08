@@ -203,6 +203,21 @@ const MyPage = () => {
           </Section>
         </div>
 
+        {/* 업적 */}
+        <div className="mb-5">
+          <Link
+            href="/me/achievements"
+            className="w-full bg-panel border border-yellow-400/40 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-edge transition-colors"
+            aria-label={t("ach.view")}
+          >
+            <span className="flex items-center gap-2 text-sm font-bold text-snow">
+              <span className="text-lg">🏅</span>
+              {t("ach.view")}
+            </span>
+            <span className="text-haze text-xs">→</span>
+          </Link>
+        </div>
+
         {/* 친구 */}
         <div className="mb-5">
           <Section title={t("me.section.friends")}>
