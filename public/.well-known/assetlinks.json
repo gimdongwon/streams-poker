@@ -5,8 +5,8 @@
       "namespace": "android_app",
       "package_name": "kr.tentens.app",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_PLAY_APP_SIGNING_SHA256",
-        "REPLACE_WITH_UPLOAD_KEY_SHA256"
+        "84:75:5B:0C:68:97:F8:5D:CA:5A:0F:56:A3:1F:6E:79:84:12:31:30:39:63:81:6D:58:9B:BD:6B:EB:BC:2F:76",
+        "49:1C:51:8E:F7:D1:DB:7B:8B:72:92:2A:8C:8A:9E:80:13:43:79:8A:3C:2A:14:AB:D8:0E:F1:5E:51:6F:C6:B5"
       ]
     }
   }
