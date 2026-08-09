@@ -28,6 +28,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 앱 링크: 방 초대 링크(https://tentens.kr/room/*)로 앱 열기.
+                 검증은 https://www.tentens.kr/.well-known/assetlinks.json 기준. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="www.tentens.kr" android:pathPrefix="/room" />
+                <data android:scheme="https" android:host="tentens.kr" android:pathPrefix="/room" />
+            </intent-filter>
+
         </activity>
 
         <provider

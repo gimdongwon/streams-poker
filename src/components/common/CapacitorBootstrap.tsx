@@ -39,8 +39,24 @@ export function CapacitorBootstrap() {
       }
     });
 
+    // 앱 링크(Universal/App Links) 수신: 초대 링크 등으로 앱이 열리면 해당 경로로 이동.
+    // 예: https://www.tentens.kr/room/ABC123 → 웹뷰를 /room/ABC123 로 내비게이션.
+    const urlSubPromise = CapApp.addListener("appUrlOpen", ({ url }) => {
+      try {
+        const parsed = new URL(url);
+        if (!parsed.hostname.endsWith("tentens.kr")) return;
+        const target = parsed.pathname + parsed.search;
+        if (target && target !== "/") {
+          window.location.href = target;
+        }
+      } catch {
+        // 잘못된 URL 무시
+      }
+    });
+
     return () => {
       subPromise.then((handle) => handle.remove()).catch(() => {});
+      urlSubPromise.then((handle) => handle.remove()).catch(() => {});
     };
   }, []);
 

@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["B6W88KXSHV.kr.tentens.app"],
+        "components": [
+          { "/": "/room/*", "comment": "방 초대 링크" }
+        ]
+      }
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { Spinner } from "@/components/common/Spinner";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import { EmoteLayer } from "@/components/game/EmoteLayer";
+import { shareResult } from "@/lib/share";
 import type { Player } from "@/types/room";
 import { MAX_PLAYERS } from "@/types/room";
 import { useT } from "@/lib/i18n/useT";
@@ -104,6 +105,18 @@ const RoomPage = () => {
     setTimeout(() => setCopied(false), 2000);
   }, [roomCode, roomId]);
 
+  // 초대 공유: 시스템 공유 시트 (카카오톡/라인 등 설치된 앱 자동 노출).
+  // 링크는 앱 링크(Universal/App Links)로 — 앱 설치자는 앱으로, 미설치자는 웹으로 열린다.
+  const handleShareInvite = useCallback(async () => {
+    const code = roomCode || roomId;
+    const url = `https://www.tentens.kr/room/${code}`;
+    const outcome = await shareResult(t("room.invite.text", { code }), url);
+    if (outcome === "copied") {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [roomCode, roomId, t]);
+
   // 시작 대기 상태. 에러가 나면 자동으로 해제된다(별도 effect 불필요).
   const startPending = starting && !error;
 
@@ -140,6 +153,19 @@ const RoomPage = () => {
             aria-label={t("room.code.copy")}
           >
             {roomCode || roomId}
+          </button>
+          <button
+            onClick={handleShareInvite}
+            className="bg-panel border border-edge rounded-lg p-2 text-haze hover:text-snow hover:bg-edge transition-colors active:scale-95"
+            aria-label={t("room.invite.aria")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
           </button>
           <AnimatePresence>
             {copied && (

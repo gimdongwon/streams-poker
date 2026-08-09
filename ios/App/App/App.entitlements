@@ -10,5 +10,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:www.tentens.kr</string>
+		<string>applinks:tentens.kr</string>
+	</array>
 </dict>
 </plist>
