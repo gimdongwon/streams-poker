@@ -6,8 +6,7 @@ import { useT } from "@/lib/i18n/useT";
 
 const APP_STORE_URL = "https://apps.apple.com/app/id6792527133";
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=kr.tentens.app";
-// 안드로이드 프로덕션 공개 후 true 로 (심사 중엔 스토어 페이지가 404)
-const PLAY_STORE_READY = false;
+const PLAY_STORE_READY = true;
 
 const emptySubscribe = () => () => {};
 

@@ -14,8 +14,7 @@ import { captureReferral } from "@/lib/referral";
 
 const APP_STORE_URL = "https://apps.apple.com/app/id6792527133";
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=kr.tentens.app";
-// 안드로이드 프로덕션 공개 후 true 로
-const PLAY_STORE_READY = false;
+const PLAY_STORE_READY = true;
 
 // 루트: 웹 방문자에겐 마케팅 랜딩, 네이티브 앱에선 게임으로 바로 리다이렉트.
 const LandingPage = () => {
