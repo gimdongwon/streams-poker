@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n/useT";
 
 // 휴대폰 크기의 작은 화면이면서 세로 방향일 때만 안내 오버레이를 노출한다.
 // 세로 모드의 폰은 폭이 좁으므로 max-width로 판별한다(데스크톱/태블릿 제외).
 const MEDIA_QUERY = "(orientation: portrait) and (max-width: 600px)";
 
+// 세로로 봐도 되는 콘텐츠 페이지 — 가로 안내를 띄우지 않는다.
+const PORTRAIT_OK_PATHS = ["/", "/privacy"];
+const PORTRAIT_OK_PREFIXES = ["/guide"];
+
 export const OrientationGate = () => {
   const t = useT();
+  const pathname = usePathname();
   // SSR/초기 렌더에서는 항상 숨김 → 하이드레이션 불일치 방지.
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -31,7 +37,11 @@ export const OrientationGate = () => {
     return () => mql.removeListener(update);
   }, []);
 
-  if (!showPrompt) return null;
+  const portraitOk =
+    PORTRAIT_OK_PATHS.includes(pathname) ||
+    PORTRAIT_OK_PREFIXES.some((p) => pathname.startsWith(p));
+
+  if (!showPrompt || portraitOk) return null;
 
   return (
     <div
