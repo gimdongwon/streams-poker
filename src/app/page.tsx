@@ -68,8 +68,49 @@ const LandingPage = () => {
     </div>
   );
 
+  // 구조화 데이터 (검색 리치 스니펫용): 게임 정보 + FAQ
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "VideoGame",
+        name: "TENTENS",
+        url: "https://www.tentens.kr",
+        image: "https://www.tentens.kr/og.png",
+        description: t("landing.hero.sub"),
+        genre: ["Card Game", "Strategy", "Puzzle"],
+        playMode: ["SinglePlayer", "MultiPlayer"],
+        gamePlatform: ["Web Browser", "iOS", "Android"],
+        applicationCategory: "GameApplication",
+        operatingSystem: "Web, iOS, Android",
+        inLanguage: ["ko", "en"],
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "KRW",
+        },
+        publisher: { "@type": "Person", name: "Dongwon Kim" },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: ([1, 2, 3, 4] as const).map((n) => ({
+          "@type": "Question",
+          name: t(`landing.faq.${n}.q`),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: t(`landing.faq.${n}.a`),
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <main className="scroll-screen bg-void text-snow safe-pad-x">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 헤더 */}
       <header className="sticky top-0 z-20 bg-void/90 backdrop-blur-sm border-b border-edge">
         <div className="mx-auto w-full max-w-4xl px-5 py-3 flex items-center justify-between">
