@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: OG_TITLE,
   description: OG_DESCRIPTION,
+  // iOS Safari Smart App Banner — 미설치 시 App Store 유도, 설치 시 앱 열기
+  itunes: { appId: "6792527133" },
   openGraph: {
     type: "website",
     url: SITE_URL,
