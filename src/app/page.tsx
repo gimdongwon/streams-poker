@@ -10,6 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import { useT } from "@/lib/i18n/useT";
+import { captureReferral } from "@/lib/referral";
 
 const APP_STORE_URL = "https://apps.apple.com/app/id6792527133";
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=kr.tentens.app";
@@ -21,6 +22,11 @@ const LandingPage = () => {
   const t = useT();
   const router = useRouter();
   const { isLoggedIn, hasHydrated } = useAuthStore();
+
+  // 초대 링크(?ref=)로 온 방문 기억 → 가입 시 보상 청구
+  useEffect(() => {
+    captureReferral();
+  }, []);
 
   // 네이티브 앱(원격 URL 래퍼)은 랜딩을 건너뛰고 바로 게임으로.
   const isNative = Capacitor.isNativePlatform();

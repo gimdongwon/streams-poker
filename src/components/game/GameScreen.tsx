@@ -8,6 +8,7 @@ import type { SlotIndex } from "@/types/game";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
 import { logGameComplete } from "@/lib/analytics";
+import { trackGameForReview, maybeRequestReview } from "@/lib/review";
 import { EmoteLayer } from "./EmoteLayer";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
@@ -182,12 +183,24 @@ export const GameScreen = ({
     resultSoundPlayedRef.current = true;
 
     logGameComplete(mode, score);
+    trackGameForReview();
 
+    let won = false;
     if (mode !== "multi") {
       playSound("win");
+      won = score >= 100;
     } else {
       const myResult = playerResults.find((r) => r.isMe);
-      playSound(myResult && myResult.rank === 1 ? "win" : "reveal");
+      won = myResult?.rank === 1;
+      playSound(won ? "win" : "reveal");
+    }
+
+    // 기분 좋은 순간(멀티 1등 / 100점 이상)에만 스토어 리뷰 후보 요청.
+    // 결과 화면이 자리잡은 뒤에 뜨도록 살짝 지연.
+    if (won) {
+      setTimeout(() => {
+        maybeRequestReview();
+      }, 2500);
     }
   }, [phase, mode, playerResults, score]);
 

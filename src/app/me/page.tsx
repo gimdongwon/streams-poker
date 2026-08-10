@@ -10,6 +10,8 @@ import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 import { TierBadge } from "@/components/common/TierBadge";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
+import { shareResult } from "@/lib/share";
+import { referralLink } from "@/lib/referral";
 import { TierInfoModal } from "@/components/common/TierInfoModal";
 import { TierProgress } from "@/components/common/TierProgress";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
@@ -80,6 +82,12 @@ const MyPage = () => {
   useEffect(() => {
     fetchRank();
   }, [fetchRank]);
+
+  // 초대 링크 공유 (시스템 공유 시트 → 폴백 클립보드)
+  const handleShareReferral = async () => {
+    if (!user) return;
+    await shareResult(t("referral.shareText"), referralLink(user.id));
+  };
 
   const handleLogout = () => {
     logout();
@@ -202,6 +210,28 @@ const MyPage = () => {
             )}
           </Section>
         </div>
+
+        {/* 친구 초대 (정식 계정만 — 게스트는 초대 보상 대상 아님) */}
+        {!user.is_guest && (
+          <div className="mb-5">
+            <button
+              onClick={handleShareReferral}
+              className="w-full bg-panel border border-neon-magenta/40 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-edge transition-colors text-left"
+              aria-label={t("referral.cta")}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold text-snow">
+                <span className="text-lg">🎁</span>
+                <span>
+                  {t("referral.cta")}
+                  <span className="block text-[11px] font-normal text-haze mt-0.5">
+                    {t("referral.desc")}
+                  </span>
+                </span>
+              </span>
+              <span className="text-haze text-xs shrink-0">→</span>
+            </button>
+          </div>
+        )}
 
         {/* 업적 */}
         <div className="mb-5">

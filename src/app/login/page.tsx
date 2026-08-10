@@ -12,6 +12,7 @@ import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { AppleIcon } from "@/components/auth/AppleIcon";
 import { useT } from "@/lib/i18n/useT";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
+import { captureReferral } from "@/lib/referral";
 
 const LoginPage = () => {
   const t = useT();
@@ -45,6 +46,11 @@ const LoginPage = () => {
     if (useAuthStore.getState().user) router.replace("/lobby");
     else setBusy(false); // 생성 실패(오프라인 등) → 재시도 가능
   };
+
+  // 초대 링크(?ref=)로 온 방문 기억 → 가입 시 보상 청구
+  useEffect(() => {
+    captureReferral();
+  }, []);
 
   useEffect(() => {
     if (hasHydrated && isLoggedIn) {
