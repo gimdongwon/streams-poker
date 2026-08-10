@@ -10,10 +10,9 @@ const REWARDED_AD_ID = {
 };
 
 // AdMob 전면 광고 단위 ID (실제, pub-1157070050571953).
-// TODO(android): AdMob 콘솔에서 Android 전면 광고 단위 생성 후 채우기. 빈 값이면 실광고는 건너뛴다.
 const INTERSTITIAL_AD_ID = {
   ios: "ca-app-pub-1157070050571953/5559579867",
-  android: "",
+  android: "ca-app-pub-1157070050571953/5681569025",
 };
 
 // Google 공식 "테스트" 리워드 광고 단위 ID — 계정 승인/필과 무관하게 항상 노출.
