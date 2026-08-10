@@ -378,6 +378,14 @@ const LandingPage = () => {
             >
               App Store
             </a>
+            <a
+              href={PLAY_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-snow transition-colors"
+            >
+              Google Play
+            </a>
           </div>
         </div>
       </footer>
