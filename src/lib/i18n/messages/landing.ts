@@ -51,6 +51,18 @@ export const landing: Namespace = {
     "landing.faq.4.a":
       "아니요. 참가비나 베팅이 없어요. 순위 보상, 일일 출석, 업적으로 코인이 쌓이기만 합니다.",
 
+    "landing.shots.gameplay": "10칸 보드에 카드를 배치하는 실제 게임 화면",
+    "landing.shots.multi": "친구와 실시간 대전 — 초대 링크로 바로 참여",
+    "landing.shots.ranking": "랭킹보드 — 누적·오늘의 덱 순위 경쟁",
+    "landing.guide.label": "가이드",
+    "landing.guide.title": "더 높은 점수를 위한 전략",
+    "landing.guide.read": "읽어보기",
+    "landing.guide.scoring.title": "포커 족보 점수 계산, 이렇게 됩니다",
+    "landing.guide.scoring.desc":
+      "12종 조합의 점수표부터 인접 슬롯 규칙, 조커 자동 배정과 동점 처리까지 — TENTENS 점수의 모든 것.",
+    "landing.guide.strategy.title": "고수들의 카드 배치 전략",
+    "landing.guide.strategy.desc":
+      "초반 슬롯 설계, 중반 리스크 관리, 막판 조커 활용까지 — 평균 점수를 끌어올리는 실전 배치 요령.",
     "landing.bottom.title": "오늘의 덱, 아직 안 하셨죠?",
     "landing.bottom.sub": "지금 시작하면 1분 뒤엔 첫 판이 끝나 있어요.",
     "landing.footer.privacy": "개인정보처리방침",
@@ -104,6 +116,18 @@ export const landing: Namespace = {
     "landing.faq.4.a":
       "No. There are no entry fees or betting. Coins only accumulate — from rank rewards, daily streaks, and achievements.",
 
+    "landing.shots.gameplay": "Actual gameplay — placing cards on the 10-slot board",
+    "landing.shots.multi": "Real-time matches — friends join with one invite link",
+    "landing.shots.ranking": "Ranking board — all-time and Daily Deck competition",
+    "landing.guide.label": "Guides",
+    "landing.guide.title": "Strategy for higher scores",
+    "landing.guide.read": "Read",
+    "landing.guide.scoring.title": "How poker hand scoring works",
+    "landing.guide.scoring.desc":
+      "The 12-hand score table, adjacency rule, joker auto-assignment and tiebreakers — everything about TENTENS scoring.",
+    "landing.guide.strategy.title": "Card placement strategy",
+    "landing.guide.strategy.desc":
+      "Early slot planning, mid-game risk control, and late-game joker play — practical tips to raise your average.",
     "landing.bottom.title": "Today's deck is waiting.",
     "landing.bottom.sub": "Start now — your first game will be done in a minute.",
     "landing.footer.privacy": "Privacy Policy",

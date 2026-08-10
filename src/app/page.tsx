@@ -141,6 +141,25 @@ const LandingPage = () => {
         <p className="text-haze text-[11px] mt-4" aria-hidden="true">
           🍀 Royal Straight Flush · +50
         </p>
+
+        {/* 실제 게임 화면 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-12 mx-auto max-w-3xl rounded-2xl border border-neon-cyan/30 overflow-hidden shadow-2xl shadow-neon-cyan/10"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/landing/gameplay.webp"
+            alt={t("landing.shots.gameplay")}
+            width={1200}
+            height={675}
+            loading="eager"
+            className="w-full h-auto block"
+          />
+        </motion.div>
       </section>
 
       {/* 기능 */}
@@ -167,6 +186,36 @@ const LandingPage = () => {
                 {t(`landing.feat.${f.id}.desc`)}
               </p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 스크린샷 */}
+      <section className="mx-auto w-full max-w-4xl px-5 py-14 border-t border-edge">
+        <div className="grid sm:grid-cols-2 gap-4">
+          {(
+            [
+              { src: "/landing/multi.webp", key: "multi" },
+              { src: "/landing/ranking.webp", key: "ranking" },
+            ] as const
+          ).map((s) => (
+            <figure
+              key={s.key}
+              className="rounded-2xl border border-edge overflow-hidden bg-panel/40"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.src}
+                alt={t(`landing.shots.${s.key}`)}
+                width={1200}
+                height={675}
+                loading="lazy"
+                className="w-full h-auto block"
+              />
+              <figcaption className="px-4 py-3 text-haze text-xs">
+                {t(`landing.shots.${s.key}`)}
+              </figcaption>
+            </figure>
           ))}
         </div>
       </section>
@@ -218,6 +267,35 @@ const LandingPage = () => {
                 {t(`landing.faq.${n}.a`)}
               </p>
             </details>
+          ))}
+        </div>
+      </section>
+
+      {/* 전략 가이드 */}
+      <section className="mx-auto w-full max-w-4xl px-5 py-14 border-t border-edge">
+        <p className="text-neon-cyan text-[11px] tracking-[3px] uppercase font-bold mb-2 text-center">
+          {t("landing.guide.label")}
+        </p>
+        <h2 className="text-2xl sm:text-3xl font-black text-center mb-8">
+          {t("landing.guide.title")}
+        </h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {(["scoring", "strategy"] as const).map((g) => (
+            <Link
+              key={g}
+              href={`/guide/${g}`}
+              className="bg-panel/60 border border-edge rounded-2xl p-6 hover:border-neon-magenta/40 transition-colors block"
+            >
+              <h3 className="text-snow font-bold text-base mb-1.5">
+                {t(`landing.guide.${g}.title`)}
+              </h3>
+              <p className="text-haze text-sm leading-relaxed mb-3">
+                {t(`landing.guide.${g}.desc`)}
+              </p>
+              <span className="text-neon-cyan text-xs font-bold">
+                {t("landing.guide.read")} →
+              </span>
+            </Link>
           ))}
         </div>
       </section>

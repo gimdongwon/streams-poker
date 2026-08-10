@@ -6,6 +6,7 @@ import type { UserRankingEntry, LeaderboardSort, UserRankInfo } from "@/types/le
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { useAuthStore } from "@/stores/authStore";
 import { TierBadge } from "@/components/common/TierBadge";
+import { Spinner } from "@/components/common/Spinner";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 
@@ -174,7 +175,12 @@ export const Leaderboard = ({
       </div>
 
       {tab === "daily" ? (
-        !dailyBoard || dailyBoard.entries.length === 0 ? (
+        !dailyBoard ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-haze text-sm">
+            <Spinner size="sm" />
+            {t("common.loading")}
+          </div>
+        ) : dailyBoard.entries.length === 0 ? (
           <p className="text-haze text-center text-sm py-8">{t("daily.empty")}</p>
         ) : (
           <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
