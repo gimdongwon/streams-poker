@@ -18,7 +18,9 @@ export function CapacitorBootstrap() {
     // 상태바: Style.Dark = 어두운 배경용(밝은 아이콘). 다크 테마와 맞춤.
     StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
     if (Capacitor.getPlatform() === "android") {
-      StatusBar.setBackgroundColor({ color: "#0b0b12" }).catch(() => {});
+      // 안드로이드는 상태바가 웹뷰 위에 겹쳐져(edge-to-edge) 가로모드 상단 UI를 가린다.
+      // 게임 표준인 몰입 모드로 상태바를 숨겨 해결.
+      StatusBar.hide().catch(() => {});
     }
 
     // 가로모드 우선 게임 → 네이티브에서 가로로 고정.
