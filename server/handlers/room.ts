@@ -276,12 +276,16 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       return;
     }
 
+    // 방장 승계: 방에 방장이 없으면(방장이 이탈해 좌석이 비었던 방 등)
+    // 새로 들어오는 플레이어가 방장이 된다. (유령 무방장 방 방지)
+    const hostExists = room.players.some((p) => p.isHost);
+
     const player: Player = {
       id: socket.id,
       socketId: socket.id,
       nickname,
       status: "waiting",
-      isHost: false,
+      isHost: !hostExists,
       userId: uid,
     };
 

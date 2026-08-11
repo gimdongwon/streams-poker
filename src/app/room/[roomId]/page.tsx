@@ -63,17 +63,17 @@ const RoomPage = () => {
     const socket = connectSocket();
     const nickname = user.nickname ?? "Player";
 
+    // 연결될 때마다 join을 다시 보낸다 — 대기 중 소켓이 끊겼다 재접속한 경우
+    // 좌석을 되찾기 위함. 서버가 중복 join(같은 소켓/같은 유저)을 안전하게 처리한다.
     const handleConnect = () => {
-      if (!joinedRef.current) {
-        joinedRef.current = true;
-        socket.emit("room:join", { code: roomId, nickname });
-      }
+      joinedRef.current = true;
+      socket.emit("room:join", { code: roomId, nickname });
     };
 
+    // 이미 연결돼 있으면 즉시 join하고, 이후 재접속(connect)마다 다시 join.
+    socket.on("connect", handleConnect);
     if (socket.connected) {
       handleConnect();
-    } else {
-      socket.on("connect", handleConnect);
     }
 
     return () => {
