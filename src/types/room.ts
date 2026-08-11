@@ -30,6 +30,8 @@ export type Player = {
   status: PlayerStatus;
   isHost: boolean;
   score?: number;
+  // 친구 추가 등 유저 식별용 (서버 getPublicPlayers 가 포함해서 보냄)
+  userId?: string;
 };
 
 export type RoomStatus = "waiting" | "playing" | "finished";

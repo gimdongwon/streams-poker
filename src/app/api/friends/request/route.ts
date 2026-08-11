@@ -7,19 +7,30 @@ import { supabase } from "@/lib/supabase";
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const { userId, username } = body;
+    const { userId, username, targetUserId } = body;
 
-    if (!userId || !username) {
+    if (!userId || (!username && !targetUserId)) {
       return NextResponse.json(
         { error: "필수 필드가 누락되었습니다" },
         { status: 400 }
       );
     }
 
-    const target = await findUserByUsername(username);
+    // 대상 찾기: userId 직접 지정(대기방 친구 추가) 또는 username 검색(마이페이지)
+    let target: { id: string } | null = null;
+    if (targetUserId) {
+      const { data } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", targetUserId)
+        .maybeSingle();
+      target = data;
+    } else {
+      target = await findUserByUsername(username);
+    }
     if (!target) {
       return NextResponse.json(
-        { error: "존재하지 않는 아이디입니다" },
+        { error: "존재하지 않는 사용자입니다" },
         { status: 400 }
       );
     }

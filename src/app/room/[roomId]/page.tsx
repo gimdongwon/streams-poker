@@ -11,6 +11,7 @@ import { Spinner } from "@/components/common/Spinner";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import { EmoteLayer } from "@/components/game/EmoteLayer";
 import { shareResult } from "@/lib/share";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { AppInstallBanner } from "@/components/common/AppInstallBanner";
 import type { Player } from "@/types/room";
 import { MAX_PLAYERS } from "@/types/room";
@@ -228,6 +229,7 @@ const RoomPage = () => {
                   player={player}
                   index={index}
                   isCurrentPlayer={player.id === mySocketId}
+                  myUserId={user?.id}
                 />
               ))}
             </AnimatePresence>
@@ -317,10 +319,33 @@ type PlayerRowProps = {
   player: Player;
   index: number;
   isCurrentPlayer: boolean;
+  myUserId?: string;
 };
 
-const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
+const PlayerRow = ({ player, index, isCurrentPlayer, myUserId }: PlayerRowProps) => {
   const t = useT();
+  // 친구 요청 상태: idle → sending → sent (이미 친구/요청 중이어도 sent 처리)
+  const [friendState, setFriendState] = useState<"idle" | "sending" | "sent">("idle");
+
+  const canAddFriend =
+    !isCurrentPlayer && !!player.userId && !!myUserId && player.userId !== myUserId;
+
+  const handleAddFriend = async () => {
+    if (friendState !== "idle" || !canAddFriend) return;
+    setFriendState("sending");
+    try {
+      const res = await fetchWithTimeout("/api/friends/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: myUserId, targetUserId: player.userId }),
+      });
+      // 중복(이미 친구/요청 중)도 사용자 입장에선 "요청됨"과 동일하게 처리
+      setFriendState(res.ok || res.status === 400 ? "sent" : "idle");
+    } catch {
+      setFriendState("idle");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -368,6 +393,28 @@ const PlayerRow = ({ player, index, isCurrentPlayer }: PlayerRowProps) => {
         >
           {player.status === "ready" ? t("room.player.readyBadge") : t("room.player.waiting")}
         </span>
+
+        {/* 친구 추가 (다른 플레이어만) */}
+        {canAddFriend && (
+          <button
+            onClick={handleAddFriend}
+            disabled={friendState !== "idle"}
+            aria-label={t("room.friend.addAria", { name: player.nickname })}
+            className={`ml-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition active:scale-95 flex items-center gap-1 ${
+              friendState === "sent"
+                ? "border-green-500/40 text-green-400 cursor-default"
+                : "border-edge text-haze hover:text-snow hover:bg-edge"
+            }`}
+          >
+            {friendState === "sending" ? (
+              <Spinner size="sm" />
+            ) : friendState === "sent" ? (
+              t("room.friend.sent")
+            ) : (
+              t("room.friend.add")
+            )}
+          </button>
+        )}
       </div>
     </motion.div>
   );
