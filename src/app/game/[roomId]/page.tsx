@@ -86,12 +86,9 @@ const GamePage = () => {
     };
   }, [isSingle, isDaily, hasHydrated, isLoggedIn, roomId, roomCode, initSocketListeners, cleanupSocketListeners]);
 
-  useEffect(() => {
-    if (!isSingle && !isDaily && status === "waiting" && phase === "game_over" && roomCode) {
-      resetGame();
-      router.push(`/room/${roomCode}`);
-    }
-  }, [isSingle, isDaily, status, phase, roomCode, resetGame, router]);
+  // (이전에는 방이 waiting으로 바뀌면 전원이 자동으로 대기방으로 이동했으나,
+  //  결과를 보던 사람까지 강제로 끌려가는 문제가 있어 제거 —
+  //  이제 "대기방으로"를 누른 본인만 handlePlayAgain 에서 이동한다.)
 
   const handleBackToLobby = useCallback(async () => {
     // 게임(싱글/멀티)을 "끝까지" 마치고 로비로 나가는 경우에만 판수를 세고,
@@ -106,8 +103,14 @@ const GamePage = () => {
   }, [phase, resetGame, resetRoom, router]);
 
   const handlePlayAgain = useCallback(() => {
-    playAgain();
-  }, [playAgain]);
+    // 방이 아직 finished 상태면 재시작 요청 (이미 누군가 되돌렸으면 생략 —
+    // 중복 playAgain은 대기방 사람들의 준비 상태를 초기화해버리기 때문).
+    if (status !== "waiting") {
+      playAgain();
+    }
+    resetGame();
+    router.push(`/room/${roomCode || roomId}`);
+  }, [status, playAgain, resetGame, router, roomCode, roomId]);
 
   if (!hasHydrated || !isLoggedIn) return <FullScreenLoading />;
 

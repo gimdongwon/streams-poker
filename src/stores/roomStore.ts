@@ -319,7 +319,10 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
     socket.on("room:updated", ({ code, players, status }) => {
       if (status === "waiting") {
-        set({ roomCode: code, players, status, error: null, multiDeck: null, playerResults: [], roundPlacedPlayers: [] });
+        // 주의: playerResults 는 여기서 지우지 않는다 — 다른 플레이어가 "대기방으로"를
+        // 눌러 방이 리셋돼도, 아직 결과 화면을 보는 사람의 데이터가 사라지면 안 된다.
+        // (다음 게임 시작 시 game:started 가 초기화한다)
+        set({ roomCode: code, players, status, error: null, multiDeck: null, roundPlacedPlayers: [] });
       } else {
         set({ roomCode: code, players, status, error: null });
       }
