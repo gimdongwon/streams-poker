@@ -10,6 +10,7 @@ import { Board, type BoardCombo } from "./Board";
 import { Logo } from "@/components/common/Logo";
 import { MuteButton } from "@/components/common/MuteButton";
 import { shareResult } from "@/lib/share";
+import { drawResultCard, shareCardImage } from "@/lib/shareCard";
 import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey } from "@/lib/i18n/combo";
@@ -111,7 +112,54 @@ export const ResultScreen = ({
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [sharingImage, setSharingImage] = useState(false);
   const t = useT();
+
+  // 결과를 브랜딩된 이미지 카드로 공유/저장
+  const handleShareImage = async () => {
+    if (sharingImage) return;
+    setSharingImage(true);
+    try {
+      const modeLabel =
+        mode === "multi"
+          ? t("result.mode.multi")
+          : mode === "daily"
+          ? t("result.mode.daily")
+          : t("result.mode.single");
+      const score = mode === "multi" ? myResult?.score ?? 0 : totalScore;
+      const rankLine =
+        mode === "daily" && dailyInfo
+          ? t("result.daily.rank", { rank: dailyInfo.rank, total: dailyInfo.total })
+          : mode === "multi" && myResult
+          ? `${ordinal(myResult.rank)}`
+          : null;
+      const comboNames = (
+        mode !== "multi"
+          ? combinations.map((c) => c.type)
+          : (myResult?.combinations ?? []).map((c) => c.type)
+      ).map((ty) => t(comboKey(ty)));
+
+      const canvas = drawResultCard({
+        modeLabel,
+        nickname: playerName,
+        score,
+        scoreSuffix: t("result.pointSuffix"),
+        rankLine,
+        combos: comboNames,
+        footer: "tentens.kr — TENTENS",
+      });
+      const outcome = await shareCardImage(canvas);
+      if (outcome === "downloaded") {
+        setToast(t("result.shareImage.downloaded"));
+        setTimeout(() => setToast(null), 2000);
+      } else if (outcome === "failed") {
+        setToast(t("result.toast.failed"));
+        setTimeout(() => setToast(null), 2000);
+      }
+    } finally {
+      setSharingImage(false);
+    }
+  };
 
   // 판돈 정산 후 잔액을 최신화 (로비/마이페이지에 반영).
   useEffect(() => {
@@ -218,6 +266,24 @@ export const ResultScreen = ({
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
+          </button>
+          {/* 이미지 카드로 공유/저장 */}
+          <button
+            onClick={handleShareImage}
+            disabled={sharingImage}
+            aria-label={t("result.shareImage.aria")}
+            tabIndex={0}
+            className="text-haze hover:text-snow p-1.5 rounded-lg hover:bg-edge transition-colors disabled:opacity-50"
+          >
+            {sharingImage ? (
+              <span className="block w-4 h-4 border-2 border-haze border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            )}
           </button>
           <MuteButton />
         </div>
