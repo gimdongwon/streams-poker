@@ -15,6 +15,9 @@ export function CapacitorBootstrap() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
+    // 네이티브 전용 CSS 스위치 (드래그/텍스트 선택 차단 등 — globals.css .is-native)
+    document.body.classList.add("is-native");
+
     // 상태바: Style.Dark = 어두운 배경용(밝은 아이콘). 다크 테마와 맞춤.
     StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
     if (Capacitor.getPlatform() === "android") {

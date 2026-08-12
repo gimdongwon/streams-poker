@@ -66,3 +66,26 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+
+/* ==== 네이티브 앱 전용 (CapacitorBootstrap 이 body 에 .is-native 부여) ====
+   게임 앱에서 길게 누르기/드래그 시 텍스트·이미지가 선택/끌리는 웹뷰 기본 동작 차단.
+   입력 필드는 예외 (아이디/방 코드 입력에 선택 필요). 웹 브라우저는 영향 없음. */
+.is-native {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* iOS 길게 누르기 콜아웃 메뉴 */
+  overscroll-behavior: none; /* 고무줄 바운스 */
+}
+
+.is-native input,
+.is-native textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.is-native img,
+.is-native svg {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: inherit;
+}
