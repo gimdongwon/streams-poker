@@ -150,8 +150,19 @@ export const useAuthStore = create<AuthStore>()(
         } catch (e) {
           // ponytail: 디버깅용 실제 에러 표면화. 원인 확인 후 일반 메시지로 되돌릴 것.
           console.error("socialUpgrade error:", e);
+          // [임시 디버그] 플러그인 에러의 숨은 필드(code 등)까지 화면에 노출 —
+          // USB 디버깅이 어려운 환경에서 실제 원인 파악용. 원인 확인 후 되돌릴 것.
           const msg = e instanceof Error ? e.message : String(e);
-          return `소셜 로그인 실패: ${msg}`;
+          let detail = "";
+          try {
+            detail = JSON.stringify(
+              e,
+              e instanceof Error ? Object.getOwnPropertyNames(e) : undefined
+            ).slice(0, 400);
+          } catch {
+            // ignore
+          }
+          return `소셜 로그인 실패: ${msg}\n[debug] ${detail}`;
         }
       },
 
