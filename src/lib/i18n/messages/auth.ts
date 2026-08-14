@@ -52,6 +52,7 @@ export const auth: Namespace = {
     "auth.upgrade.start": "시작하기",
     "auth.guest.start": "바로 시작하기",
     "auth.backupLogin.label": "백업한 계정으로 이어하기",
+    "auth.idLogin.link": "아이디로 로그인하기",
   },
   en: {
     "auth.login.title": "Log In",
@@ -104,5 +105,6 @@ export const auth: Namespace = {
     "auth.upgrade.start": "Get Started",
     "auth.guest.start": "Play now",
     "auth.backupLogin.label": "Continue with a backed-up account",
+    "auth.idLogin.link": "Log in with username",
   },
 };

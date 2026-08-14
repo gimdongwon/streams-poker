@@ -22,6 +22,7 @@ const LoginPage = () => {
     useAuthStore();
   const [busy, setBusy] = useState(false);
   const [socialError, setSocialError] = useState<string | null>(null);
+  const [showIdLogin, setShowIdLogin] = useState(false);
   const social = isSocialEnabled();
   const platform = Capacitor.getPlatform();
 
@@ -69,9 +70,28 @@ const LoginPage = () => {
   if (!hasHydrated || isLoggedIn) return <FullScreenLoading />;
 
   return (
-    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-6 landscape:gap-10 p-4 overflow-y-auto overscroll-none">
-      {/* 왼쪽: 브랜딩 + 게스트 진입 (가로에선 폼 옆, 세로에선 폼 위) */}
+    <div className="fixed inset-0 bg-void flex flex-col items-center justify-center p-4 overflow-y-auto overscroll-none">
+      {/* 단일 중앙 컬럼: 브랜딩 + 시작/소셜. 아이디 로그인은 레이어(모달)로 접어둠 */}
       <div className="w-full max-w-xs flex flex-col items-center gap-5">
+        {/* 강제 로그아웃 안내 */}
+        <AnimatePresence>
+          {forcedOut && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="w-full bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center"
+            >
+              <p className="text-red-400 text-sm font-medium">
+                {t("misc.login.forcedOut")}
+              </p>
+              <p className="text-red-400/60 text-xs mt-1">
+                {t("misc.login.forcedOut.retry")}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <Logo showSubtitle />
 
         <div className="w-full flex flex-col gap-2">
@@ -122,31 +142,50 @@ const LoginPage = () => {
           {socialError && (
             <p className="text-red-400 text-xs text-center whitespace-pre-wrap">{socialError}</p>
           )}
+
+          {/* 아이디 로그인 (레거시/데모 계정용) — 텍스트 링크 → 레이어로 */}
+          <button
+            onClick={() => setShowIdLogin(true)}
+            className="mt-2 text-haze hover:text-snow text-xs underline underline-offset-4 transition-colors"
+            aria-label={t("auth.idLogin.link")}
+          >
+            {t("auth.idLogin.link")}
+          </button>
         </div>
       </div>
 
-      {/* 오른쪽: 로그인 폼 */}
-      <div className="w-full max-w-sm flex flex-col">
-        <AnimatePresence>
-          {forcedOut && (
+      {/* 아이디 로그인 레이어 */}
+      <AnimatePresence>
+        {showIdLogin && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-8 py-6 bg-void/70 overflow-y-auto overscroll-contain safe-pad"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowIdLogin(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("auth.login.title")}
+          >
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="w-full mb-4 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center"
+              className="w-full max-w-sm my-auto"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-red-400 text-sm font-medium">
-                {t("misc.login.forcedOut")}
-              </p>
-              <p className="text-red-400/60 text-xs mt-1">
-                {t("misc.login.forcedOut.retry")}
-              </p>
+              <AuthForm mode="login" />
+              <button
+                onClick={() => setShowIdLogin(false)}
+                className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
+                aria-label={t("common.close")}
+              >
+                {t("common.close")}
+              </button>
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AuthForm mode="login" />
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
