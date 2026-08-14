@@ -4,6 +4,10 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const misc: Namespace = {
   ko: {
+    "reward.appOnly.title": "앱에서만 보상받기가 가능해요",
+    "reward.appOnly.desc":
+      "일일 보상은 TENTENS 앱에서 받을 수 있어요. 앱에서는 연속 출석 보너스도 쌓입니다!",
+    "reward.appOnly.cta": "앱에서 받기",
     "backup.title": "기록 백업하기",
     "backup.desc": "폰을 바꾸거나 앱을 지워도 코인·티어·친구가 사라지지 않게 계정을 연결해두세요.",
     "backup.done": "기록이 백업된 계정이에요 — 기기를 바꿔도 안전해요",
@@ -25,6 +29,10 @@ export const misc: Namespace = {
     "misc.logo.tagline": "전략 카드 배치 게임",
   },
   en: {
+    "reward.appOnly.title": "Rewards are app-only",
+    "reward.appOnly.desc":
+      "Daily rewards can be claimed in the TENTENS app — where your streak bonus grows too!",
+    "reward.appOnly.cta": "Open in app",
     "backup.title": "Back up your progress",
     "backup.desc": "Link an account so your coins, tier, and friends survive a new phone or reinstall.",
     "backup.done": "Progress backed up — safe across devices",

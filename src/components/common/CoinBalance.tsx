@@ -5,6 +5,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { Spinner } from "@/components/common/Spinner";
 import { showRewardedAd } from "@/lib/ads";
+import { Capacitor } from "@capacitor/core";
+import { AppOnlyRewardModal } from "@/components/common/AppOnlyRewardModal";
 
 type CoinBalanceProps = {
   // 일일 보상 버튼 노출 여부
@@ -24,6 +26,7 @@ export const CoinBalance = ({
 
   const [canClaim, setCanClaim] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [showAppOnly, setShowAppOnly] = useState(false);
   const [streak, setStreak] = useState(0);
   const [nextReward, setNextReward] = useState<number | null>(null);
 
@@ -42,6 +45,11 @@ export const CoinBalance = ({
 
   const handleClaim = useCallback(async () => {
     if (claiming) return;
+    // 웹: 보상은 리워드 광고와 묶여 있어 앱 전용 — 앱 유도 레이어 표시.
+    if (!Capacitor.isNativePlatform()) {
+      setShowAppOnly(true);
+      return;
+    }
     setClaiming(true);
     // 네이티브: 리워드 광고 노출 후 보상. 광고 실패("unavailable")여도 보상은 진행.
     await showRewardedAd();
@@ -55,6 +63,7 @@ export const CoinBalance = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
+      <AppOnlyRewardModal open={showAppOnly} onClose={() => setShowAppOnly(false)} />
       <span
         className="inline-flex items-center gap-1 bg-panel/60 border border-edge rounded-xl px-2.5 py-1.5 shrink-0"
         aria-label={t("coins.label")}

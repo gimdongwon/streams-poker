@@ -5,6 +5,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useT } from "@/lib/i18n/useT";
 import { Spinner } from "@/components/common/Spinner";
 import { showRewardedAd } from "@/lib/ads";
+import { Capacitor } from "@capacitor/core";
+import { AppOnlyRewardModal } from "@/components/common/AppOnlyRewardModal";
 
 type DailyRewardButtonProps = {
   className?: string;
@@ -21,6 +23,7 @@ export const DailyRewardButton = ({
 
   const [canClaim, setCanClaim] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [showAppOnly, setShowAppOnly] = useState(false);
   const [streak, setStreak] = useState(0);
   const [nextReward, setNextReward] = useState<number | null>(null);
   const [nextStreak, setNextStreak] = useState<number | null>(null);
@@ -41,6 +44,11 @@ export const DailyRewardButton = ({
 
   const handleClaim = useCallback(async () => {
     if (claiming || !canClaim) return;
+    // 웹: 보상은 리워드 광고와 묶여 있어 앱 전용 — 앱 유도 레이어 표시.
+    if (!Capacitor.isNativePlatform()) {
+      setShowAppOnly(true);
+      return;
+    }
     setClaiming(true);
     // 네이티브: 리워드 광고 노출 후 보상. 광고 미탑재/실패("unavailable")여도 보상은 진행.
     await showRewardedAd();
@@ -54,6 +62,8 @@ export const DailyRewardButton = ({
   }, [claiming, canClaim, claimDaily]);
 
   return (
+    <>
+    <AppOnlyRewardModal open={showAppOnly} onClose={() => setShowAppOnly(false)} />
     <button
       onClick={handleClaim}
       disabled={!canClaim || claiming}
@@ -92,5 +102,6 @@ export const DailyRewardButton = ({
         </>
       )}
     </button>
+    </>
   );
 };
