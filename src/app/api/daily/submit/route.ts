@@ -62,19 +62,17 @@ export const POST = async (request: NextRequest) => {
       // ignore
     }
 
-    // 오늘 순위 (게스트 제외 — 랭킹 정책과 동일)
+    // 오늘 순위 (게스트 포함 — 게스트 중심 모델)
     const { count: better } = await supabase
       .from("daily_scores")
-      .select("id, users!inner(is_guest)", { count: "exact", head: true })
+      .select("id, users!inner(nickname)", { count: "exact", head: true })
       .eq("date", date)
-      .eq("users.is_guest", false)
       .not("submitted_at", "is", null)
       .gt("score", score);
     const { count: total } = await supabase
       .from("daily_scores")
-      .select("id, users!inner(is_guest)", { count: "exact", head: true })
+      .select("id, users!inner(nickname)", { count: "exact", head: true })
       .eq("date", date)
-      .eq("users.is_guest", false)
       .not("submitted_at", "is", null);
 
     return NextResponse.json({

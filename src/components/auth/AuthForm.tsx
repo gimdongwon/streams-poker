@@ -162,18 +162,18 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           )}
         </button>
 
-        <button
-          onClick={handleNavigate}
-          className="w-full mt-2 text-haze hover:text-snow text-xs transition-colors py-1"
-          aria-label={
-            mode === "login" ? t("auth.nav.toSignup") : t("auth.nav.toLogin")
-          }
-          tabIndex={0}
-        >
-          {mode === "login"
-            ? t("auth.nav.noAccount")
-            : t("auth.nav.hasAccount")}
-        </button>
+        {/* 게스트 중심 모델: 회원가입 폐지 — 로그인 화면에선 가입 유도 링크를 띄우지 않는다.
+            (가입 폼은 /register 리다이렉트로 접근 불가) */}
+        {mode !== "login" && (
+          <button
+            onClick={handleNavigate}
+            className="w-full mt-2 text-haze hover:text-snow text-xs transition-colors py-1"
+            aria-label={t("auth.nav.toLogin")}
+            tabIndex={0}
+          >
+            {t("auth.nav.hasAccount")}
+          </button>
+        )}
       </div>
     </motion.div>
   );

@@ -1,84 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Capacitor } from "@capacitor/core";
-import { useAuthStore } from "@/stores/authStore";
-import { AuthForm } from "@/components/auth/AuthForm";
-import { Logo } from "@/components/common/Logo";
-import { isSocialEnabled } from "@/lib/socialAuth";
-import { GoogleIcon } from "@/components/auth/GoogleIcon";
-import { AppleIcon } from "@/components/auth/AppleIcon";
-import { useT } from "@/lib/i18n/useT";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 
+// 게스트 중심 모델 전환으로 회원가입 페이지 폐지 — 로그인으로 리다이렉트.
+// (기존 북마크/링크 호환을 위해 라우트는 유지)
 const RegisterPage = () => {
-  const t = useT();
   const router = useRouter();
-  const { isLoggedIn, hasHydrated, socialUpgrade } = useAuthStore();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const social = isSocialEnabled();
-  const platform = Capacitor.getPlatform();
-
   useEffect(() => {
-    if (hasHydrated && isLoggedIn) {
-      router.replace("/lobby");
-    }
-  }, [hasHydrated, isLoggedIn, router]);
-
-  if (!hasHydrated || isLoggedIn) return <FullScreenLoading />;
-
-  const handleSocial = async (provider: "apple" | "google") => {
-    if (busy) return;
-    setError(null);
-    setBusy(true);
-    const err = await socialUpgrade(provider);
-    if (err) {
-      setError(err);
-      setBusy(false);
-      return;
-    }
-    router.replace("/lobby");
-  };
-
-  return (
-    <div className="fixed inset-0 bg-void flex flex-col landscape:flex-row items-center justify-center gap-6 landscape:gap-10 p-4 overflow-y-auto overscroll-none">
-      {/* 왼쪽: 브랜딩 + 소셜 로그인 (가로에선 폼 옆, 세로에선 폼 위) */}
-      <div className="w-full max-w-xs flex flex-col items-center gap-5">
-        <Logo showSubtitle />
-
-        {social && (
-          <div className="w-full flex flex-col gap-2">
-            {platform === "ios" && (
-              <button
-                onClick={() => handleSocial("apple")}
-                disabled={busy}
-                className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <AppleIcon />
-                {t("auth.social.apple")}
-              </button>
-            )}
-            {platform === "android" && (
-              <button
-                onClick={() => handleSocial("google")}
-                disabled={busy}
-                className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <GoogleIcon />
-                {t("auth.social.google")}
-              </button>
-            )}
-            {error && <p className="text-red-400 text-xs text-center">{error}</p>}
-          </div>
-        )}
-      </div>
-
-      {/* 오른쪽: 회원가입 폼 */}
-      <AuthForm mode="signup" />
-    </div>
-  );
+    router.replace("/login");
+  }, [router]);
+  return <FullScreenLoading />;
 };
 
 export default RegisterPage;

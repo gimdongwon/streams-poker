@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { logLogin, logDailyRewardClaim } from "@/lib/analytics";
-import { claimReferralIfPending } from "@/lib/referral";
 import { persist } from "zustand/middleware";
 import type { User } from "@/types/auth";
 
@@ -89,7 +88,6 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return data.error ?? "회원가입에 실패했습니다";
 
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
-          claimReferralIfPending(data.user.id); // 초대 링크로 온 가입이면 보상 (비동기)
           return null;
         } catch {
           return "서버 연결에 실패했습니다";
@@ -123,7 +121,6 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return data.error ?? "승격에 실패했습니다";
 
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
-          claimReferralIfPending(data.user.id); // 초대 링크로 온 가입이면 보상 (비동기)
           return null;
         } catch {
           return "서버 연결에 실패했습니다";
@@ -145,7 +142,6 @@ export const useAuthStore = create<AuthStore>()(
           if (!res.ok) return data.error ?? "소셜 로그인에 실패했습니다";
           set({ user: data.user, isLoggedIn: true, forcedOut: false });
           logLogin(provider);
-          claimReferralIfPending(data.user.id); // 초대 링크로 온 가입이면 보상 (비동기)
           return null;
         } catch (e) {
           // ponytail: 디버깅용 실제 에러 표면화. 원인 확인 후 일반 메시지로 되돌릴 것.

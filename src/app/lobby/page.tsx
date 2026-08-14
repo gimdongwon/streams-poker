@@ -16,7 +16,6 @@ import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
 // import { showRewardedAd } from "@/lib/ads"; // 임시 광고 테스트 버튼용 (아래 주석 참고)
 import { useT } from "@/lib/i18n/useT";
-import { UpgradeAccountModal } from "@/components/auth/UpgradeAccountModal";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
@@ -36,7 +35,6 @@ const LobbyPage = () => {
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [dailyStatus, setDailyStatus] = useState<{
     played: boolean;
     submitted: boolean;
@@ -64,14 +62,10 @@ const LobbyPage = () => {
     };
   }, [user?.id]);
 
-  // 멀티 진입: 게스트면 승격 모달을, 정식 계정이면 멀티 화면으로.
+  // 멀티 진입: 게스트도 바로 입장 (게스트 중심 모델 — 계정은 백업 옵션일 뿐).
   const enterMultiplayer = () => {
     setError("");
-    if (user?.is_guest) {
-      setShowUpgrade(true);
-    } else {
-      setMode("multi_create");
-    }
+    setMode("multi_create");
   };
 
   // 로비 진입 시 진행 중이던 게임 상태를 정리한다.
@@ -199,16 +193,6 @@ const LobbyPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
-      {/* 멀티 입구 승격 모달 (게스트 → 정식 계정) */}
-      <UpgradeAccountModal
-        open={showUpgrade}
-        onClose={() => setShowUpgrade(false)}
-        onUpgraded={() => {
-          setShowUpgrade(false);
-          setMode("multi_create");
-        }}
-      />
-
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (
@@ -235,25 +219,6 @@ const LobbyPage = () => {
               className="relative z-10 w-full max-w-md my-auto max-h-[85dvh] overflow-y-auto"
             >
               <Leaderboard highlightNickname={user.nickname} highlightUserId={user.id} />
-              {/* 게스트 안내: 임시 계정은 랭킹에 기록되지 않음 → 가입 유도 */}
-              {user.is_guest && (
-                <div className="mt-2 bg-panel border border-neon-cyan/30 rounded-xl p-3 flex flex-col gap-2">
-                  <p className="text-haze text-xs leading-relaxed text-center">
-                    {t("leaderboard.guest.notice")}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setShowLeaderboard(false);
-                      setShowUpgrade(true);
-                    }}
-                    style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                    className="w-full py-2.5 rounded-xl text-void text-xs font-extrabold transition-all active:scale-95 hover:scale-[1.01]"
-                    aria-label={t("leaderboard.guest.cta")}
-                  >
-                    {t("leaderboard.guest.cta")}
-                  </button>
-                </div>
-              )}
               <button
                 onClick={() => setShowLeaderboard(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"

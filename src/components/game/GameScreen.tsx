@@ -9,6 +9,7 @@ import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import { maybeShowInterstitialAfterGame } from "@/lib/ads";
 import { logGameComplete } from "@/lib/analytics";
 import { trackGameForReview, maybeRequestReview } from "@/lib/review";
+import { claimReferralIfPending } from "@/lib/referral";
 import { EmoteLayer } from "./EmoteLayer";
 import { Board } from "./Board";
 import { CurrentCard } from "./CurrentCard";
@@ -185,6 +186,12 @@ export const GameScreen = ({
     logGameComplete(mode, score);
     trackGameForReview();
 
+    // 초대 링크로 온 유저의 "첫 게임 완료" 보상 청구 (기록 저장이 서버에 닿을 시간을 두고).
+    // ref 미보유/이미 처리된 경우는 내부에서 조용히 no-op.
+    if (playerId) {
+      setTimeout(() => claimReferralIfPending(playerId), 4000);
+    }
+
     let won = false;
     if (mode !== "multi") {
       playSound("win");
@@ -202,7 +209,7 @@ export const GameScreen = ({
         maybeRequestReview();
       }, 2500);
     }
-  }, [phase, mode, playerResults, score]);
+  }, [phase, mode, playerResults, score, playerId]);
 
   const handlePlace = useCallback(
     (index: SlotIndex) => {

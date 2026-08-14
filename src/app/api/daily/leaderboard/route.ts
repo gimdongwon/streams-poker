@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { kstToday, msUntilKstMidnight } from "@/lib/daily";
 
 // GET /api/daily/leaderboard?userId=...
-// 오늘의 덱 상위 10 (게스트 제외) + 내 도전 상태/순위 + 자정까지 남은 시간.
+// 오늘의 덱 상위 10 (게스트 포함) + 내 도전 상태/순위 + 자정까지 남은 시간.
 export const GET = async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
@@ -12,9 +12,8 @@ export const GET = async (request: NextRequest) => {
 
     const { data: rows, error } = await supabase
       .from("daily_scores")
-      .select("user_id, score, users!inner(nickname, is_guest)")
+      .select("user_id, score, users!inner(nickname)")
       .eq("date", date)
-      .eq("users.is_guest", false)
       .not("submitted_at", "is", null)
       .order("score", { ascending: false })
       .limit(10);
@@ -55,17 +54,15 @@ export const GET = async (request: NextRequest) => {
         if (mine.submitted_at && mine.score != null) {
           const { count: better } = await supabase
             .from("daily_scores")
-            .select("id, users!inner(is_guest)", { count: "exact", head: true })
+            .select("id, users!inner(nickname)", { count: "exact", head: true })
             .eq("date", date)
-            .eq("users.is_guest", false)
-            .not("submitted_at", "is", null)
+                  .not("submitted_at", "is", null)
             .gt("score", mine.score);
           const { count: cnt } = await supabase
             .from("daily_scores")
-            .select("id, users!inner(is_guest)", { count: "exact", head: true })
+            .select("id, users!inner(nickname)", { count: "exact", head: true })
             .eq("date", date)
-            .eq("users.is_guest", false)
-            .not("submitted_at", "is", null);
+                  .not("submitted_at", "is", null);
           rank = (better ?? 0) + 1;
           total = cnt ?? 1;
         }

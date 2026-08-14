@@ -57,9 +57,9 @@ export const Leaderboard = ({
     };
   }, [tab, dailyBoard, highlightUserId]);
 
-  // 내 순위 (10위 밖이어도 표시하기 위해 별도 조회). 게스트는 랭킹 미포함이라 스킵.
+  // 내 순위 (10위 밖이어도 표시하기 위해 별도 조회). 게스트 포함.
   useEffect(() => {
-    if (!highlightUserId || user?.is_guest) return;
+    if (!highlightUserId) return;
     let cancelled = false;
     (async () => {
       try {
@@ -74,7 +74,7 @@ export const Leaderboard = ({
     return () => {
       cancelled = true;
     };
-  }, [highlightUserId, user?.is_guest]);
+  }, [highlightUserId]);
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);

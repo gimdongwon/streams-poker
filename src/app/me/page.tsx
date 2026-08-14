@@ -20,6 +20,10 @@ import { Spinner } from "@/components/common/Spinner";
 import { CoinBalance } from "@/components/common/CoinBalance";
 import { FriendsPanel } from "@/components/social/FriendsPanel";
 import { EditNicknameModal } from "@/components/auth/EditNicknameModal";
+import { Capacitor } from "@capacitor/core";
+import { isSocialEnabled } from "@/lib/socialAuth";
+import { AppleIcon } from "@/components/auth/AppleIcon";
+import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
 import { UpgradeAccountModal } from "@/components/auth/UpgradeAccountModal";
 import type { UserRankInfo } from "@/types/leaderboard";
@@ -49,7 +53,7 @@ const StatCell = ({ label, value }: { label: string; value: string }) => (
 const MyPage = () => {
   const router = useRouter();
   const t = useT();
-  const { user, isLoggedIn, hasHydrated, logout } = useAuthStore();
+  const { user, isLoggedIn, hasHydrated, logout, socialUpgrade } = useAuthStore();
 
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
@@ -87,6 +91,21 @@ const MyPage = () => {
   const handleShareReferral = async () => {
     if (!user) return;
     await shareResult(t("referral.shareText"), referralLink(user.id));
+  };
+
+  // 기록 백업: 소셜 계정 연동 (같은 users.id 유지 — 코인·티어·친구 그대로)
+  const social = isSocialEnabled();
+  const platform = Capacitor.getPlatform();
+  const [backingUp, setBackingUp] = useState(false);
+  const [backupError, setBackupError] = useState<string | null>(null);
+
+  const handleBackup = async (provider: "apple" | "google") => {
+    if (backingUp) return;
+    setBackupError(null);
+    setBackingUp(true);
+    const err = await socialUpgrade(provider);
+    if (err) setBackupError(err);
+    setBackingUp(false);
   };
 
   const handleLogout = () => {
@@ -211,8 +230,52 @@ const MyPage = () => {
           </Section>
         </div>
 
-        {/* 친구 초대 (정식 계정만 — 게스트는 초대 보상 대상 아님) */}
+        {/* 기록 백업 (게스트 전용): 폰 변경/재설치에도 코인·티어·친구 보존 */}
+        {user.is_guest && social && (
+          <div className="mb-5">
+            <div className="bg-panel border border-yellow-400/40 rounded-xl p-4">
+              <p className="text-snow text-sm font-bold flex items-center gap-2">
+                <span className="text-lg">🔒</span> {t("backup.title")}
+              </p>
+              <p className="text-haze text-xs leading-relaxed mt-1 mb-3">
+                {t("backup.desc")}
+              </p>
+              {platform === "ios" && (
+                <button
+                  onClick={() => handleBackup("apple")}
+                  disabled={backingUp}
+                  className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {backingUp ? <Spinner size="sm" colorClassName="border-black" /> : <AppleIcon />}
+                  {t("auth.social.apple")}
+                </button>
+              )}
+              {platform === "android" && (
+                <button
+                  onClick={() => handleBackup("google")}
+                  disabled={backingUp}
+                  className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {backingUp ? <Spinner size="sm" colorClassName="border-black" /> : <GoogleIcon />}
+                  {t("auth.social.google")}
+                </button>
+              )}
+              {backupError && (
+                <p className="text-red-400 text-xs mt-2">{backupError}</p>
+              )}
+            </div>
+          </div>
+        )}
         {!user.is_guest && (
+          <div className="mb-5">
+            <div className="bg-panel/60 border border-edge rounded-xl px-4 py-3 flex items-center gap-2 text-xs text-haze">
+              <span>✅</span> {t("backup.done")}
+            </div>
+          </div>
+        )}
+
+        {/* 친구 초대 */}
+        {(
           <div className="mb-5">
             <button
               onClick={handleShareReferral}

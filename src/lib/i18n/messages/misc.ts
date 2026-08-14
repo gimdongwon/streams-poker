@@ -4,6 +4,9 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const misc: Namespace = {
   ko: {
+    "backup.title": "기록 백업하기",
+    "backup.desc": "폰을 바꾸거나 앱을 지워도 코인·티어·친구가 사라지지 않게 계정을 연결해두세요.",
+    "backup.done": "기록이 백업된 계정이에요 — 기기를 바꿔도 안전해요",
     "referral.cta": "친구 초대하고 +200 코인",
     "referral.desc": "친구가 가입하면 나도 친구도 200 코인씩!",
     "referral.shareText":
@@ -22,6 +25,9 @@ export const misc: Namespace = {
     "misc.logo.tagline": "전략 카드 배치 게임",
   },
   en: {
+    "backup.title": "Back up your progress",
+    "backup.desc": "Link an account so your coins, tier, and friends survive a new phone or reinstall.",
+    "backup.done": "Progress backed up — safe across devices",
     "referral.cta": "Invite friends, get +200 coins",
     "referral.desc": "You both get 200 coins when a friend signs up!",
     "referral.shareText":

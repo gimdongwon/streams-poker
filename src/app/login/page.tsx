@@ -13,6 +13,7 @@ import { AppleIcon } from "@/components/auth/AppleIcon";
 import { useT } from "@/lib/i18n/useT";
 import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import { captureReferral } from "@/lib/referral";
+import { Spinner } from "@/components/common/Spinner";
 
 const LoginPage = () => {
   const t = useT();
@@ -74,37 +75,53 @@ const LoginPage = () => {
         <Logo showSubtitle />
 
         <div className="w-full flex flex-col gap-2">
-          {social && platform === "ios" && (
-            <button
-              onClick={() => handleSocial("apple")}
-              disabled={busy}
-              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <AppleIcon />
-              {t("auth.social.apple")}
-            </button>
-          )}
-          {social && platform === "android" && (
-            <button
-              onClick={() => handleSocial("google")}
-              disabled={busy}
-              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <GoogleIcon />
-              {t("auth.social.google")}
-            </button>
-          )}
-          {socialError && (
-            <p className="text-red-400 text-xs text-center">{socialError}</p>
-          )}
-
+          {/* 주 진입: 게스트로 바로 시작 (게스트 중심 모델) */}
           <button
             onClick={startGuest}
             disabled={busy}
-            className="w-full py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-sm transition-colors disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+            className="w-full py-3 rounded-xl text-void font-extrabold text-sm transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
           >
-            {busy ? t("auth.action.processing") : t("auth.guest.start")}
+            {busy ? (
+              <Spinner size="sm" colorClassName="border-void" />
+            ) : (
+              <>▶ {t("auth.guest.start")}</>
+            )}
           </button>
+
+          {/* 백업해둔 계정으로 복귀 (소셜 — 네이티브 전용) */}
+          {social && (
+            <>
+              <div className="flex items-center gap-2 my-1">
+                <div className="flex-1 h-px bg-edge" />
+                <span className="text-haze text-[10px]">{t("auth.backupLogin.label")}</span>
+                <div className="flex-1 h-px bg-edge" />
+              </div>
+              {platform === "ios" && (
+                <button
+                  onClick={() => handleSocial("apple")}
+                  disabled={busy}
+                  className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <AppleIcon />
+                  {t("auth.social.apple")}
+                </button>
+              )}
+              {platform === "android" && (
+                <button
+                  onClick={() => handleSocial("google")}
+                  disabled={busy}
+                  className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <GoogleIcon />
+                  {t("auth.social.google")}
+                </button>
+              )}
+            </>
+          )}
+          {socialError && (
+            <p className="text-red-400 text-xs text-center whitespace-pre-wrap">{socialError}</p>
+          )}
         </div>
       </div>
 

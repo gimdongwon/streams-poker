@@ -19,21 +19,35 @@ export const captureReferral = (): void => {
   }
 };
 
-// 정식 계정 확보 직후 호출 — 저장된 ref가 있으면 보상 청구 후 제거.
+// 게임 완료 후 호출 — 저장된 ref가 있으면 보상 청구.
+// "첫 게임 완료" 기준이라, 아직 게임 기록이 서버에 안 닿았으면(no_game_yet) ref를
+// 유지해 다음 판에서 재시도한다. 성공/확정 실패 시에만 제거.
 export const claimReferralIfPending = async (userId: string): Promise<void> => {
   if (typeof window === "undefined") return;
   try {
     const ref = window.localStorage.getItem(REF_KEY);
-    if (!ref || ref === userId) return;
-    // 성공/실패와 무관하게 1회만 시도 (중복 요청 방지)
-    window.localStorage.removeItem(REF_KEY);
-    await fetch("/api/referral", {
+    if (!ref) return;
+    if (ref === userId) {
+      window.localStorage.removeItem(REF_KEY);
+      return;
+    }
+    const res = await fetch("/api/referral", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, refCode: ref }),
     });
+    if (!res.ok) {
+      // 잘못된 요청(자기 초대 등)은 재시도 무의미 → 제거
+      if (res.status === 400) window.localStorage.removeItem(REF_KEY);
+      return;
+    }
+    const data: { claimed: boolean; reason?: string } = await res.json();
+    if (data.claimed || data.reason === "already" || data.reason === "invalid_ref") {
+      window.localStorage.removeItem(REF_KEY);
+    }
+    // no_game_yet 이면 유지 → 다음 게임 완료 때 재시도
   } catch {
-    // ignore
+    // 네트워크 실패 — 유지 후 재시도
   }
 };
 
