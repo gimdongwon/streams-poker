@@ -32,6 +32,7 @@ const LobbyPage = () => {
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardTab, setLeaderboardTab] = useState<"all" | "daily">("all");
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
@@ -153,7 +154,12 @@ const LobbyPage = () => {
   };
 
   const handleDailyPlay = () => {
-    if (dailyStatus?.submitted) return;
+    // 이미 오늘 도전을 마쳤으면 → 오늘의 랭킹보드를 보여준다.
+    if (dailyStatus?.submitted) {
+      setLeaderboardTab("daily");
+      setShowLeaderboard(true);
+      return;
+    }
     router.push("/game/daily");
   };
 
@@ -218,7 +224,12 @@ const LobbyPage = () => {
               exit={{ scale: 0.9, y: 20 }}
               className="relative z-10 w-full max-w-md my-auto max-h-[85dvh] overflow-y-auto"
             >
-              <Leaderboard highlightNickname={user.nickname} highlightUserId={user.id} />
+              <Leaderboard
+                key={leaderboardTab}
+                initialTab={leaderboardTab}
+                highlightNickname={user.nickname}
+                highlightUserId={user.id}
+              />
               <button
                 onClick={() => setShowLeaderboard(false)}
                 className="w-full mt-2 py-2 text-haze hover:text-snow text-xs font-medium rounded-xl transition-colors bg-panel border border-edge hover:bg-edge"
@@ -404,7 +415,10 @@ const LobbyPage = () => {
           </div>
 
           <button
-            onClick={() => setShowLeaderboard(true)}
+            onClick={() => {
+              setLeaderboardTab("all");
+              setShowLeaderboard(true);
+            }}
             className="w-full py-3 [@media(max-height:430px)]:py-2 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
             aria-label={t("lobby.leaderboard.view")}
             tabIndex={0}
@@ -444,10 +458,9 @@ const LobbyPage = () => {
                 transition={{ duration: 0.12 }}
                 className="flex flex-col gap-4 landscape:flex-1"
               >
-                {/* 오늘의 덱 — 미도전이면 강조, 도전 완료면 결과 표시 */}
+                {/* 오늘의 덱 — 미도전이면 도전, 완료면 오늘의 랭킹보드 열기 */}
                 <button
                   onClick={handleDailyPlay}
-                  disabled={dailyStatus?.submitted === true}
                   style={
                     dailyStatus && !dailyStatus.played
                       ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
@@ -456,7 +469,7 @@ const LobbyPage = () => {
                   className={`w-full py-4 px-5 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
                     dailyStatus && !dailyStatus.played
                       ? "text-void hover:scale-[1.02]"
-                      : "bg-panel border border-yellow-400/50 text-snow disabled:cursor-default"
+                      : "bg-panel border border-yellow-400/50 text-snow hover:bg-edge"
                   }`}
                   aria-label={t("daily.aria")}
                 >

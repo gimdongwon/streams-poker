@@ -13,6 +13,8 @@ import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 type LeaderboardProps = {
   highlightNickname?: string;
   highlightUserId?: string;
+  // 초기 탭 (기본: 누적). 오늘의 덱 완료 후 진입 시 "daily"로 열 수 있다.
+  initialTab?: "all" | "daily";
 };
 
 const MEDAL = ["🥇", "🥈", "🥉"] as const;
@@ -26,6 +28,7 @@ type DailyBoard = {
 export const Leaderboard = ({
   highlightNickname,
   highlightUserId,
+  initialTab = "all",
 }: LeaderboardProps) => {
   const t = useT();
   const user = useAuthStore((s) => s.user);
@@ -34,7 +37,7 @@ export const Leaderboard = ({
   const [hasError, setHasError] = useState(false);
   const [sort, setSort] = useState<LeaderboardSort>("score");
   const [myRank, setMyRank] = useState<UserRankInfo | null>(null);
-  const [tab, setTab] = useState<"all" | "daily">("all");
+  const [tab, setTab] = useState<"all" | "daily">(initialTab);
   const [dailyBoard, setDailyBoard] = useState<DailyBoard | null>(null);
 
   // 오늘의 덱 랭킹 (탭 진입 시 1회 로드)
