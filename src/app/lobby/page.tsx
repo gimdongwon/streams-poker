@@ -11,6 +11,8 @@ import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierProgress } from "@/components/common/TierProgress";
+import { TierUpModal } from "@/components/common/TierUpModal";
+import { getTier, TIERS, type Tier } from "@/lib/tier";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
@@ -33,6 +35,7 @@ const LobbyPage = () => {
   const [error, setError] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState<"all" | "daily">("all");
+  const [tierUp, setTierUp] = useState<Tier | null>(null);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
   const [incomingCount, setIncomingCount] = useState(0);
@@ -129,6 +132,24 @@ const LobbyPage = () => {
         if (!res.ok) return;
         const data: UserRankInfo = await res.json();
         if (!cancelled) setRankInfo(data);
+
+        // 티어 승급 감지 → 축하 레이어. 첫 방문(기록 없음)은 저장만 하고 팝업 생략.
+        if (!cancelled && user?.id) {
+          try {
+            const tier = getTier(data.totalScore ?? 0);
+            const key = `tens-tier-${user.id}`;
+            const prevKey = window.localStorage.getItem(key);
+            const idx = (k: string | null) => TIERS.findIndex((x) => x.key === k);
+            if (prevKey == null) {
+              window.localStorage.setItem(key, tier.key);
+            } else if (idx(tier.key) > idx(prevKey)) {
+              window.localStorage.setItem(key, tier.key);
+              setTierUp(tier);
+            }
+          } catch {
+            // ignore
+          }
+        }
       } catch {
         // 랭킹 정보 조회 실패 시 무시
       } finally {
@@ -199,6 +220,9 @@ const LobbyPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
+      {/* 티어 승급 축하 */}
+      <TierUpModal tier={tierUp} onClose={() => setTierUp(null)} />
+
       {/* 리더보드 모달 */}
       <AnimatePresence>
         {showLeaderboard && (

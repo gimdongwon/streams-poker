@@ -119,8 +119,34 @@ export const showInterstitialAd = async (
 
     console.log(`[AdMob] interstitial prepare (test=${!!opts?.test}, adId=${adId})`);
     await AdMob.prepareInterstitial({ adId, isTesting: !!opts?.test });
+
+    // showInterstitial()은 광고가 "표시되는 순간" resolve 되므로, 그대로 진행하면
+    // 광고 뒤에서 게임이 시작돼 타이머가 흘러간다. 닫힘(Dismissed)까지 대기한다.
+    const { InterstitialAdPluginEvents } = await import("@capacitor-community/admob");
+    const handles: { remove: () => Promise<void> }[] = [];
+    const dismissed = new Promise<void>((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (!done) {
+          done = true;
+          resolve();
+        }
+      };
+      AdMob.addListener(InterstitialAdPluginEvents.Dismissed, finish).then((h) =>
+        handles.push(h)
+      );
+      AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, finish).then((h) =>
+        handles.push(h)
+      );
+      // 안전장치: 이벤트 유실 시에도 2분 뒤엔 진행
+      setTimeout(finish, 120000);
+    });
+
     await AdMob.showInterstitial();
-    console.log("[AdMob] interstitial show 완료");
+    await dismissed;
+    handles.forEach((h) => h.remove().catch(() => {}));
+
+    console.log("[AdMob] interstitial 닫힘 — 진행");
     logAdShown("interstitial");
     return "shown";
   } catch (e) {
