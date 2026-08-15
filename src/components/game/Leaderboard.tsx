@@ -307,17 +307,21 @@ export const Leaderboard = ({
                         </span>
                       )}
                     </span>
-                    <span className="flex items-center gap-1.5 text-haze text-[10px]">
-                      <TierBadge totalScore={entry.total_score} size="sm" showLabel={false} />
+                    <span className="flex items-center gap-1.5 text-haze text-[10px] min-w-0">
+                      <span className="shrink-0">
+                        <TierBadge totalScore={entry.total_score} size="sm" showLabel={false} />
+                      </span>
                       {entry.best_combo && (
-                        <span className="text-neon-cyan/90 font-medium">
+                        <span className="text-neon-cyan/90 font-medium truncate min-w-0">
                           {(() => {
                             const ty = comboTypeFromKoName(entry.best_combo);
                             return ty ? t(comboKey(ty)) : entry.best_combo;
                           })()}
                         </span>
                       )}
-                      <span>{t("leaderboard.best", { n: entry.best_score })}</span>
+                      <span className="whitespace-nowrap shrink-0">
+                        {t("leaderboard.best", { n: entry.best_score })}
+                      </span>
                     </span>
                   </div>
 
