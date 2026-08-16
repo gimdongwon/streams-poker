@@ -70,6 +70,22 @@ const GamePage = () => {
     };
   }, [isDaily, hasHydrated, isLoggedIn, user?.id, router]);
 
+  // 멀티: 잠금/백그라운드에서 복귀하면 서버 기준으로 강제 재동기화.
+  // (라운드 진행 이벤트를 놓치면 서로 다른 라운드의 카드를 보게 되는 문제 방지)
+  useEffect(() => {
+    if (isSingle || isDaily) return;
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      const socket = connectSocket();
+      if (socket.connected) {
+        socket.emit("room:rejoin", { code: roomId });
+      }
+      // 끊겨 있으면 재연결 → roomStore connect 핸들러가 rejoin 흐름 처리
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [isSingle, isDaily, roomId]);
+
   useEffect(() => {
     if (isSingle || isDaily || !hasHydrated || !isLoggedIn) return;
 

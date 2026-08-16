@@ -77,8 +77,17 @@ const RoomPage = () => {
       handleConnect();
     }
 
+    // 잠금/백그라운드 복귀 시에도 좌석 재확인 (이벤트 유실 대비, join은 멱등)
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && socket.connected) {
+        handleConnect();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       socket.off("connect", handleConnect);
+      document.removeEventListener("visibilitychange", onVisible);
       cleanupSocketListeners();
       joinedRef.current = false;
     };
@@ -388,10 +397,18 @@ const PlayerRow = ({ player, index, isCurrentPlayer, myUserId }: PlayerRowProps)
         />
         <span
           className={`text-xs font-medium ${
-            player.status === "ready" ? "text-green-400" : "text-haze"
+            player.disconnected
+              ? "text-yellow-400/80"
+              : player.status === "ready"
+              ? "text-green-400"
+              : "text-haze"
           }`}
         >
-          {player.status === "ready" ? t("room.player.readyBadge") : t("room.player.waiting")}
+          {player.disconnected
+            ? t("room.player.reconnecting")
+            : player.status === "ready"
+            ? t("room.player.readyBadge")
+            : t("room.player.waiting")}
         </span>
 
         {/* 친구 추가 (다른 플레이어만) */}

@@ -32,6 +32,8 @@ export type Player = {
   score?: number;
   // 친구 추가 등 유저 식별용 (서버 getPublicPlayers 가 포함해서 보냄)
   userId?: string;
+  // 소켓 끊김(잠금/백그라운드) 후 재접속 유예 중
+  disconnected?: boolean;
 };
 
 export type RoomStatus = "waiting" | "playing" | "finished";

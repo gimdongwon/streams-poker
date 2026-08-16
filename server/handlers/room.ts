@@ -73,10 +73,20 @@ export const handleLeave = (io: SocketIOServer, socket: Socket, code: string) =>
 
   socket.leave(code);
 
-  // 게임 진행 중에는 즉시 제거하지 않고 유예 기간 동안 좌석을 유지한다.
-  // 좌석 수가 유지되므로 라운드 동기화는 흐트러지지 않는다.
-  if (room.status === "playing" && leavingPlayer.userId) {
+  // 게임 진행 중·대기 중에는 즉시 제거하지 않고 유예 기간 동안 좌석을 유지한다.
+  // (폰 잠금/백그라운드로 소켓이 끊겨도 돌아올 때까지 자리를 지킨다)
+  if (
+    (room.status === "playing" || room.status === "waiting") &&
+    leavingPlayer.userId
+  ) {
     leavingPlayer.disconnected = true;
+
+    // 대기방의 다른 사람들에게 '연결 대기' 상태를 반영
+    io.to(code).emit("room:updated", {
+      code,
+      players: getPublicPlayers(room.players),
+      status: room.status,
+    });
 
     const key = reconnectKey(code, leavingPlayer.userId);
     const existing = removalTimers.get(key);

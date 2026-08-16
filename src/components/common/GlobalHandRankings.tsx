@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HandRankingsButton } from "@/components/game/HandRankingsModal";
+import { NoticeModal } from "@/components/common/NoticeModal";
 import { useT } from "@/lib/i18n/useT";
 
 const HIDDEN_PATHS = ["/login", "/register"];
@@ -10,6 +12,7 @@ const HIDDEN_PATHS = ["/login", "/register"];
 export const GlobalHandRankings = () => {
   const pathname = usePathname();
   const t = useT();
+  const [showNotice, setShowNotice] = useState(false);
 
   if (HIDDEN_PATHS.includes(pathname)) return null;
 
@@ -42,6 +45,23 @@ export const GlobalHandRankings = () => {
           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
         </div>
       </div>
+
+      {/* 공지사항 (개인정보 버튼 오른쪽) */}
+      <div className="fixed bottom-4 left-[calc(max(0.75rem,env(safe-area-inset-left))_+_7rem)] z-40 group">
+        <button
+          onClick={() => setShowNotice(true)}
+          aria-label={t("notice.title")}
+          className="w-11 h-11 rounded-full bg-panel border border-edge hover:bg-edge hover:border-neon-cyan/50 flex items-center justify-center transition-all shadow-lg shadow-black/30 hover:scale-110 active:scale-95 text-lg"
+        >
+          📢
+        </button>
+        {/* 툴팁 */}
+        <div className="absolute bottom-full left-0 mb-2 px-2.5 py-1 bg-edge text-snow text-[10px] font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-lg border border-edge">
+          {t("notice.title")}
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#232b3d]" />
+        </div>
+      </div>
+      <NoticeModal open={showNotice} onClose={() => setShowNotice(false)} />
 
       <HandRankingsButton />
     </>

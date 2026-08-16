@@ -4,6 +4,8 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const misc: Namespace = {
   ko: {
+    "notice.title": "공지사항",
+    "notice.hideToday": "하루동안 보지 않기",
     "reward.appOnly.title": "앱에서만 보상받기가 가능해요",
     "reward.appOnly.desc":
       "일일 보상은 TENTENS 앱에서 받을 수 있어요. 앱에서는 연속 출석 보너스도 쌓입니다!",
@@ -29,6 +31,8 @@ export const misc: Namespace = {
     "misc.logo.tagline": "전략 카드 배치 게임",
   },
   en: {
+    "notice.title": "Notice",
+    "notice.hideToday": "Hide for a day",
     "reward.appOnly.title": "Rewards are app-only",
     "reward.appOnly.desc":
       "Daily rewards can be claimed in the TENTENS app — where your streak bonus grows too!",

@@ -12,6 +12,7 @@ import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
 import { TierProgress } from "@/components/common/TierProgress";
 import { TierUpModal } from "@/components/common/TierUpModal";
+import { NoticeModal } from "@/components/common/NoticeModal";
 import { getTier, TIERS, type Tier } from "@/lib/tier";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
@@ -220,6 +221,9 @@ const LobbyPage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-void flex flex-col items-center p-3 pb-16 overflow-auto safe-pad-x">
+      {/* 공지사항 (조건 충족 시 자동 노출 — 하루 보지 않기/세션 닫기 반영) */}
+      <NoticeModal auto />
+
       {/* 티어 승급 축하 */}
       <TierUpModal tier={tierUp} onClose={() => setTierUp(null)} />
 
