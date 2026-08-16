@@ -478,16 +478,28 @@ const TIEBREAKER_RANK: Record<string, number> = {
   "8": 8, "9": 9, "10": 10, J: 11, Q: 12, K: 13,
 };
 
+// 동점 처리: 총점이 같으면 "가지고 있는 카드가 높은 사람"이 우선.
+// 조합에 사용된 카드 랭크를 내림차순 정렬해 사전식(lexicographic)으로 비교한다 —
+// 예: A플러시 vs K플러시 → 최고 카드 A가 K보다 높으므로 A플러시 승.
+// 최고 카드가 같으면 그다음 카드끼리 비교하는 식으로 이어진다.
+// 숫자 하나로 인코딩(base-15, 최대 10장)해 기존 비교/저장 로직과 호환한다.
 export const calculateTiebreaker = (
   combinations: ScoredCombination[]
 ): number => {
-  let value = 0;
+  const ranks: number[] = [];
   for (const combo of combinations) {
     for (const card of combo.cards) {
       if (isNormal(card)) {
-        value += TIEBREAKER_RANK[card.rank] ?? 0;
+        ranks.push(TIEBREAKER_RANK[card.rank] ?? 0);
       }
     }
+  }
+  ranks.sort((a, b) => b - a); // 높은 카드부터
+
+  // 사전식 비교가 되도록 자릿수 고정 인코딩 (10자리 × base-15 < Number.MAX_SAFE_INTEGER)
+  let value = 0;
+  for (let i = 0; i < 10; i++) {
+    value = value * 15 + (ranks[i] ?? 0);
   }
   return value;
 };

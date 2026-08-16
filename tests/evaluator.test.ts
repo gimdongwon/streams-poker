@@ -112,3 +112,30 @@ test("조커가 스트레이트 플러시 완성 (5,6,*,8,9 클로버)", () => {
 test("조커가 포카드 완성 (7,7,*,7 인접)", () => {
   assert.equal(score(["7c", "7s", "*", "7h", "2c", "4h", "9s", "Jd", "Kc", "3s"]), V.four_of_a_kind);
 });
+
+// ── 동점 처리: 같은 총점이면 높은 카드 우선 (사전식 비교) ──
+import { calculateTiebreaker } from "@/lib/poker/evaluator";
+
+const tb = (t: string[]): number => calculateTiebreaker(evaluateSlots(board(t)));
+
+test("동점: A플러시가 K플러시를 이긴다 (최고 카드 우선)", () => {
+  // 같은 문양 5장 플러시, 나머지 5칸은 조합 없는 낮은 카드들로 채움
+  const aFlush = ["As", "9s", "7s", "5s", "3s", "2h", "4d", "6c", "8h", "Td"];
+  const kFlush = ["Ks", "9s", "7s", "5s", "3s", "2h", "4d", "6c", "8h", "Td"];
+  assert.equal(score(aFlush), score(kFlush)); // 총점 동일 (둘 다 플러시 20점)
+  assert.ok(tb(aFlush) > tb(kFlush)); // A 하이가 우선
+});
+
+test("동점: 최고 카드가 같으면 다음 카드로 비교한다", () => {
+  const high = ["As", "Ks", "7s", "5s", "3s", "2h", "4d", "6c", "8h", "Td"];
+  const low = ["As", "Qs", "7s", "5s", "3s", "2h", "4d", "6c", "8h", "Td"];
+  assert.equal(score(high), score(low));
+  assert.ok(tb(high) > tb(low)); // 둘째 카드 K > Q
+});
+
+test("동점: 높은 트리플이 낮은 트리플을 이긴다", () => {
+  const aces = ["Ah", "As", "Ad", "5s", "3c", "2h", "4d", "6c", "8h", "Td"];
+  const kings = ["Kh", "Ks", "Kd", "5s", "3c", "2h", "4d", "6c", "8h", "Td"];
+  assert.equal(score(aces), score(kings)); // 둘 다 트리플 10점
+  assert.ok(tb(aces) > tb(kings));
+});

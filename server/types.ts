@@ -74,3 +74,14 @@ export const PARTICIPATION_REWARD = 10;
 
 export const rewardForRank = (rank: number): number =>
   RANK_REWARDS[rank] ?? PARTICIPATION_REWARD;
+
+// --- 출시 기념 코인 2배 이벤트 ---
+// 2026-08-19 22:00 ~ 22:30 (KST) 동안 멀티플레이 순위 보상 2배.
+// KST 22:00 = UTC 13:00. (월은 0부터 — 7 = 8월)
+const COIN_EVENT_START_UTC = Date.UTC(2026, 7, 19, 13, 0, 0);
+const COIN_EVENT_END_UTC = Date.UTC(2026, 7, 19, 13, 30, 0);
+
+export const coinEventMultiplier = (): number => {
+  const now = Date.now();
+  return now >= COIN_EVENT_START_UTC && now < COIN_EVENT_END_UTC ? 2 : 1;
+};

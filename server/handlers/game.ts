@@ -1,6 +1,6 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { CardData } from "../types";
-import { rewardForRank } from "../types";
+import { rewardForRank, coinEventMultiplier } from "../types";
 import { rooms } from "../state";
 import { createGameDeck } from "../deck";
 import { startRoundTimer, checkRoundCompletion } from "../rounds";
@@ -123,8 +123,10 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
       const settledResults = [] as (typeof rankedResults[number] & {
         reward: number;
       })[];
+      // 이벤트 기간(코인 2배)이면 배수 적용 — 결과 화면에도 2배 금액이 그대로 표시된다.
+      const multiplier = coinEventMultiplier();
       for (const r of rankedResults) {
-        const reward = rewardForRank(r.rank);
+        const reward = rewardForRank(r.rank) * multiplier;
         const p = room.players.find((pl) => pl.id === r.playerId);
         if (p?.userId && reward > 0) await addCoins(p.userId, reward);
         settledResults.push({ ...r, reward });
