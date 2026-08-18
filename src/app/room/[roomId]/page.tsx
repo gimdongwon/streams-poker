@@ -35,6 +35,7 @@ const RoomPage = () => {
     resetRoom,
     initSocketListeners,
     cleanupSocketListeners,
+    quickMatch,
   } = useRoomStore();
 
   const { user, isLoggedIn, hasHydrated } = useAuthStore();
@@ -198,6 +199,14 @@ const RoomPage = () => {
           <span className="text-haze">{t("coins.reward.roomHint")}</span>
           <span className="text-neon-cyan font-medium">{t("coins.reward.detail")}</span>
         </div>
+
+        {/* 퀵매치: 자동 시작 안내 */}
+        {quickMatch && status === "waiting" && (
+          <div className="mt-2 flex items-center justify-center gap-2 text-xs text-neon-magenta">
+            <Spinner size="sm" colorClassName="border-neon-magenta" />
+            {t("room.quick.matching")}
+          </div>
+        )}
       </motion.div>
 
       {/* 에러 메시지 (플레이어가 정상 접속 중이면 표시하지 않음) */}
@@ -380,6 +389,11 @@ const PlayerRow = ({ player, index, isCurrentPlayer, myUserId }: PlayerRowProps)
           </span>
           {isCurrentPlayer && (
             <span className="text-neon-cyan text-[10px]">{t("common.you")}</span>
+          )}
+          {player.isBot && (
+            <span className="bg-edge text-haze text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+              🤖 BOT
+            </span>
           )}
           {player.isHost && (
             <span className="bg-neon-magenta/20 text-neon-magenta text-[10px] px-1.5 py-0.5 rounded-full font-medium">

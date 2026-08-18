@@ -3,7 +3,7 @@ import type { Player, PlayerResult, ResultCombo, RoomStatus } from "@/types/room
 import { MAX_PLAYERS } from "@/types/room";
 import type { Card } from "@/types/card";
 import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
-import { logRoomCreate, logRoomJoin } from "@/lib/analytics";
+import { logRoomCreate, logRoomJoin, logEvent } from "@/lib/analytics";
 import { useAuthStore } from "@/stores/authStore";
 import { useGameStore } from "@/stores/gameStore";
 
@@ -41,12 +41,15 @@ type RoomStore = {
   isCreatingRoom: boolean;
   isLoadingRoomList: boolean;
   activeEmotes: ActiveEmote[];
+  // 퀵매치 방 여부 (자동 시작 안내용)
+  quickMatch: boolean;
 
   setNickname: (nickname: string) => void;
   sendEmote: (emoteId: string) => void;
 
   // Socket-based actions
   createRoom: (nickname: string) => void;
+  quickMatchStart: (nickname: string) => void;
   joinRoom: (code: string, nickname: string) => void;
   requestRoomList: () => void;
   toggleReady: () => void;
@@ -125,6 +128,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   isCreatingRoom: false,
   isLoadingRoomList: false,
   activeEmotes: [],
+  quickMatch: false,
 
   setNickname: (nickname: string) => set({ nickname }),
 
@@ -145,6 +149,19 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     logRoomCreate();
     const socket = connectSocket();
     const emit = () => socket.emit("room:create", { nickname });
+    if (socket.connected) {
+      emit();
+    } else {
+      socket.once("connect", emit);
+    }
+  },
+
+  // 퀵매치: 대기 중인 방에 합류하거나 새 방 생성 → 봇 채움 + 자동 시작 (서버 처리)
+  quickMatchStart: (nickname: string) => {
+    set({ isCreatingRoom: true });
+    logEvent("quickmatch_start");
+    const socket = connectSocket();
+    const emit = () => socket.emit("room:quickmatch", { nickname });
     if (socket.connected) {
       emit();
     } else {
@@ -214,6 +231,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       multiDeck: null,
       isConnected: false,
       roundPlacedPlayers: [],
+      quickMatch: false,
     });
   },
 
@@ -247,6 +265,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       error: null,
       isConnected: false,
       roundPlacedPlayers: [],
+      quickMatch: false,
     });
   },
 
@@ -307,17 +326,20 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       useAuthStore.setState({ forcedOut: true });
     });
 
-    socket.on("room:created", ({ code, players, status }) => {
+    socket.on("room:created", ({ code, players, status, quickMatch }) => {
       set({
         roomCode: code,
         players,
         status,
         error: null,
         isCreatingRoom: false,
+        quickMatch: Boolean(quickMatch),
       });
     });
 
-    socket.on("room:updated", ({ code, players, status }) => {
+    socket.on("room:updated", ({ code, players, status, quickMatch }) => {
+      // quickMatch 필드가 온 페이로드에서만 갱신 (수동 emit 페이로드엔 없을 수 있음)
+      if (quickMatch !== undefined) set({ quickMatch: Boolean(quickMatch) });
       if (status === "waiting") {
         // 주의: playerResults 는 여기서 지우지 않는다 — 다른 플레이어가 "대기방으로"를
         // 눌러 방이 리셋돼도, 아직 결과 화면을 보는 사람의 데이터가 사라지면 안 된다.

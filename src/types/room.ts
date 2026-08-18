@@ -34,6 +34,8 @@ export type Player = {
   userId?: string;
   // 소켓 끊김(잠금/백그라운드) 후 재접속 유예 중
   disconnected?: boolean;
+  // 서버 조종 봇 (퀵매치 인원 채움)
+  isBot?: boolean;
 };
 
 export type RoomStatus = "waiting" | "playing" | "finished";

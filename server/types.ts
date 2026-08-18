@@ -10,6 +10,8 @@ export type Player = {
   disconnected?: boolean;
   // 퀵챗(이모트) 스팸 방지용 마지막 전송 시각(ms).
   lastEmoteAt?: number;
+  // 서버가 조종하는 봇 플레이어 (퀵매치 인원 채움용)
+  isBot?: boolean;
 };
 
 // 퀵챗 이모트 ID 목록 — 클라이언트(src/lib/emotes.ts)와 반드시 일치해야 한다.
@@ -62,6 +64,12 @@ export type Room = {
   roundTimer: ReturnType<typeof setTimeout> | null;
   // 현재 라운드가 서버 기준으로 끝나는 시각(ms epoch). 재접속 시 남은 시간 계산용.
   roundEndsAt: number;
+  // 퀵매치 방 (봇 채움 + 자동 시작 대상)
+  quickMatch?: boolean;
+  // 봇 채움 예약 타이머
+  botFillTimer?: ReturnType<typeof setTimeout> | null;
+  // 봇별 보드 상태 (botId -> slots)
+  botBoards?: Map<string, (CardData | null)[]>;
 };
 
 // 방 최대 정원 — 클라이언트(src/types/room.ts MAX_PLAYERS)와 일치해야 한다.

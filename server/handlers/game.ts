@@ -1,11 +1,8 @@
 import type { Server as SocketIOServer, Socket } from "socket.io";
 import type { CardData } from "../types";
-import { rewardForRank, coinEventMultiplier } from "../types";
 import { rooms } from "../state";
-import { createGameDeck } from "../deck";
-import { startRoundTimer, checkRoundCompletion } from "../rounds";
-import { scoreBoard } from "../scoring";
-import { addCoins } from "../coins";
+import { checkRoundCompletion } from "../rounds";
+import { startGameForRoom, recordResult } from "../gameflow";
 
 export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   // -- Game: Start --
@@ -27,18 +24,7 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
       return;
     }
 
-    const deck = createGameDeck();
-    room.deck = deck;
-    room.status = "playing";
-    room.results = [];
-    room.currentRound = 1;
-    room.roundPlacements = new Set();
-
-    io.to(code).emit("game:started", { deck });
-
-    startRoundTimer(io, room, code);
-
-    console.log(`[Game] Started in ${code} with ${room.players.length} players`);
+    startGameForRoom(io, room, code);
   });
 
   // -- Game: Round Placed --
@@ -80,61 +66,6 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
     const player = room.players.find((p) => p.socketId === socket.id);
     if (!player) return;
 
-    const alreadySubmitted = room.results.some((r) => r.playerId === player.id);
-    if (alreadySubmitted) return;
-
-    // 서버 권위 재계산
-    const { score, tiebreaker, combinationNames, combinations } = scoreBoard(slots);
-
-    room.results.push({
-      playerId: player.id,
-      nickname: player.nickname,
-      score,
-      combinationNames,
-      tiebreaker,
-      slots,
-      combinations,
-    });
-
-    console.log(`[Game] ${player.nickname} scored (server): ${score}pts (tb:${tiebreaker}) (${room.results.length}/${room.players.length})`);
-
-    if (room.results.length === room.players.length) {
-      room.results.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return b.tiebreaker - a.tiebreaker;
-      });
-      // 표준 경쟁 순위(1,1,3): 점수+타이브레이커가 완전히 같으면 공동 순위.
-      let lastRank = 0;
-      const rankedResults = room.results.map((r, i) => {
-        const prev = i > 0 ? room.results[i - 1] : null;
-        const tied =
-          prev != null &&
-          prev.score === r.score &&
-          prev.tiebreaker === r.tiebreaker;
-        const rank = tied ? lastRank : i + 1;
-        lastRank = rank;
-        return { ...r, rank };
-      });
-
-      room.status = "finished";
-
-      // 순위별 고정 보상 지급 (시스템 발행 — 베팅/차감 없음, 유저는 잃지 않는다).
-      // 1등 100, 2등 50, 그 외 참가 보상 10. 공동 순위는 같은 보상.
-      const settledResults = [] as (typeof rankedResults[number] & {
-        reward: number;
-      })[];
-      // 이벤트 기간(코인 2배)이면 배수 적용 — 결과 화면에도 2배 금액이 그대로 표시된다.
-      const multiplier = coinEventMultiplier();
-      for (const r of rankedResults) {
-        const reward = rewardForRank(r.rank) * multiplier;
-        const p = room.players.find((pl) => pl.id === r.playerId);
-        if (p?.userId && reward > 0) await addCoins(p.userId, reward);
-        settledResults.push({ ...r, reward });
-      }
-
-      io.to(code).emit("game:results", { results: settledResults });
-
-      console.log(`[Game] All results in for ${code} (rewards granted)`);
-    }
+    await recordResult(io, room, code, player, slots);
   });
 };

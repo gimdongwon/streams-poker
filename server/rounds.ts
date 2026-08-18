@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import type { Room } from "./types";
 import { ROUND_SAFETY_TIMEOUT } from "./state";
+import { scheduleBotTurns, submitBotResults } from "./bots";
 
 export const startRoundTimer = (io: SocketIOServer, room: Room, code: string) => {
   if (room.roundTimer) clearTimeout(room.roundTimer);
@@ -31,6 +32,13 @@ export const advanceRound = (io: SocketIOServer, room: Room, code: string) => {
 
   if (room.currentRound <= 10) {
     startRoundTimer(io, room, code);
+    // 봇들의 이번 라운드 배치 예약
+    scheduleBotTurns(io, room, code);
+  } else {
+    // 10라운드 종료 — 봇들의 최종 보드 제출 (사람은 클라이언트가 제출)
+    submitBotResults(io, room, code).catch((e) =>
+      console.error("[Bot] 결과 제출 실패:", e)
+    );
   }
 };
 

@@ -28,7 +28,7 @@ type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
 const LobbyPage = () => {
   const t = useT();
   const router = useRouter();
-  const { setNickname, createRoom, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList, isCreatingRoom, isLoadingRoomList } = useRoomStore();
+  const { setNickname, createRoom, quickMatchStart, initSocketListeners, roomCode: storeRoomCode, status: roomStatus, isConnected, resetRoom, requestRoomList, roomList, isCreatingRoom, isLoadingRoomList } = useRoomStore();
   const { user, isLoggedIn, hasHydrated } = useAuthStore();
 
   const [mode, setMode] = useState<Mode>("select");
@@ -191,6 +191,13 @@ const LobbyPage = () => {
     initSocketListeners();
     // 소켓 연결 + 방 생성 + 로딩 플래그는 store.createRoom 이 처리한다.
     createRoom(nickname);
+  };
+
+  const handleQuickMatch = () => {
+    if (isCreatingRoom) return;
+    const nickname = user?.nickname ?? "Player";
+    initSocketListeners();
+    quickMatchStart(nickname);
   };
 
   const handleJoinRoom = () => {
@@ -563,6 +570,31 @@ const LobbyPage = () => {
                 className="flex flex-col gap-3 landscape:flex-1 landscape:min-h-0 w-full landscape:max-w-xl landscape:mx-auto justify-center"
               >
                 <div className="flex flex-col gap-3 w-full min-w-0">
+                {/* 바로 대전 (퀵매치) — 사람이 없으면 봇으로 채워 자동 시작 */}
+                <button
+                  onClick={handleQuickMatch}
+                  disabled={isCreatingRoom}
+                  style={{ background: "linear-gradient(135deg, #ff2e97, #2de2e6)" }}
+                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
+                  aria-label={t("lobby.quick.aria")}
+                >
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl w-10 flex items-center justify-center shrink-0">
+                      {isCreatingRoom ? (
+                        <Spinner size="md" colorClassName="border-void" />
+                      ) : (
+                        "⚡"
+                      )}
+                    </span>
+                    <div className="text-left">
+                      <div className="text-base">{t("lobby.quick.title")}</div>
+                      <div className="text-xs font-normal opacity-80">
+                        {t("lobby.quick.desc")}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom}
