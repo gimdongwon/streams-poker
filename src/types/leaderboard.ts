@@ -5,7 +5,7 @@ export type LeaderboardInsert = {
   score: number;
   combinations: string[];
   combination_count: number;
-  mode?: "single" | "multi";
+  mode?: "single" | "multi" | "daily";
   best_combo?: string | null;
   best_combo_rank?: number | null;
 };

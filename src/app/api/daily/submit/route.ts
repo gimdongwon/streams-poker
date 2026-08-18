@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { kstToday } from "@/lib/daily";
+import { submitScore } from "@/lib/leaderboard";
 import { evaluateSlots, calculateTotalScore } from "@/lib/poker/evaluator";
 import type { Card } from "@/types/card";
 import type { Slot, SlotIndex } from "@/types/game";
@@ -49,6 +50,31 @@ export const POST = async (request: NextRequest) => {
       .update({ score, slots, combos, submitted_at: new Date().toISOString() })
       .eq("id", attempt.id);
     if (updErr) throw updErr;
+
+    // 누적 랭킹에도 반영 (leaderboard 테이블, mode="daily") — 실패해도 데일리 제출은 유효.
+    try {
+      const { data: userRow } = await supabase
+        .from("users")
+        .select("nickname")
+        .eq("id", userId)
+        .maybeSingle();
+      const best = results.reduce<(typeof results)[number] | null>(
+        (acc, r) => (acc === null || r.rank < acc.rank ? r : acc),
+        null
+      );
+      await submitScore({
+        user_id: userId,
+        nickname: userRow?.nickname ?? "?",
+        score,
+        combinations: combos,
+        combination_count: combos.length,
+        mode: "daily",
+        best_combo: best?.name ?? null,
+        best_combo_rank: best?.rank ?? null,
+      });
+    } catch (e) {
+      console.error("daily → leaderboard 반영 실패:", e);
+    }
 
     // 참여 보상 지급 (실패해도 제출 자체는 유효)
     let coins: number | null = null;
