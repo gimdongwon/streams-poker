@@ -319,9 +319,17 @@ export const ResultScreen = ({
                 </span>
                 <span className="text-haze text-2xl font-bold">{t("result.pointSuffix")}</span>
               </div>
+              {/* 점수 구성이 한눈에 보이도록 모든 조합을 나열 (BEST 하나만 보여주면 합산이 오해됨) */}
               {combinations.length > 0 && (
-                <div className="mt-2.5 text-[11px] text-haze">
-                  {t("result.best", { name: t(comboKey(combinations[0].type)) })}
+                <div className="mt-2.5 flex flex-col items-center gap-1">
+                  {[...combinations]
+                    .sort((a, b) => b.score - a.score)
+                    .map((c, i) => (
+                      <div key={`${c.type}-${i}`} className="text-[11px]">
+                        <span className="text-snow">{t(comboKey(c.type))}</span>{" "}
+                        <span className="font-extrabold text-neon-cyan">+{c.score}</span>
+                      </div>
+                    ))}
                 </div>
               )}
               {mode === "daily" && dailyInfo && (
