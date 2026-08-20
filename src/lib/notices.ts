@@ -1,25 +1,16 @@
 // 공지사항 목록. 새 공지는 배열 맨 앞에 추가 (id는 고유하게, 날짜 증가).
 // 웹 배포만으로 앱에 즉시 반영된다.
+// autoShow: true 인 공지가 맨 앞에 있을 때만 로비 진입 시 레이어 팝업이 자동으로 뜬다.
+// (이벤트 종료 등으로 팝업을 내리려면 해당 공지를 삭제하거나 autoShow를 빼면 된다)
 export type Notice = {
   id: string; // 고유 ID (예: "2026-08-12-launch")
   date: string; // 표시용 날짜
+  autoShow?: boolean; // 로비 진입 시 자동 팝업 여부 (기본 false — 아이콘으로만 열람)
   title: { ko: string; en: string };
   body: { ko: string; en: string };
 };
 
 export const NOTICES: Notice[] = [
-  {
-    id: "2026-08-19-coin-event",
-    date: "2026.08.19",
-    title: {
-      ko: "🎉 출시 기념 코인 2배 이벤트",
-      en: "🎉 Launch Event: Double Coins",
-    },
-    body: {
-      ko: "8월 19일(수) 밤 10시부터 30분간, 멀티플레이 순위 보상 코인이 2배로 지급됩니다! (1등 +200 / 2등 +100 / 참가 +20)\n\n친구들과 방을 만들어 함께 즐겨보세요. 모아둔 코인의 활용처(상점 등)는 9월 내로 출시될 예정입니다. 많은 참여 부탁드려요!",
-      en: "On Aug 19 (Wed) from 10:00 PM KST, multiplayer rank rewards are DOUBLED for 30 minutes! (1st +200 / 2nd +100 / play +20)\n\nGather your friends and join in. Ways to spend your coins (shop and more) are coming in September!",
-    },
-  },
   {
     id: "2026-08-12-launch",
     date: "2026.08.12",

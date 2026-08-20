@@ -12,6 +12,8 @@ const SESSION_CLOSED_KEY = "tens-notice-closed"; // 이 세션에서 닫음 (재
 // 자동 노출 여부 판단 (로비 진입 시)
 const shouldAutoShow = (): boolean => {
   if (typeof window === "undefined") return false;
+  // 최신 공지가 autoShow일 때만 자동 팝업 (평상시엔 공지 아이콘으로만 열람)
+  if (!latestNotice().autoShow) return false;
   try {
     const hideUntil = parseInt(window.localStorage.getItem(HIDE_UNTIL_KEY) ?? "0", 10) || 0;
     if (Date.now() < hideUntil) return false;
