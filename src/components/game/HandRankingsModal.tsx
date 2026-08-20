@@ -146,6 +146,7 @@ const HandRankingsModal = ({ onClose }: ModalProps) => {
         <div className="px-5 py-3.5 border-t border-edge bg-void/40 shrink-0">
           <h3 className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-1.5">{t("hands.rules.title")}</h3>
           <ul className="text-haze text-[10px] space-y-0.5">
+            <li>• {t("hands.rules.adjacent")}</li>
             <li>• {t("hands.rules.oneCardOneCombo")}</li>
             <li>• {t("hands.rules.straight")}</li>
             <li>• {t("hands.rules.flush")}</li>
