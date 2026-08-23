@@ -44,6 +44,12 @@ export const advanceRound = (io: SocketIOServer, room: Room, code: string) => {
 
 export const checkRoundCompletion = (io: SocketIOServer, room: Room, code: string) => {
   if (room.roundPlacements.size >= room.players.length) {
-    setTimeout(() => advanceRound(io, room, code), 800);
+    // 전원 배치 후 중복 이벤트(재전송 등)로 advance가 두 번 예약되면 라운드를 건너뛴다
+    // → 예약 시점의 라운드를 기억해 그대로일 때만 진행.
+    const round = room.currentRound;
+    setTimeout(() => {
+      if (room.status !== "playing" || room.currentRound !== round) return;
+      advanceRound(io, room, code);
+    }, 800);
   }
 };

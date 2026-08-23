@@ -268,7 +268,16 @@ const RoomPage = () => {
           transition={{ delay: 0.2 }}
           className="flex flex-col gap-2 w-full max-w-sm landscape:w-64 landscape:shrink-0 order-1 landscape:order-2"
         >
-          {isHost ? (
+          {quickMatch ? (
+            // 퀵매치는 서버가 자동 시작 — 수동 시작 버튼을 숨겨 자동 시작과의
+            // 이중 시작(덱 재생성 → 사람/봇 카드 불일치) 여지를 없앤다.
+            <div className="w-full py-5 px-5 text-base font-bold rounded-2xl bg-edge text-haze text-center">
+              <span className="flex items-center justify-center gap-2">
+                <Spinner size="sm" colorClassName="border-haze" />
+                {t("room.quick.autoStart")}
+              </span>
+            </div>
+          ) : isHost ? (
             <button
               onClick={handleStart}
               disabled={!canStart || startPending}

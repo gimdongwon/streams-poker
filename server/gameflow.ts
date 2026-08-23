@@ -15,6 +15,14 @@ export const startGameForRoom = (
   room: Room,
   code: string
 ) => {
+  // 이중 시작 방지: 퀵매치 자동 시작과 방장의 수동 시작이 겹치면
+  // 덱이 재생성되어 사람(첫 덱)과 봇(room.deck)이 서로 다른 카드로 게임하게 된다.
+  if (room.status === "playing") return;
+  if (room.botFillTimer) {
+    clearTimeout(room.botFillTimer);
+    room.botFillTimer = null;
+  }
+
   const deck = createGameDeck();
   room.deck = deck;
   room.status = "playing";

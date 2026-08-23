@@ -29,6 +29,37 @@ const roomState = (room: Room) => ({
   quickMatch: room.quickMatch ?? false,
 });
 
+// 퀵매치 자동 시작 예약: FILL_MS 후 봇으로 인원을 채우고 잠시 뒤 자동 시작.
+// 방 생성 직후와 "대기방으로"(재경기) 양쪽에서 사용. 기존 예약은 교체한다.
+// 시작은 반드시 이 경로(startGameForRoom의 status 가드 포함)로만 일어나
+// 이중 시작 → 덱 재생성 → 사람/봇 카드 불일치를 방지한다.
+const armQuickMatchAutoStart = (io: SocketIOServer, code: string) => {
+  const room = rooms.get(code);
+  if (!room) return;
+  if (room.botFillTimer) clearTimeout(room.botFillTimer);
+
+  room.botFillTimer = setTimeout(() => {
+    const r = rooms.get(code);
+    if (!r || r.status !== "waiting") return;
+    r.botFillTimer = null;
+    const humans = r.players.filter((p) => !p.isBot && !p.disconnected);
+    if (humans.length === 0) return; // 전원 이탈 — 채우지 않음
+
+    while (r.players.length < QUICKMATCH_TARGET) {
+      r.players.push(createBotPlayer(r.players.map((p) => p.nickname)));
+    }
+    io.to(code).emit("room:updated", roomState(r));
+    console.log(`[QuickMatch] Filled ${code} with bots → auto start`);
+
+    setTimeout(() => {
+      const r2 = rooms.get(code);
+      if (!r2 || r2.status !== "waiting") return;
+      if (r2.players.filter((p) => !p.isBot && !p.disconnected).length === 0) return;
+      startGameForRoom(io, r2, code);
+    }, QUICKMATCH_START_DELAY_MS);
+  }, QUICKMATCH_FILL_MS);
+};
+
 // 실제 좌석 제거 + 빈 방 정리 + 라운드 완료 체크 (기존 handleLeave 본문).
 // socketId 기준으로 제거하며, 호출 시점 기준으로 안전하게 동작한다.
 const removePlayerNow = (io: SocketIOServer, code: string, socketId: string) => {
@@ -295,25 +326,7 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
     console.log(`[QuickMatch] Created ${code} by ${nickname}`);
 
     // 3) 일정 시간 후 봇으로 채우고 자동 시작
-    room.botFillTimer = setTimeout(() => {
-      const r = rooms.get(code);
-      if (!r || r.status !== "waiting") return;
-      const humans = r.players.filter((p) => !p.isBot && !p.disconnected);
-      if (humans.length === 0) return; // 전원 이탈 — 채우지 않음
-
-      while (r.players.length < QUICKMATCH_TARGET) {
-        r.players.push(createBotPlayer(r.players.map((p) => p.nickname)));
-      }
-      io.to(code).emit("room:updated", roomState(r));
-      console.log(`[QuickMatch] Filled ${code} with bots → auto start`);
-
-      setTimeout(() => {
-        const r2 = rooms.get(code);
-        if (!r2 || r2.status !== "waiting") return;
-        if (r2.players.filter((p) => !p.isBot && !p.disconnected).length === 0) return;
-        startGameForRoom(io, r2, code);
-      }, QUICKMATCH_START_DELAY_MS);
-    }, QUICKMATCH_FILL_MS);
+    armQuickMatchAutoStart(io, code);
   });
 
   // -- Room: List (public waiting rooms) --
@@ -470,7 +483,11 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
       code,
       players: getPublicPlayers(room.players),
       status: room.status,
+      quickMatch: room.quickMatch ?? false,
     });
+
+    // 퀵매치 방은 재경기도 자동 시작 (수동 시작 버튼 없음)
+    if (room.quickMatch) armQuickMatchAutoStart(io, code);
 
     console.log(`[Room] Play again in ${code}`);
   });

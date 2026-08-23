@@ -9,6 +9,7 @@ export const registerGameHandlers = (io: SocketIOServer, socket: Socket) => {
   socket.on("game:start", async ({ code }: { code: string }) => {
     const room = rooms.get(code);
     if (!room) return;
+    if (room.status === "playing") return; // 이미 시작됨 (자동 시작과의 레이스 방지)
 
     const host = room.players.find((p) => p.socketId === socket.id);
     if (!host?.isHost) {
