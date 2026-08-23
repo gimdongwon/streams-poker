@@ -481,7 +481,7 @@ const LobbyPage = () => {
           className={`order-1 landscape:order-2 flex flex-col ${
             mode === "select"
               ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
-              : "w-full max-w-2xl justify-center landscape:min-h-0"
+              : "w-full max-w-2xl landscape:min-h-0"
           }`}
         >
           {mode !== "select" && (
@@ -565,29 +565,29 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col justify-center w-full"
+                className="flex flex-col justify-center flex-1 min-h-0 w-full"
               >
                 {/* 플레이하기: 싱글/멀티 정사각형 버튼 가운데 배치 */}
-                <div className="grid grid-cols-2 gap-3 w-full max-w-md mx-auto">
+                <div className="grid grid-cols-2 gap-4 w-full max-w-lg mx-auto">
                   <button
                     onClick={handleSinglePlay}
-                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2.5 [@media(max-height:430px)]:gap-1 px-3"
                     aria-label={t("lobby.mode.single.aria")}
                   >
-                    <span className="text-4xl [@media(max-height:430px)]:text-2xl">🎮</span>
-                    <span className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</span>
-                    <span className="text-[11px] font-normal text-haze text-center leading-tight">
+                    <span className="text-5xl [@media(max-height:430px)]:text-2xl">🎮</span>
+                    <span className="text-lg text-neon-cyan">{t("lobby.mode.single.title")}</span>
+                    <span className="text-xs font-normal text-haze text-center leading-tight">
                       {t("lobby.mode.single.desc")}
                     </span>
                   </button>
                   <button
                     onClick={enterMultiplayer}
-                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 flex flex-col items-center justify-center gap-2.5 [@media(max-height:430px)]:gap-1 px-3"
                     aria-label={t("lobby.mode.multi.aria")}
                   >
-                    <span className="text-4xl [@media(max-height:430px)]:text-2xl">👥</span>
-                    <span className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</span>
-                    <span className="text-[11px] font-normal text-haze text-center leading-tight">
+                    <span className="text-5xl [@media(max-height:430px)]:text-2xl">👥</span>
+                    <span className="text-lg text-neon-magenta">{t("lobby.mode.multi.title")}</span>
+                    <span className="text-xs font-normal text-haze text-center leading-tight">
                       {t("lobby.mode.multi.desc")}
                     </span>
                   </button>
@@ -602,10 +602,10 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col justify-center w-full"
+                className="flex flex-col justify-center flex-1 min-h-0 w-full"
               >
                 {/* 멀티: 정사각형 버튼 3개 가운데 배치 (코드 입력은 방 찾기 화면에 통합) */}
-                <div className="grid grid-cols-3 gap-3 w-full max-w-lg landscape:max-w-2xl mx-auto">
+                <div className="grid grid-cols-3 gap-4 w-full max-w-xl landscape:max-w-3xl mx-auto">
                   {/* 바로 대전 (퀵매치) — 사람이 없으면 봇으로 채워 자동 시작 */}
                   <button
                     onClick={handleQuickMatch}
@@ -614,11 +614,11 @@ const LobbyPage = () => {
                     className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
                     aria-label={t("lobby.quick.aria")}
                   >
-                    <span className="text-3xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
+                    <span className="text-4xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
                       {isCreatingRoom ? <Spinner size="md" colorClassName="border-void" /> : "⚡"}
                     </span>
-                    <span className="text-base">{t("lobby.quick.title")}</span>
-                    <span className="text-[10px] font-normal opacity-80 text-center leading-tight">
+                    <span className="text-lg">{t("lobby.quick.title")}</span>
+                    <span className="text-[11px] font-normal opacity-80 text-center leading-tight">
                       {t("lobby.quick.desc")}
                     </span>
                   </button>
@@ -630,13 +630,13 @@ const LobbyPage = () => {
                     className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
                     aria-label={t("lobby.create.aria")}
                   >
-                    <span className="text-3xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
+                    <span className="text-4xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
                       {isCreatingRoom ? <Spinner size="md" colorClassName="border-void" /> : "🏠"}
                     </span>
-                    <span className="text-base">
+                    <span className="text-lg">
                       {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
                     </span>
-                    <span className="text-[10px] font-normal opacity-80 text-center leading-tight">
+                    <span className="text-[11px] font-normal opacity-80 text-center leading-tight">
                       {t("lobby.create.desc")}
                     </span>
                   </button>
@@ -646,9 +646,9 @@ const LobbyPage = () => {
                     className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
                     aria-label={t("lobby.browse.aria")}
                   >
-                    <span className="text-3xl [@media(max-height:430px)]:text-2xl">🔍</span>
-                    <span className="text-base text-neon-cyan">{t("lobby.browse.title")}</span>
-                    <span className="text-[10px] font-normal text-haze text-center leading-tight">
+                    <span className="text-4xl [@media(max-height:430px)]:text-2xl">🔍</span>
+                    <span className="text-lg text-neon-cyan">{t("lobby.browse.title")}</span>
+                    <span className="text-[11px] font-normal text-haze text-center leading-tight">
                       {t("lobby.browse.desc")}
                     </span>
                   </button>
