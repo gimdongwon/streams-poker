@@ -5,7 +5,8 @@ import type { Namespace } from "./common";
 export const misc: Namespace = {
   ko: {
     "notice.title": "공지사항",
-    "notice.hideToday": "하루동안 보지 않기",
+    "notice.dismiss": "다시 보지 않기",
+    "notice.back": "목록으로",
     "reward.appOnly.title": "앱에서만 보상받기가 가능해요",
     "reward.appOnly.desc":
       "일일 보상은 TENTENS 앱에서 받을 수 있어요. 앱에서는 연속 출석 보너스도 쌓입니다!",
@@ -32,7 +33,8 @@ export const misc: Namespace = {
   },
   en: {
     "notice.title": "Notice",
-    "notice.hideToday": "Hide for a day",
+    "notice.dismiss": "Don't show again",
+    "notice.back": "Back to list",
     "reward.appOnly.title": "Rewards are app-only",
     "reward.appOnly.desc":
       "Daily rewards can be claimed in the TENTENS app — where your streak bonus grows too!",

@@ -27,8 +27,16 @@ type DailyBoard = {
   my: { played: boolean; submitted: boolean; score: number | null; rank: number | null; total: number | null } | null;
 };
 
-// 오늘(KST) 내가 획득한 점수/코인/판수
-type TodayStats = { score: number; gamesPlayed: number; coins: number | null };
+// 오늘(KST) 내가 획득한 점수/코인/판수 + 오늘 점수 랭킹
+type TodayEntry = { rank: number; user_id: string; nickname: string; score: number; games: number };
+type TodayStats = {
+  score: number;
+  gamesPlayed: number;
+  coins: number | null;
+  myRank: number | null;
+  total: number;
+  entries: TodayEntry[];
+};
 
 export const Leaderboard = ({
   highlightNickname,
@@ -261,6 +269,77 @@ export const Leaderboard = ({
                 </p>
               </div>
             </div>
+            {/* 오늘 점수 랭킹 (유저별 오늘 획득 합산) */}
+            {today.entries.length > 0 && (
+              <div className="space-y-1.5 max-h-[36vh] overflow-y-auto mt-3">
+                {today.entries.map((e) => {
+                  const isMe = e.user_id === highlightUserId;
+                  return (
+                    <div
+                      key={e.user_id}
+                      className={`grid grid-cols-[2rem_1fr_3rem_4.5rem] gap-2 px-3 py-2.5 rounded-lg items-center ${
+                        isMe
+                          ? "bg-neon-cyan/15 border border-neon-cyan/40"
+                          : e.rank <= 3
+                          ? "bg-edge/50"
+                          : ""
+                      }`}
+                    >
+                      <span className="text-sm">
+                        {e.rank <= 3 ? (
+                          MEDAL[e.rank - 1]
+                        ) : (
+                          <span className="text-haze text-xs font-mono">{e.rank}</span>
+                        )}
+                      </span>
+                      <span
+                        className={`text-sm font-medium truncate ${
+                          isMe ? "text-neon-cyan" : "text-snow"
+                        }`}
+                      >
+                        {e.nickname}
+                        {isMe && (
+                          <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
+                            {t("common.me")}
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-right text-haze text-xs">
+                        {t("unit.games", { n: e.games })}
+                      </span>
+                      <span className="text-right font-bold text-sm text-snow">
+                        {e.score.toLocaleString()}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {/* 내 순위 (10위 밖) */}
+                {today.myRank != null &&
+                  today.myRank > 10 &&
+                  !today.entries.some((e) => e.user_id === highlightUserId) && (
+                    <>
+                      <div className="text-center text-haze text-[10px] tracking-[2px] py-0.5">⋯</div>
+                      <div className="grid grid-cols-[2rem_1fr_3rem_4.5rem] gap-2 px-3 py-2.5 rounded-lg items-center bg-neon-cyan/15 border border-neon-cyan/40">
+                        <span className="text-haze text-xs font-mono">{today.myRank}</span>
+                        <span className="text-sm font-medium truncate text-neon-cyan">
+                          {user?.nickname}
+                          <span className="text-[8px] text-void bg-neon-cyan px-1.5 py-0.5 rounded-full ml-1.5 font-bold align-middle">
+                            {t("common.me")}
+                          </span>
+                        </span>
+                        <span className="text-right text-haze text-xs">
+                          {t("unit.games", { n: today.gamesPlayed })}
+                        </span>
+                        <span className="text-right font-bold text-sm text-snow">
+                          {today.score.toLocaleString()}
+                        </span>
+                      </div>
+                    </>
+                  )}
+              </div>
+            )}
+
             <p className="text-haze/70 text-[10px] text-center mt-3">
               {t("leaderboard.today.hint")}
             </p>
