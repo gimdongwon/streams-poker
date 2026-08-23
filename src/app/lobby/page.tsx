@@ -481,7 +481,7 @@ const LobbyPage = () => {
           className={`order-1 landscape:order-2 flex flex-col ${
             mode === "select"
               ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
-              : "w-full max-w-2xl"
+              : "w-full max-w-2xl justify-center landscape:min-h-0"
           }`}
         >
           {mode !== "select" && (
