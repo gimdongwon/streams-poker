@@ -3,6 +3,7 @@ import type { Namespace } from "./common";
 // 이 네임스페이스의 문자열. ko/en 양쪽에 같은 키를 추가한다.
 export const lobby: Namespace = {
   ko: {
+    "lobby.section.play": "플레이하기",
     "lobby.quick.title": "바로 대전",
     "lobby.quick.desc": "즉시 매칭 — 상대가 없으면 봇과 대결",
     "lobby.quick.aria": "바로 대전 시작",
@@ -62,6 +63,7 @@ export const lobby: Namespace = {
     "lobby.join.error.empty": "방 코드를 입력해주세요",
   },
   en: {
+    "lobby.section.play": "Play",
     "lobby.quick.title": "Quick Match",
     "lobby.quick.desc": "Instant matching — bots fill in if needed",
     "lobby.quick.aria": "Start quick match",

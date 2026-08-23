@@ -329,14 +329,22 @@ const LobbyPage = () => {
               />
             </button>
             <div className="w-px h-7 bg-edge" />
-            <div className="text-center">
+            {/* 내 랭킹 → 랭킹보드 열기 (로비 하단 랭킹보드 버튼 제거에 따른 진입점) */}
+            <button
+              onClick={() => {
+                setLeaderboardTab("all");
+                setShowLeaderboard(true);
+              }}
+              className="text-center hover:opacity-80 active:scale-95 transition"
+              aria-label={t("lobby.leaderboard.view")}
+            >
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
                 {t("lobby.rank.myRank")}
               </p>
               <p className="text-snow font-bold text-base leading-tight">
                 {rankInfo.rank != null ? `#${rankInfo.rank}` : "-"}
               </p>
-            </div>
+            </button>
             <div className="w-px h-7 bg-edge" />
             <div className="text-center">
               <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium">
@@ -428,49 +436,12 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
-      {/* 메인 콘텐츠: 좌(게임규칙/리더보드) + 우(모드 버튼) */}
-      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center landscape:flex-1 landscape:min-h-0 landscape:max-h-[360px]">
-        {/* 좌측: 규칙 + 리더보드 (모드 선택 화면에서만 노출 → 멀티 진입 시 스크롤 감소) */}
-        {mode === "select" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-center"
-        >
-          <div className="bg-panel/40 rounded-2xl p-4 [@media(max-height:430px)]:p-2.5 border border-edge mb-3 [@media(max-height:430px)]:mb-2">
-            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5 [@media(max-height:430px)]:mb-1.5">{t("lobby.rules.title")}</h3>
-            <ul className="text-haze text-xs space-y-1.5 [@media(max-height:430px)]:space-y-1">
-              <li>{t("lobby.rules.item1")}</li>
-              <li>{t("lobby.rules.item2")}</li>
-              <li>{t("lobby.rules.item3")}</li>
-              <li>{t("lobby.rules.item4")}</li>
-              <li>{t("lobby.rules.item5")}</li>
-            </ul>
-          </div>
-
-          <button
-            onClick={() => {
-              setLeaderboardTab("all");
-              setShowLeaderboard(true);
-            }}
-            className="w-full py-3 [@media(max-height:430px)]:py-2 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
-            aria-label={t("lobby.leaderboard.view")}
-            tabIndex={0}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <span>🏆</span>
-              <span>{t("lobby.leaderboard.view")}</span>
-            </div>
-          </button>
-        </motion.div>
-        )}
-
-        {/* 우측: 모드 선택 버튼 */}
+      {/* 메인 콘텐츠: 오늘의 덱 + 플레이하기 (규칙/랭킹보드 카드는 제거 — 랭킹은 상단 헤더에서) */}
+      <div className="flex flex-col gap-5 w-full max-w-4xl items-center justify-center landscape:flex-1 landscape:min-h-0">
         <div
-          className={`order-1 landscape:order-2 flex flex-col ${
+          className={`flex flex-col ${
             mode === "select"
-              ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
+              ? "w-full max-w-md landscape:max-w-lg"
               : "w-full max-w-2xl"
           }`}
         >
@@ -491,9 +462,9 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col gap-4 landscape:flex-1"
+                className="flex flex-col gap-4 [@media(max-height:430px)]:gap-2.5"
               >
-                {/* 오늘의 덱 — 미도전이면 도전, 완료면 오늘의 랭킹보드 열기 */}
+                {/* 분류 1: 오늘의 덱 — 미도전이면 도전, 완료면 오늘의 랭킹보드 열기 */}
                 <button
                   onClick={handleDailyPlay}
                   style={
@@ -501,7 +472,7 @@ const LobbyPage = () => {
                       ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
                       : undefined
                   }
-                  className={`w-full py-4 px-5 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
+                  className={`w-full py-4 [@media(max-height:430px)]:py-3 px-5 font-bold rounded-2xl transition-all active:scale-95 ${
                     dailyStatus && !dailyStatus.played
                       ? "text-void hover:scale-[1.02]"
                       : "bg-panel border border-yellow-400/50 text-snow hover:bg-edge"
@@ -526,37 +497,36 @@ const LobbyPage = () => {
                   </div>
                 </button>
 
-                <button
-                  onClick={handleSinglePlay}
-                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.mode.single.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
-                    <div className="text-left">
-                      <div className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</div>
-                      <div className="text-xs font-normal text-haze">
+                {/* 분류 2: 플레이하기 — 싱글/멀티 정사각형 버튼 */}
+                <div>
+                  <p className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">
+                    {t("lobby.section.play")}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={handleSinglePlay}
+                      className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                      aria-label={t("lobby.mode.single.aria")}
+                    >
+                      <span className="text-4xl [@media(max-height:430px)]:text-2xl">🎮</span>
+                      <span className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</span>
+                      <span className="text-[11px] font-normal text-haze text-center leading-tight">
                         {t("lobby.mode.single.desc")}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={enterMultiplayer}
-                  className="w-full py-4 px-5 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.mode.multi.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl text-neon-magenta w-10 text-center shrink-0">👥</span>
-                    <div className="text-left">
-                      <div className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</div>
-                      <div className="text-xs font-normal text-haze">
+                      </span>
+                    </button>
+                    <button
+                      onClick={enterMultiplayer}
+                      className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                      aria-label={t("lobby.mode.multi.aria")}
+                    >
+                      <span className="text-4xl [@media(max-height:430px)]:text-2xl">👥</span>
+                      <span className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</span>
+                      <span className="text-[11px] font-normal text-haze text-center leading-tight">
                         {t("lobby.mode.multi.desc")}
-                      </div>
-                    </div>
+                      </span>
+                    </button>
                   </div>
-                </button>
+                </div>
               </motion.div>
             )}
 
@@ -567,94 +537,71 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col gap-3 landscape:flex-1 landscape:min-h-0 w-full landscape:max-w-xl landscape:mx-auto justify-center"
+                className="flex flex-col justify-center w-full"
               >
-                <div className="flex flex-col gap-3 w-full min-w-0">
-                {/* 바로 대전 (퀵매치) — 사람이 없으면 봇으로 채워 자동 시작 */}
-                <button
-                  onClick={handleQuickMatch}
-                  disabled={isCreatingRoom}
-                  style={{ background: "linear-gradient(135deg, #ff2e97, #2de2e6)" }}
-                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.quick.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl w-10 flex items-center justify-center shrink-0">
-                      {isCreatingRoom ? (
-                        <Spinner size="md" colorClassName="border-void" />
-                      ) : (
-                        "⚡"
-                      )}
+                {/* 멀티: 정사각형 버튼 4개 가운데 배치 (세로: 2×2 / 가로: 4열) */}
+                <div className="grid grid-cols-2 landscape:grid-cols-4 gap-3 w-full max-w-md landscape:max-w-3xl mx-auto">
+                  {/* 바로 대전 (퀵매치) — 사람이 없으면 봇으로 채워 자동 시작 */}
+                  <button
+                    onClick={handleQuickMatch}
+                    disabled={isCreatingRoom}
+                    style={{ background: "linear-gradient(135deg, #ff2e97, #2de2e6)" }}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.quick.aria")}
+                  >
+                    <span className="text-3xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
+                      {isCreatingRoom ? <Spinner size="md" colorClassName="border-void" /> : "⚡"}
                     </span>
-                    <div className="text-left">
-                      <div className="text-base">{t("lobby.quick.title")}</div>
-                      <div className="text-xs font-normal opacity-80">
-                        {t("lobby.quick.desc")}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={handleCreateRoom}
-                  disabled={isCreatingRoom}
-                  style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-3 px-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.create.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl w-10 flex items-center justify-center shrink-0">
-                      {isCreatingRoom ? (
-                        <Spinner size="md" colorClassName="border-void" />
-                      ) : (
-                        "🏠"
-                      )}
+                    <span className="text-base">{t("lobby.quick.title")}</span>
+                    <span className="text-[10px] font-normal opacity-80 text-center leading-tight">
+                      {t("lobby.quick.desc")}
                     </span>
-                    <div className="text-left">
-                      <div className="text-base">
-                        {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
-                      </div>
-                      <div className="text-xs font-normal opacity-80">
-                        {t("coins.reward.detail")}
-                      </div>
-                    </div>
-                  </div>
-                </button>
+                  </button>
 
-                <button
-                  onClick={() => {
-                    setMode("multi_join");
-                    setError("");
-                  }}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.join.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🚪</span>
-                    <div className="text-left">
-                      <div className="text-base text-neon-cyan">{t("lobby.join.title")}</div>
-                      <div className="text-xs font-normal text-haze">
-                        {t("lobby.join.desc")}
-                      </div>
-                    </div>
-                  </div>
-                </button>
+                  <button
+                    onClick={handleCreateRoom}
+                    disabled={isCreatingRoom}
+                    style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 text-void font-bold rounded-2xl transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.create.aria")}
+                  >
+                    <span className="text-3xl [@media(max-height:430px)]:text-2xl flex items-center justify-center">
+                      {isCreatingRoom ? <Spinner size="md" colorClassName="border-void" /> : "🏠"}
+                    </span>
+                    <span className="text-base">
+                      {isCreatingRoom ? t("lobby.create.creating") : t("lobby.create.title")}
+                    </span>
+                    <span className="text-[10px] font-normal opacity-80 text-center leading-tight">
+                      {t("lobby.create.desc")}
+                    </span>
+                  </button>
 
-                <button
-                  onClick={handleBrowseRooms}
-                  className="w-full py-3 px-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
-                  aria-label={t("lobby.browse.aria")}
-                >
-                  <div className="flex items-center justify-start gap-2.5">
-                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🔍</span>
-                    <div className="text-left">
-                      <div className="text-base text-neon-cyan">{t("lobby.browse.title")}</div>
-                      <div className="text-xs font-normal text-haze">
-                        {t("lobby.browse.desc")}
-                      </div>
-                    </div>
-                  </div>
-                </button>
+                  <button
+                    onClick={() => {
+                      setMode("multi_join");
+                      setError("");
+                    }}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.join.aria")}
+                  >
+                    <span className="text-3xl [@media(max-height:430px)]:text-2xl">🚪</span>
+                    <span className="text-base text-neon-cyan">{t("lobby.join.title")}</span>
+                    <span className="text-[10px] font-normal text-haze text-center leading-tight">
+                      {t("lobby.join.desc")}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={handleBrowseRooms}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.browse.aria")}
+                  >
+                    <span className="text-3xl [@media(max-height:430px)]:text-2xl">🔍</span>
+                    <span className="text-base text-neon-cyan">{t("lobby.browse.title")}</span>
+                    <span className="text-[10px] font-normal text-haze text-center leading-tight">
+                      {t("lobby.browse.desc")}
+                    </span>
+                  </button>
                 </div>
               </motion.div>
             )}
