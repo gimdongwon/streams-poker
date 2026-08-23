@@ -23,7 +23,7 @@ import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
-type Mode = "select" | "multi_create" | "multi_join" | "multi_browse";
+type Mode = "select" | "play" | "multi_create" | "multi_join" | "multi_browse";
 
 const LobbyPage = () => {
   const t = useT();
@@ -219,6 +219,8 @@ const LobbyPage = () => {
     if (mode === "multi_join" || mode === "multi_browse") {
       setMode("multi_create");
       setJoinCode("");
+    } else if (mode === "multi_create") {
+      setMode("play");
     } else {
       setMode("select");
     }
@@ -436,12 +438,49 @@ const LobbyPage = () => {
         )}
       </AnimatePresence>
 
-      {/* 메인 콘텐츠: 오늘의 덱 + 플레이하기 (규칙/랭킹보드 카드는 제거 — 랭킹은 상단 헤더에서) */}
-      <div className="flex flex-col gap-5 w-full max-w-4xl items-center justify-center landscape:flex-1 landscape:min-h-0">
+      {/* 메인 콘텐츠: 좌(게임규칙/랭킹보드) + 우(오늘의 덱/플레이하기) */}
+      <div className="flex flex-col landscape:flex-row gap-5 landscape:gap-6 w-full max-w-4xl landscape:items-stretch items-center justify-center landscape:flex-1 landscape:min-h-0 landscape:max-h-[360px]">
+        {/* 좌측: 규칙 + 랭킹보드 (모드 선택 화면에서만 노출 → 하위 화면 진입 시 스크롤 감소) */}
+        {mode === "select" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-center"
+        >
+          <div className="bg-panel/40 rounded-2xl p-4 [@media(max-height:430px)]:p-2.5 border border-edge mb-3 [@media(max-height:430px)]:mb-2">
+            <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5 [@media(max-height:430px)]:mb-1.5">{t("lobby.rules.title")}</h3>
+            <ul className="text-haze text-xs space-y-1.5 [@media(max-height:430px)]:space-y-1">
+              <li>{t("lobby.rules.item1")}</li>
+              <li>{t("lobby.rules.item2")}</li>
+              <li>{t("lobby.rules.item3")}</li>
+              <li>{t("lobby.rules.item4")}</li>
+              <li>{t("lobby.rules.item5")}</li>
+            </ul>
+          </div>
+
+          <button
+            onClick={() => {
+              setLeaderboardTab("all");
+              setShowLeaderboard(true);
+            }}
+            className="w-full py-3 [@media(max-height:430px)]:py-2 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
+            aria-label={t("lobby.leaderboard.view")}
+            tabIndex={0}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span>🏆</span>
+              <span>{t("lobby.leaderboard.view")}</span>
+            </div>
+          </button>
+        </motion.div>
+        )}
+
+        {/* 우측: 모드 선택 버튼 */}
         <div
-          className={`flex flex-col ${
+          className={`order-1 landscape:order-2 flex flex-col ${
             mode === "select"
-              ? "w-full max-w-md landscape:max-w-lg"
+              ? "w-full max-w-md landscape:w-80 landscape:shrink-0"
               : "w-full max-w-2xl"
           }`}
         >
@@ -462,9 +501,9 @@ const LobbyPage = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
-                className="flex flex-col gap-4 [@media(max-height:430px)]:gap-2.5"
+                className="flex flex-col gap-4 landscape:flex-1"
               >
-                {/* 분류 1: 오늘의 덱 — 미도전이면 도전, 완료면 오늘의 랭킹보드 열기 */}
+                {/* 오늘의 덱 — 미도전이면 도전, 완료면 오늘의 랭킹보드 열기 */}
                 <button
                   onClick={handleDailyPlay}
                   style={
@@ -472,7 +511,7 @@ const LobbyPage = () => {
                       ? { background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }
                       : undefined
                   }
-                  className={`w-full py-4 [@media(max-height:430px)]:py-3 px-5 font-bold rounded-2xl transition-all active:scale-95 ${
+                  className={`w-full py-4 px-5 font-bold rounded-2xl transition-all active:scale-95 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center ${
                     dailyStatus && !dailyStatus.played
                       ? "text-void hover:scale-[1.02]"
                       : "bg-panel border border-yellow-400/50 text-snow hover:bg-edge"
@@ -497,35 +536,61 @@ const LobbyPage = () => {
                   </div>
                 </button>
 
-                {/* 분류 2: 플레이하기 — 싱글/멀티 정사각형 버튼 */}
-                <div>
-                  <p className="text-haze text-[10px] tracking-[2px] uppercase font-bold mb-2">
-                    {t("lobby.section.play")}
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={handleSinglePlay}
-                      className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
-                      aria-label={t("lobby.mode.single.aria")}
-                    >
-                      <span className="text-4xl [@media(max-height:430px)]:text-2xl">🎮</span>
-                      <span className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</span>
-                      <span className="text-[11px] font-normal text-haze text-center leading-tight">
-                        {t("lobby.mode.single.desc")}
-                      </span>
-                    </button>
-                    <button
-                      onClick={enterMultiplayer}
-                      className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
-                      aria-label={t("lobby.mode.multi.aria")}
-                    >
-                      <span className="text-4xl [@media(max-height:430px)]:text-2xl">👥</span>
-                      <span className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</span>
-                      <span className="text-[11px] font-normal text-haze text-center leading-tight">
-                        {t("lobby.mode.multi.desc")}
-                      </span>
-                    </button>
+                {/* 플레이하기 — 싱글/멀티 선택 화면으로 */}
+                <button
+                  onClick={() => {
+                    setError("");
+                    setMode("play");
+                  }}
+                  className="w-full py-4 px-5 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 landscape:flex-1 landscape:flex landscape:flex-col landscape:justify-center"
+                  aria-label={t("lobby.play.aria")}
+                >
+                  <div className="flex items-center justify-start gap-2.5">
+                    <span className="text-xl text-neon-cyan w-10 text-center shrink-0">🎮</span>
+                    <div className="text-left">
+                      <div className="text-base text-neon-cyan">{t("lobby.section.play")}</div>
+                      <div className="text-xs font-normal text-haze">
+                        {t("lobby.play.desc")}
+                      </div>
+                    </div>
                   </div>
+                </button>
+              </motion.div>
+            )}
+
+            {mode === "play" && (
+              <motion.div
+                key="play"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
+                className="flex flex-col justify-center w-full"
+              >
+                {/* 플레이하기: 싱글/멀티 정사각형 버튼 가운데 배치 */}
+                <div className="grid grid-cols-2 gap-3 w-full max-w-md mx-auto">
+                  <button
+                    onClick={handleSinglePlay}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.mode.single.aria")}
+                  >
+                    <span className="text-4xl [@media(max-height:430px)]:text-2xl">🎮</span>
+                    <span className="text-base text-neon-cyan">{t("lobby.mode.single.title")}</span>
+                    <span className="text-[11px] font-normal text-haze text-center leading-tight">
+                      {t("lobby.mode.single.desc")}
+                    </span>
+                  </button>
+                  <button
+                    onClick={enterMultiplayer}
+                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-magenta/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-magenta/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
+                    aria-label={t("lobby.mode.multi.aria")}
+                  >
+                    <span className="text-4xl [@media(max-height:430px)]:text-2xl">👥</span>
+                    <span className="text-base text-neon-magenta">{t("lobby.mode.multi.title")}</span>
+                    <span className="text-[11px] font-normal text-haze text-center leading-tight">
+                      {t("lobby.mode.multi.desc")}
+                    </span>
+                  </button>
                 </div>
               </motion.div>
             )}
