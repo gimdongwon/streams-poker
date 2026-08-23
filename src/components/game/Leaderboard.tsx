@@ -10,11 +10,13 @@ import { Spinner } from "@/components/common/Spinner";
 import { useT } from "@/lib/i18n/useT";
 import { comboKey, comboTypeFromKoName } from "@/lib/i18n/combo";
 
+type LeaderboardTab = "today" | "all" | "daily";
+
 type LeaderboardProps = {
   highlightNickname?: string;
   highlightUserId?: string;
-  // 초기 탭 (기본: 누적). 오늘의 덱 완료 후 진입 시 "daily"로 열 수 있다.
-  initialTab?: "all" | "daily";
+  // 초기 탭 (기본: 오늘). 오늘의 덱 완료 후 진입 시 "daily"로 열 수 있다.
+  initialTab?: LeaderboardTab;
 };
 
 const MEDAL = ["🥇", "🥈", "🥉"] as const;
@@ -25,10 +27,13 @@ type DailyBoard = {
   my: { played: boolean; submitted: boolean; score: number | null; rank: number | null; total: number | null } | null;
 };
 
+// 오늘(KST) 내가 획득한 점수/코인/판수
+type TodayStats = { score: number; gamesPlayed: number; coins: number | null };
+
 export const Leaderboard = ({
   highlightNickname,
   highlightUserId,
-  initialTab = "all",
+  initialTab = "today",
 }: LeaderboardProps) => {
   const t = useT();
   const user = useAuthStore((s) => s.user);
@@ -37,8 +42,32 @@ export const Leaderboard = ({
   const [hasError, setHasError] = useState(false);
   const [sort, setSort] = useState<LeaderboardSort>("score");
   const [myRank, setMyRank] = useState<UserRankInfo | null>(null);
-  const [tab, setTab] = useState<"all" | "daily">(initialTab);
+  const [tab, setTab] = useState<LeaderboardTab>(initialTab);
   const [dailyBoard, setDailyBoard] = useState<DailyBoard | null>(null);
+  const [today, setToday] = useState<TodayStats | null>(null);
+  const [todayError, setTodayError] = useState(false);
+
+  // 오늘 탭: 내 오늘 획득 통계 (탭 진입 시 로드, 새로고침으로 재조회)
+  useEffect(() => {
+    if (tab !== "today" || today) return;
+    const uid = highlightUserId ?? user?.id;
+    if (!uid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setTodayError(false);
+        const res = await fetchWithTimeout(`/api/me/today?userId=${uid}`);
+        if (!res.ok) throw new Error("failed");
+        const data: TodayStats = await res.json();
+        if (!cancelled) setToday(data);
+      } catch {
+        if (!cancelled) setTodayError(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, today, highlightUserId, user?.id]);
 
   // 오늘의 덱 랭킹 (탭 진입 시 1회 로드)
   useEffect(() => {
@@ -131,9 +160,9 @@ export const Leaderboard = ({
           <span>🏆</span> {t("leaderboard.title")}
         </h3>
         <div className="flex items-center gap-1.5">
-          {/* 누적 / 오늘 탭 */}
+          {/* 오늘 / 누적 / 오늘의 덱 탭 */}
           <div className="flex rounded-lg border border-edge overflow-hidden text-[10px] font-medium">
-            {(["all", "daily"] as const).map((tb) => (
+            {(["today", "all", "daily"] as const).map((tb) => (
               <button
                 key={tb}
                 onClick={() => setTab(tb)}
@@ -167,7 +196,13 @@ export const Leaderboard = ({
             </div>
           )}
           <button
-            onClick={tab === "all" ? handleFetch : () => setDailyBoard(null)}
+            onClick={
+              tab === "all"
+                ? handleFetch
+                : tab === "today"
+                ? () => setToday(null)
+                : () => setDailyBoard(null)
+            }
             className="text-haze hover:text-snow text-xs transition-colors px-2 py-1 rounded-lg hover:bg-edge"
             aria-label={t("common.refresh")}
             tabIndex={0}
@@ -177,7 +212,61 @@ export const Leaderboard = ({
         </div>
       </div>
 
-      {tab === "daily" ? (
+      {tab === "today" ? (
+        todayError ? (
+          <div className="py-8 text-center">
+            <p className="text-haze text-sm mb-2">{t("leaderboard.error")}</p>
+            <button
+              onClick={() => {
+                setTodayError(false);
+                setToday(null);
+              }}
+              className="text-neon-cyan hover:text-neon-cyan/80 text-sm transition-colors"
+              aria-label={t("common.retry")}
+            >
+              {t("common.retry")}
+            </button>
+          </div>
+        ) : !today ? (
+          <div className="flex items-center justify-center gap-2 py-8 text-haze text-sm">
+            <Spinner size="sm" />
+            {t("common.loading")}
+          </div>
+        ) : (
+          <div>
+            {/* 오늘(KST) 내가 획득한 기록 */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <div className="bg-edge/40 border border-edge rounded-xl py-4 px-2 text-center">
+                <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium mb-1">
+                  {t("leaderboard.today.score")}
+                </p>
+                <p className="text-snow font-extrabold text-2xl leading-tight">
+                  {today.score.toLocaleString()}
+                </p>
+              </div>
+              <div className="bg-edge/40 border border-edge rounded-xl py-4 px-2 text-center">
+                <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium mb-1">
+                  {t("leaderboard.today.coins")}
+                </p>
+                <p className="text-yellow-400 font-extrabold text-2xl leading-tight">
+                  {today.coins != null ? `+${today.coins.toLocaleString()}` : "-"}
+                </p>
+              </div>
+              <div className="bg-edge/40 border border-edge rounded-xl py-4 px-2 text-center">
+                <p className="text-haze text-[9px] tracking-[2px] uppercase font-medium mb-1">
+                  {t("leaderboard.today.games")}
+                </p>
+                <p className="text-neon-cyan font-extrabold text-2xl leading-tight">
+                  {today.gamesPlayed.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <p className="text-haze/70 text-[10px] text-center mt-3">
+              {t("leaderboard.today.hint")}
+            </p>
+          </div>
+        )
+      ) : tab === "daily" ? (
         !dailyBoard ? (
           <div className="flex items-center justify-center gap-2 py-8 text-haze text-sm">
             <Spinner size="sm" />

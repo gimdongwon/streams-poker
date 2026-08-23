@@ -7,6 +7,7 @@ import { useRoomStore } from "@/stores/roomStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGameStore } from "@/stores/gameStore";
 import { Leaderboard } from "@/components/game/Leaderboard";
+import { HandRankingsModal } from "@/components/game/HandRankingsModal";
 import { Logo } from "@/components/common/Logo";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { TierBadge } from "@/components/common/TierBadge";
@@ -35,7 +36,9 @@ const LobbyPage = () => {
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [leaderboardTab, setLeaderboardTab] = useState<"all" | "daily">("all");
+  const [leaderboardTab, setLeaderboardTab] = useState<"today" | "all" | "daily">("today");
+  const [showHands, setShowHands] = useState(false);
+  const [showNotice, setShowNotice] = useState(false);
   const [tierUp, setTierUp] = useState<Tier | null>(null);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
@@ -233,6 +236,14 @@ const LobbyPage = () => {
       {/* 공지사항 (조건 충족 시 자동 노출 — 하루 보지 않기/세션 닫기 반영) */}
       <NoticeModal auto />
 
+      {/* 공지사항 (좌측 버튼으로 수동 열기) */}
+      <NoticeModal open={showNotice} onClose={() => setShowNotice(false)} />
+
+      {/* 족보 (좌측 버튼으로 열기) */}
+      <AnimatePresence>
+        {showHands && <HandRankingsModal onClose={() => setShowHands(false)} />}
+      </AnimatePresence>
+
       {/* 티어 승급 축하 */}
       <TierUpModal tier={tierUp} onClose={() => setTierUp(null)} />
 
@@ -334,7 +345,7 @@ const LobbyPage = () => {
             {/* 내 랭킹 → 랭킹보드 열기 (로비 하단 랭킹보드 버튼 제거에 따른 진입점) */}
             <button
               onClick={() => {
-                setLeaderboardTab("all");
+                setLeaderboardTab("today");
                 setShowLeaderboard(true);
               }}
               className="text-center hover:opacity-80 active:scale-95 transition"
@@ -446,7 +457,7 @@ const LobbyPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-center"
+          className="landscape:flex-1 landscape:min-w-0 w-full max-w-md landscape:max-w-none order-2 landscape:order-1 landscape:flex landscape:flex-col landscape:justify-start landscape:overflow-y-auto"
         >
           <div className="bg-panel/40 rounded-2xl p-4 [@media(max-height:430px)]:p-2.5 border border-edge mb-3 [@media(max-height:430px)]:mb-2">
             <h3 className="text-haze text-xs tracking-[2px] uppercase font-bold mb-2.5 [@media(max-height:430px)]:mb-1.5">{t("lobby.rules.title")}</h3>
@@ -461,7 +472,7 @@ const LobbyPage = () => {
 
           <button
             onClick={() => {
-              setLeaderboardTab("all");
+              setLeaderboardTab("today");
               setShowLeaderboard(true);
             }}
             className="w-full py-3 [@media(max-height:430px)]:py-2 px-3 bg-panel hover:bg-edge text-snow text-sm font-medium rounded-2xl transition-all border border-edge active:scale-95"
@@ -473,6 +484,43 @@ const LobbyPage = () => {
               <span>{t("lobby.leaderboard.view")}</span>
             </div>
           </button>
+
+          {/* 공지사항 / 족보 / 개인정보처리방침 (랭킹보드 버튼과 동일 스타일, 한 줄 3분할) */}
+          <div className="grid grid-cols-3 gap-2 mt-3 [@media(max-height:430px)]:mt-2">
+            <button
+              onClick={() => setShowNotice(true)}
+              className="py-3 [@media(max-height:430px)]:py-2 px-2 bg-panel hover:bg-edge text-snow text-xs font-medium rounded-2xl transition-all border border-edge active:scale-95"
+              aria-label={t("notice.title")}
+              tabIndex={0}
+            >
+              <div className="flex items-center justify-center gap-1.5">
+                <span>📢</span>
+                <span className="truncate">{t("notice.title")}</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setShowHands(true)}
+              className="py-3 [@media(max-height:430px)]:py-2 px-2 bg-panel hover:bg-edge text-snow text-xs font-medium rounded-2xl transition-all border border-edge active:scale-95"
+              aria-label={t("hands.button")}
+              tabIndex={0}
+            >
+              <div className="flex items-center justify-center gap-1.5">
+                <span>🃏</span>
+                <span className="truncate">{t("hands.title")}</span>
+              </div>
+            </button>
+            <button
+              onClick={() => router.push("/privacy")}
+              className="py-3 [@media(max-height:430px)]:py-2 px-2 bg-panel hover:bg-edge text-snow text-xs font-medium rounded-2xl transition-all border border-edge active:scale-95"
+              aria-label={t("hands.privacy")}
+              tabIndex={0}
+            >
+              <div className="flex items-center justify-center gap-1.5">
+                <span>🛡️</span>
+                <span className="truncate">{t("lobby.privacy.short")}</span>
+              </div>
+            </button>
+          </div>
         </motion.div>
         )}
 

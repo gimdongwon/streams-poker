@@ -72,7 +72,7 @@ type ModalProps = {
   onClose: () => void;
 };
 
-const HandRankingsModal = ({ onClose }: ModalProps) => {
+export const HandRankingsModal = ({ onClose }: ModalProps) => {
   const t = useT();
   return (
     <motion.div

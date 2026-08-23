@@ -4,6 +4,7 @@ import type { Namespace } from "./common";
 export const lobby: Namespace = {
   ko: {
     "lobby.section.play": "플레이하기",
+    "lobby.privacy.short": "개인정보",
     "lobby.play.desc": "싱글 또는 멀티 플레이",
     "lobby.play.aria": "플레이하기 — 싱글/멀티 선택",
     "lobby.quick.title": "바로 대전",
@@ -66,6 +67,7 @@ export const lobby: Namespace = {
   },
   en: {
     "lobby.section.play": "Play",
+    "lobby.privacy.short": "Privacy",
     "lobby.play.desc": "Single or multiplayer",
     "lobby.play.aria": "Play — choose single or multiplayer",
     "lobby.quick.title": "Quick Match",

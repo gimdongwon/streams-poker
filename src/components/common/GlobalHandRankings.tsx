@@ -7,7 +7,8 @@ import { HandRankingsButton } from "@/components/game/HandRankingsModal";
 import { NoticeModal } from "@/components/common/NoticeModal";
 import { useT } from "@/lib/i18n/useT";
 
-const HIDDEN_PATHS = ["/login", "/register"];
+// 로비는 좌측 컬럼에 공지/족보/개인정보 버튼이 있어 플로팅 아이콘을 숨긴다.
+const HIDDEN_PATHS = ["/login", "/register", "/lobby"];
 
 export const GlobalHandRankings = () => {
   const pathname = usePathname();
