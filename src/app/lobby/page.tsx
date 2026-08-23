@@ -23,7 +23,7 @@ import { FullScreenLoading } from "@/components/common/FullScreenLoading";
 import type { UserRankInfo } from "@/types/leaderboard";
 import type { FriendRequest } from "@/lib/friends";
 
-type Mode = "select" | "play" | "multi_create" | "multi_join" | "multi_browse";
+type Mode = "select" | "play" | "multi_create" | "multi_browse";
 
 const LobbyPage = () => {
   const t = useT();
@@ -216,7 +216,7 @@ const LobbyPage = () => {
 
   const handleBack = () => {
     setError("");
-    if (mode === "multi_join" || mode === "multi_browse") {
+    if (mode === "multi_browse") {
       setMode("multi_create");
       setJoinCode("");
     } else if (mode === "multi_create") {
@@ -604,8 +604,8 @@ const LobbyPage = () => {
                 transition={{ duration: 0.12 }}
                 className="flex flex-col justify-center w-full"
               >
-                {/* 멀티: 정사각형 버튼 4개 가운데 배치 (세로: 2×2 / 가로: 4열) */}
-                <div className="grid grid-cols-2 landscape:grid-cols-4 gap-3 w-full max-w-md landscape:max-w-3xl mx-auto">
+                {/* 멀티: 정사각형 버튼 3개 가운데 배치 (코드 입력은 방 찾기 화면에 통합) */}
+                <div className="grid grid-cols-3 gap-3 w-full max-w-lg landscape:max-w-2xl mx-auto">
                   {/* 바로 대전 (퀵매치) — 사람이 없으면 봇으로 채워 자동 시작 */}
                   <button
                     onClick={handleQuickMatch}
@@ -642,21 +642,6 @@ const LobbyPage = () => {
                   </button>
 
                   <button
-                    onClick={() => {
-                      setMode("multi_join");
-                      setError("");
-                    }}
-                    className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
-                    aria-label={t("lobby.join.aria")}
-                  >
-                    <span className="text-3xl [@media(max-height:430px)]:text-2xl">🚪</span>
-                    <span className="text-base text-neon-cyan">{t("lobby.join.title")}</span>
-                    <span className="text-[10px] font-normal text-haze text-center leading-tight">
-                      {t("lobby.join.desc")}
-                    </span>
-                  </button>
-
-                  <button
                     onClick={handleBrowseRooms}
                     className="aspect-square [@media(max-height:430px)]:aspect-auto [@media(max-height:430px)]:py-4 bg-panel border border-neon-cyan/60 text-snow font-bold rounded-2xl transition-all active:scale-95 hover:bg-neon-cyan/10 flex flex-col items-center justify-center gap-2 [@media(max-height:430px)]:gap-1 px-2"
                     aria-label={t("lobby.browse.aria")}
@@ -680,6 +665,32 @@ const LobbyPage = () => {
                 transition={{ duration: 0.12 }}
                 className="flex flex-col gap-3"
               >
+                {/* 코드로 참여 (기존 '방 참여하기' 통합 — 텍스트로 코드만 받은 경우의 진입로) */}
+                <div className="flex gap-2">
+                  <input
+                    id="room-code"
+                    type="text"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleJoinRoom();
+                    }}
+                    placeholder={t("lobby.join.placeholder")}
+                    maxLength={6}
+                    aria-label={t("lobby.join.label")}
+                    className="flex-1 min-w-0 px-3 py-2.5 bg-void border border-edge rounded-xl text-snow text-center text-base font-mono tracking-[0.25em] placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors uppercase"
+                  />
+                  <button
+                    onClick={handleJoinRoom}
+                    disabled={joinCode.length < 6}
+                    style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                    className="shrink-0 py-2.5 px-4 text-void text-sm font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={t("lobby.join.submitAria")}
+                  >
+                    {t("lobby.join.submit")}
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <span className="text-haze text-[10px] tracking-[2px] uppercase font-medium">
                     {t("lobby.browse.openRooms")}
@@ -736,47 +747,6 @@ const LobbyPage = () => {
               </motion.div>
             )}
 
-            {mode === "multi_join" && (
-              <motion.div
-                key="join"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.12 }}
-                className="flex flex-col gap-3"
-              >
-                <div>
-                  <label
-                    htmlFor="room-code"
-                    className="block text-haze text-[10px] tracking-[2px] uppercase mb-1.5 font-medium"
-                  >
-                    {t("lobby.join.label")}
-                  </label>
-                  <input
-                    id="room-code"
-                    type="text"
-                    value={joinCode}
-                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleJoinRoom();
-                    }}
-                    placeholder={t("lobby.join.placeholder")}
-                    maxLength={6}
-                    className="w-full px-4 py-3 bg-void border border-edge rounded-xl text-snow text-center text-xl font-mono tracking-[0.3em] placeholder-haze/60 focus:outline-none focus:border-neon-cyan transition-colors uppercase"
-                  />
-                </div>
-
-                <button
-                  onClick={handleJoinRoom}
-                  disabled={joinCode.length < 6}
-                  style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
-                  className="w-full py-3 px-4 text-void text-sm font-bold rounded-2xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label={t("lobby.join.submitAria")}
-                >
-                  {t("lobby.join.submit")}
-                </button>
-              </motion.div>
-            )}
           </AnimatePresence>
         </div>
       </div>
