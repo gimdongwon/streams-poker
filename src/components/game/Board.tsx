@@ -24,6 +24,8 @@ type BoardProps = {
   size?: CardSize;
   showHeader?: boolean;
   showComboLabels?: boolean;
+  // 튜토리얼: 추천 슬롯 반짝임 (빈 슬롯만)
+  pulseSlots?: number[];
 };
 
 export const Board = ({
@@ -34,6 +36,7 @@ export const Board = ({
   size = "md",
   showHeader = true,
   showComboLabels = true,
+  pulseSlots = [],
 }: BoardProps) => {
   const t = useT();
   const getHighlight = (slotIndex: number) => {
@@ -71,6 +74,7 @@ export const Board = ({
             highlight={getHighlight(slot.index)}
             size={size}
             showLabel={showComboLabels}
+            pulse={pulseSlots.includes(slot.index)}
           />
         ))}
       </div>

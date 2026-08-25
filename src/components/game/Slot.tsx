@@ -22,6 +22,8 @@ type SlotProps = {
   highlight?: HighlightInfo | null;
   size?: CardSize;
   showLabel?: boolean;
+  // 튜토리얼 등에서 추천 슬롯을 반짝여 안내 (빈 슬롯일 때만 적용)
+  pulse?: boolean;
 };
 
 const EMPTY_SIZE_MAP: Record<CardSize, string> = {
@@ -38,7 +40,7 @@ const BADGE_SIZE_MAP: Record<CardSize, string> = {
   lg: "w-6 h-6 text-xs -top-2 -right-1",
 };
 
-export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabel = true }: SlotProps) => {
+export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabel = true, pulse = false }: SlotProps) => {
   const t = useT();
   const hasCard = slot.card !== null;
 
@@ -97,7 +99,9 @@ export const Slot = ({ slot, isActive, onPlace, highlight, size = "xs", showLabe
       whileHover={isActive ? { scale: 1.05 } : {}}
       whileTap={isActive ? { scale: 0.95 } : {}}
       className={`${EMPTY_SIZE_MAP[size]} rounded-lg border-2 border-dashed flex items-center justify-center relative transition-colors ${
-        isActive
+        pulse && isActive
+          ? "border-neon-magenta bg-neon-magenta/15 cursor-pointer animate-pulse ring-2 ring-neon-magenta/60"
+          : isActive
           ? "border-neon-cyan bg-neon-cyan/10 cursor-pointer hover:bg-neon-cyan/20"
           : "border-edge bg-panel/40 cursor-not-allowed"
       }`}

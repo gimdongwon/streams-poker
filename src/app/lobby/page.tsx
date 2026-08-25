@@ -15,6 +15,7 @@ import { TierProgress } from "@/components/common/TierProgress";
 import { TierUpModal } from "@/components/common/TierUpModal";
 import { NoticeModal } from "@/components/common/NoticeModal";
 import { getTier, TIERS, type Tier } from "@/lib/tier";
+import { isTutorialDone, wasTutorialPrompted, markTutorialPrompted } from "@/lib/tutorial";
 import { DailyRewardButton } from "@/components/common/DailyRewardButton";
 import { Spinner } from "@/components/common/Spinner";
 import { registerPushForUser } from "@/lib/native";
@@ -39,6 +40,14 @@ const LobbyPage = () => {
   const [leaderboardTab, setLeaderboardTab] = useState<"today" | "all" | "daily">("today");
   const [showHands, setShowHands] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
+  const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
+
+  // 첫 방문이면 튜토리얼 제안 (1회만, 언제나 건너뛰기 가능)
+  useEffect(() => {
+    if (isTutorialDone() || wasTutorialPrompted()) return;
+    const timer = setTimeout(() => setShowTutorialPrompt(true), 600);
+    return () => clearTimeout(timer);
+  }, []);
   const [tierUp, setTierUp] = useState<Tier | null>(null);
   const [rankInfo, setRankInfo] = useState<UserRankInfo | null>(null);
   const [rankLoading, setRankLoading] = useState(true);
@@ -242,6 +251,57 @@ const LobbyPage = () => {
       {/* 족보 (좌측 버튼으로 열기) */}
       <AnimatePresence>
         {showHands && <HandRankingsModal onClose={() => setShowHands(false)} />}
+      </AnimatePresence>
+
+      {/* 첫 방문 튜토리얼 제안 */}
+      <AnimatePresence>
+        {showTutorialPrompt && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex items-center justify-center px-8 bg-void/70 safe-pad"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("tutorial.prompt.title")}
+          >
+            <motion.div
+              className="w-full max-w-sm bg-panel border border-edge rounded-2xl shadow-2xl p-6 text-center"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            >
+              <span className="text-4xl block mb-3">🎓</span>
+              <h2 className="text-snow text-base font-extrabold mb-1.5">
+                {t("tutorial.prompt.title")}
+              </h2>
+              <p className="text-haze text-xs leading-relaxed mb-5">
+                {t("tutorial.prompt.body")}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    markTutorialPrompted();
+                    setShowTutorialPrompt(false);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-edge text-haze hover:text-snow hover:bg-edge text-xs font-medium transition"
+                >
+                  {t("tutorial.prompt.skip")}
+                </button>
+                <button
+                  onClick={() => {
+                    markTutorialPrompted();
+                    router.push("/tutorial");
+                  }}
+                  style={{ background: "linear-gradient(135deg, #2de2e6, #ff2e97)" }}
+                  className="flex-1 py-2.5 rounded-xl text-void text-xs font-extrabold transition active:scale-95"
+                >
+                  {t("tutorial.prompt.start")}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* 티어 승급 축하 */}
@@ -468,6 +528,13 @@ const LobbyPage = () => {
               <li>{t("lobby.rules.item4")}</li>
               <li>{t("lobby.rules.item5")}</li>
             </ul>
+            <button
+              onClick={() => router.push("/tutorial")}
+              className="mt-2.5 text-neon-cyan hover:text-neon-cyan/80 text-xs font-medium transition-colors"
+              aria-label={t("tutorial.replay")}
+            >
+              {t("tutorial.replay")}
+            </button>
           </div>
 
           <button
