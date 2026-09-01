@@ -288,7 +288,8 @@ export const GameScreen = ({
       {mode === "multi" && <EmoteLayer />}
       <div className="flex items-center justify-between w-full max-w-3xl py-1 mb-2">
         <div className="flex items-center gap-2">
-          <Logo size="sm" />
+          {/* 오늘의 덱 진행 중엔 로고 링크도 비활성 (이탈 방지) */}
+          <Logo size="sm" link={mode !== "daily"} />
           <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded">
             {mode === "multi"
               ? t("game.mode.multi")
@@ -300,13 +301,16 @@ export const GameScreen = ({
         <div className="flex items-center gap-1">
           <RoundInfo currentRound={currentRound} />
           <MuteButton />
-          <button
-            onClick={() => setShowQuitConfirm(true)}
-            aria-label={t("game.quit")}
-            className="w-7 h-7 rounded-lg border border-edge bg-panel/60 text-haze hover:text-snow hover:bg-edge transition flex items-center justify-center text-sm leading-none active:scale-95"
-          >
-            ✕
-          </button>
+          {/* 오늘의 덱은 시작 시 도전권이 소진되므로 진행 중 종료 불가 (종료 버튼 미노출) */}
+          {mode !== "daily" && (
+            <button
+              onClick={() => setShowQuitConfirm(true)}
+              aria-label={t("game.quit")}
+              className="w-7 h-7 rounded-lg border border-edge bg-panel/60 text-haze hover:text-snow hover:bg-edge transition flex items-center justify-center text-sm leading-none active:scale-95"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
