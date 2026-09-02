@@ -288,8 +288,8 @@ export const GameScreen = ({
       {mode === "multi" && <EmoteLayer />}
       <div className="flex items-center justify-between w-full max-w-3xl py-1 mb-2">
         <div className="flex items-center gap-2">
-          {/* 오늘의 덱 진행 중엔 로고 링크도 비활성 (이탈 방지) */}
-          <Logo size="sm" link={mode !== "daily"} />
+          {/* 게임 중엔 로고 링크 비활성 — 이탈은 ✕(확인 모달) 경로로만 (데일리는 그마저 없음) */}
+          <Logo size="sm" link={false} />
           <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded">
             {mode === "multi"
               ? t("game.mode.multi")
