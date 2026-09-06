@@ -363,6 +363,10 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         playerResults: [],
         roundPlacedPlayers: [],
       });
+      // 게임 화면이 이미 떠 있는 상태(이전 판 결과/진행 중)에서 새 판이 시작되면
+      // GameScreen의 phase-idle 가드 때문에 새 덱이 반영되지 않아
+      // "이전 판 덱으로 플레이"되는 문제가 있었다 → 항상 새 덱으로 즉시 시작.
+      useGameStore.getState().startGameWithDeck(deck);
     });
 
     socket.on("game:playerPlaced", ({ placedPlayers }: { round: number; placedPlayers: RoundPlacedPlayer[]; totalPlayers: number }) => {

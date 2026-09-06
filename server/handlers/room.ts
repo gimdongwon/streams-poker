@@ -462,6 +462,9 @@ export const registerRoomHandlers = (io: SocketIOServer, socket: Socket) => {
   socket.on("room:playAgain", ({ code }: { code: string }) => {
     const room = rooms.get(code);
     if (!room) return;
+    // 게임 진행 중엔 무시 — 백그라운드에 있다 돌아온 유저가 이전 판 결과 화면에서
+    // "대기방으로"를 누르면 진행 중인 새 판이 리셋되며 덱이 뒤섞이던 문제 방지.
+    if (room.status === "playing") return;
 
     if (room.roundTimer) {
       clearTimeout(room.roundTimer);

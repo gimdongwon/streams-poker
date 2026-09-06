@@ -163,9 +163,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     get().stopTimer();
 
+    // 스냅샷은 같은 방(code)+같은 라운드일 때만 복원하되, "같은 덱"인지도 확인한다.
+    // (한 방에서 여러 판을 하면 code가 같아 이전 판 스냅샷이 걸릴 수 있음 → 이전 판 카드 복원 방지)
     const snapshot = readBoardSnapshot(code);
+    const sameDeck =
+      snapshot != null &&
+      snapshot.deck.length === deck.length &&
+      snapshot.deck.every((c, i) => c.id === deck[i].id);
     const slots =
-      snapshot && snapshot.code === code && snapshot.currentRound === currentRound
+      snapshot && sameDeck && snapshot.code === code && snapshot.currentRound === currentRound
         ? snapshot.slots
         : createEmptySlots();
 
