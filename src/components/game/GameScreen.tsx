@@ -397,7 +397,8 @@ export const GameScreen = ({
 
                 {/* 플레이어 배치 현황 */}
                 <div className="bg-gray-800/90 rounded-xl p-3 backdrop-blur-sm min-w-[160px]">
-                  <div className="space-y-1.5">
+                  {/* 인원이 많으면(최대 15명) 목록이 화면을 넘어가므로 이너 스크롤 */}
+                  <div className="space-y-1.5 max-h-[26vh] landscape:max-h-[32vh] overflow-y-auto pr-1">
                     {players.map((p) => {
                       const placed = roundPlacedPlayers.some((rp) => rp.id === p.id);
                       return (

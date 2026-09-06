@@ -418,10 +418,11 @@ export const ResultScreen = ({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="landscape:w-[26%] flex flex-col shrink-0"
+            className="landscape:w-[26%] flex flex-col shrink-0 landscape:min-h-0"
           >
-            <span className="text-haze text-[10px] tracking-[2px] mb-1">{t("result.ranking")}</span>
-              <div className="flex flex-col gap-1.5">
+            <span className="text-haze text-[10px] tracking-[2px] mb-1 shrink-0">{t("result.ranking")}</span>
+              {/* 인원이 많으면(최대 15명) 순위 리스트 이너 스크롤 */}
+              <div className="flex flex-col gap-1.5 overflow-y-auto min-h-0 max-h-[40vh] landscape:max-h-none landscape:flex-1 pr-0.5">
                 {playerResults.map((r) => {
                   const isSel = (selected?.playerId ?? null) === (r.playerId ?? null);
                   const medal =
