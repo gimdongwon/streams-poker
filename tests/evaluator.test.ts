@@ -139,3 +139,19 @@ test("동점: 높은 트리플이 낮은 트리플을 이긴다", () => {
   assert.equal(score(aces), score(kings)); // 둘 다 트리플 10점
   assert.ok(tb(aces) > tb(kings));
 });
+
+// ── 조커 배분: 3장 묶음에 그리디하게 쓰지 않고 총점 최대 배분 선택 ──
+test("조커를 페어에 써서 풀하우스 완성 (6,6,* 트리플보다 T,* 페어 + JJJ 풀하우스가 높음)", () => {
+  // 실사용 리포트 보드: 4♠ A♦ 7♦ 6♥ 6♠ / * T♦ J♠ J♦ J♣
+  // 그리디(트리플 우선)면 6,6,*(10) + J,J,J(10) = 20점.
+  // 최적은 J트리플 + T,* 페어 = 풀하우스(24) + 6,6 원페어(2) = 26점.
+  const b = ["4s", "Ad", "7d", "6h", "6s", "*", "Td", "Js", "Jd", "Jc"];
+  assert.equal(score(b), V.full_house + V.one_pair);
+  assert.deepEqual(names(b).sort(), ["full_house", "one_pair"]);
+});
+
+test("조커 트리플이 최선이면 여전히 트리플로 쓴다", () => {
+  // 6,6,* 외에 조합 재료가 없으면 트리플(10)이 페어(2)보다 낫다
+  const b = ["6h", "6s", "*", "2c", "9d", "4h", "Ts", "Qd", "Kc", "3s"];
+  assert.equal(score(b), V.triple);
+});

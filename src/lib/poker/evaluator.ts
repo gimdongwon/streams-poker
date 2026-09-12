@@ -229,10 +229,14 @@ const findFlushes = (
 };
 
 // ─── 숫자 기반 조합: 인접 슬롯만 허용 (조커 포함 가능) ───
+// jokerInSets=false 면 트리플/포카드에 조커를 쓰지 않는다 (페어에는 허용).
+// 그리디 탐색이 조커를 3장 묶음에 먼저 소비해 풀하우스(트리플+조커 페어) 같은
+// 더 높은 배분을 놓치는 경우가 있어, 두 변형을 모두 평가해 최고 총점을 채택한다.
 
 const findNumberCombinations = (
   slots: Slot[],
-  usedCardIds: Set<string>
+  usedCardIds: Set<string>,
+  jokerInSets = true
 ): ScoredCombination[] => {
   const results: ScoredCombination[] = [];
   const localUsed = new Set<string>();
@@ -261,6 +265,9 @@ const findNumberCombinations = (
         normalCards.push(slot.card as NormalCard);
       }
     }
+
+    // 조커를 3장 이상 묶음에 쓰지 않는 변형
+    if (!jokerInSets && size >= 3 && normalCards.length < size) return null;
 
     const ranks = new Set(normalCards.map((c) => c.rank));
     if (ranks.size > 1) return null;
@@ -388,30 +395,47 @@ const buildFromStraight = (
       straight.type === "straight_flush";
   }
 
+  // 플러시 우선/숫자 우선 × 조커 3장 묶음 허용/금지 — 4가지 변형 중 최고 총점 채택.
+  const buildVariant = (flushFirst: boolean, jokerInSets: boolean): ScoredCombination[] => {
+    const used = new Set(baseUsed);
+    const combos: ScoredCombination[] = [];
+    if (flushFirst) {
+      const flush = findFlushes(slots, used);
+      if (flush.length > 0) {
+        combos.push(flush[0]);
+        flush[0].cards.forEach((c) => used.add(c.id));
+      }
+      combos.push(...findNumberCombinations(slots, used, jokerInSets));
+    } else {
+      const numbers = findNumberCombinations(slots, used, jokerInSets);
+      combos.push(...numbers);
+      numbers.forEach((c) => c.cards.forEach((card) => used.add(card.id)));
+      const flush = findFlushes(slots, used);
+      if (flush.length > 0) combos.push(flush[0]);
+    }
+    return combos;
+  };
+
   if (hasStraightFlush) {
-    return [...baseCombos, ...findNumberCombinations(slots, baseUsed)];
+    const a = findNumberCombinations(slots, baseUsed, true);
+    const b = findNumberCombinations(slots, baseUsed, false);
+    return [...baseCombos, ...(sumScore(a) >= sumScore(b) ? a : b)];
   }
 
-  // 플러시 vs 숫자 조합 최적화 (두 순서 모두 시도)
-  const usedA = new Set(baseUsed);
-  const flushA = findFlushes(slots, usedA);
-  const combosA: ScoredCombination[] = [];
-  if (flushA.length > 0) {
-    combosA.push(flushA[0]);
-    flushA[0].cards.forEach((c) => usedA.add(c.id));
+  let best: ScoredCombination[] = [];
+  let bestScore = -1;
+  for (const flushFirst of [true, false]) {
+    for (const jokerInSets of [true, false]) {
+      const combos = buildVariant(flushFirst, jokerInSets);
+      const sc = sumScore(combos);
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = combos;
+      }
+    }
   }
-  combosA.push(...findNumberCombinations(slots, usedA));
-  const scoreA = sumScore(combosA);
 
-  const usedB = new Set(baseUsed);
-  const numberB = findNumberCombinations(slots, usedB);
-  const combosB: ScoredCombination[] = [...numberB];
-  numberB.forEach((c) => c.cards.forEach((card) => usedB.add(card.id)));
-  const flushB = findFlushes(slots, usedB);
-  if (flushB.length > 0) combosB.push(flushB[0]);
-  const scoreB = sumScore(combosB);
-
-  return [...baseCombos, ...(scoreA >= scoreB ? combosA : combosB)];
+  return [...baseCombos, ...best];
 };
 
 const evaluateWithStraightCandidates = (
