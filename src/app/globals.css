@@ -67,6 +67,19 @@ body {
   overscroll-behavior: contain;
 }
 
+/* 랜딩(/) 키보드 포커스 링 + 모션 최소화 설정 존중 */
+.landing :focus-visible {
+  outline: 2px solid var(--tens-cyan);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 /* ==== 네이티브 앱 전용 (CapacitorBootstrap 이 body 에 .is-native 부여) ====
    게임 앱에서 길게 누르기/드래그 시 텍스트·이미지가 선택/끌리는 웹뷰 기본 동작 차단.
    입력 필드는 예외 (아이디/방 코드 입력에 선택 필요). 웹 브라우저는 영향 없음. */

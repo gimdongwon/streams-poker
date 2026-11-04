@@ -3,7 +3,6 @@ import type { Namespace } from "./common";
 // 루트(/) 마케팅 랜딩 페이지 문자열.
 export const landing: Namespace = {
   ko: {
-    "landing.hero.eyebrow": "1분 전략 카드 게임",
     "landing.hero.title1": "같은 카드,",
     "landing.hero.title2": "다른 전략.",
     "landing.hero.sub":
@@ -14,7 +13,6 @@ export const landing: Namespace = {
     "landing.cta.googleplay": "Google Play (심사 중)",
     "landing.cta.googleplayReady": "Google Play에서 받기",
 
-    "landing.features.label": "기능",
     "landing.features.title": "가볍게 시작해서, 진지하게 겨루기",
     "landing.feat.daily.title": "오늘의 덱",
     "landing.feat.daily.desc":
@@ -25,11 +23,10 @@ export const landing: Namespace = {
     "landing.feat.strategy.title": "배치가 곧 실력",
     "landing.feat.strategy.desc":
       "조합은 인접한 슬롯에서만 성립해요. 지금 좋은 자리와 나중을 위한 자리 — 되돌릴 수 없는 선택이 쌓여 점수가 됩니다.",
-    "landing.feat.rank.title": "랭킹 · 업적 · 보상",
+    "landing.feat.rank.title": "랭킹, 업적, 보상",
     "landing.feat.rank.desc":
       "티어를 올리고, 15종 업적을 모으고, 매일 출석 보상을 받으세요. 코인은 쌓이기만 하고 절대 잃지 않아요.",
 
-    "landing.how.label": "이용 방법",
     "landing.how.title": "10라운드, 딱 1분",
     "landing.how.1.title": "카드를 받아요",
     "landing.how.1.desc": "매 라운드 한 장씩, 모두에게 같은 카드가 공개돼요.",
@@ -38,7 +35,6 @@ export const landing: Namespace = {
     "landing.how.3.title": "족보로 겨뤄요",
     "landing.how.3.desc": "인접한 카드로 완성된 포커 조합이 점수가 됩니다. 최고 총점이 승리!",
 
-    "landing.faq.label": "FAQ",
     "landing.faq.title": "자주 묻는 질문",
     "landing.faq.1.q": "무료인가요?",
     "landing.faq.1.a": "네, 완전 무료예요. 게임 내 결제가 없고 가벼운 광고로 운영됩니다.",
@@ -54,7 +50,6 @@ export const landing: Namespace = {
     "landing.shots.gameplay": "10칸 보드에 카드를 배치하는 실제 게임 화면",
     "landing.shots.multi": "친구와 실시간 대전 — 초대 링크로 바로 참여",
     "landing.shots.ranking": "랭킹보드 — 누적·오늘의 덱 순위 경쟁",
-    "landing.guide.label": "가이드",
     "landing.guide.title": "더 높은 점수를 위한 전략",
     "landing.guide.read": "읽어보기",
     "landing.guide.scoring.title": "포커 족보 점수 계산, 이렇게 됩니다",
@@ -68,7 +63,6 @@ export const landing: Namespace = {
     "landing.footer.privacy": "개인정보처리방침",
   },
   en: {
-    "landing.hero.eyebrow": "A 1-minute strategy card game",
     "landing.hero.title1": "Same cards,",
     "landing.hero.title2": "different strategy.",
     "landing.hero.sub":
@@ -79,7 +73,6 @@ export const landing: Namespace = {
     "landing.cta.googleplay": "Google Play (in review)",
     "landing.cta.googleplayReady": "Get it on Google Play",
 
-    "landing.features.label": "Features",
     "landing.features.title": "Easy to start, serious to master",
     "landing.feat.daily.title": "Daily Deck",
     "landing.feat.daily.desc":
@@ -90,11 +83,10 @@ export const landing: Namespace = {
     "landing.feat.strategy.title": "Placement is skill",
     "landing.feat.strategy.desc":
       "Hands only count on adjacent slots. Every irreversible placement is a bet on now versus later.",
-    "landing.feat.rank.title": "Rankings · Achievements",
+    "landing.feat.rank.title": "Rankings and achievements",
     "landing.feat.rank.desc":
       "Climb tiers, collect 15 achievements, claim daily streak rewards. Coins only ever go up — you can't lose them.",
 
-    "landing.how.label": "How it works",
     "landing.how.title": "10 rounds, about a minute",
     "landing.how.1.title": "Get a card",
     "landing.how.1.desc": "One card per round, identical for every player.",
@@ -103,7 +95,6 @@ export const landing: Namespace = {
     "landing.how.3.title": "Score with hands",
     "landing.how.3.desc": "Adjacent cards form poker hands. Highest total wins!",
 
-    "landing.faq.label": "FAQ",
     "landing.faq.title": "Frequently asked questions",
     "landing.faq.1.q": "Is it free?",
     "landing.faq.1.a": "Yes, completely free. No in-app purchases — supported by light ads.",
@@ -119,7 +110,6 @@ export const landing: Namespace = {
     "landing.shots.gameplay": "Actual gameplay — placing cards on the 10-slot board",
     "landing.shots.multi": "Real-time matches — friends join with one invite link",
     "landing.shots.ranking": "Ranking board — all-time and Daily Deck competition",
-    "landing.guide.label": "Guides",
     "landing.guide.title": "Strategy for higher scores",
     "landing.guide.read": "Read",
     "landing.guide.scoring.title": "How poker hand scoring works",
